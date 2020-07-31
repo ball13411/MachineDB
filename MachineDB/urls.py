@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin,name='signin'),
     path('usermanage/', views.usermanage,name='usermanage'),
+    path('resetpassword/', views.resetpassword,name='resetpassword'),
 ]
