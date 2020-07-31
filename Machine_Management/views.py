@@ -8,22 +8,23 @@ User_loinged = None
 
 def signin(request):
     if request.method == "POST":
-        username = request.POST['inputUser']
-        password = request.POST['inputPassword']
-        try:
-            user = User.objects.get(username=username,password=password)
-            now = datetime.datetime.now()
-            print(now)
-            user.last_login_date = now
-            user.save()
-            if user is not None :
-                global User_loinged
-                User_loinged = user
-                print(type(User_loinged.username))
-                if str(User_loinged.role) == "admin" :
-                    return redirect('/usermanage')
-        except Machine_Management.models.User.DoesNotExist:
-            messages.info(request,"username หรือ password ไม่ถูกต้อง")
+        if 'signin' in request.POST:
+            username = request.POST['inputUser']
+            password = request.POST['inputPassword']
+            try:
+                user = User.objects.get(username=username,password=password)
+                now = datetime.datetime.now()
+                print(now)
+                user.last_login_date = now
+                user.save()
+                if user is not None :
+                    global User_loinged
+                    User_loinged = user
+                    print(type(User_loinged.username))
+                    if str(User_loinged.role) == "admin" :
+                        return redirect('/usermanage')
+            except Machine_Management.models.User.DoesNotExist:
+                messages.info(request,"username หรือ password ไม่ถูกต้อง")
 
     return render(request,'signin.html')
 
@@ -75,10 +76,16 @@ def usermanage(request):
                     return redirect('/usermanage')
             else:
                 messages.info(request,"รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบใหม่")
-
+        elif 'signout' in request.POST:
+            User_loinged = None
+        elif 'deleteuser' in request.POST:
+            username = request.POST['deleteuser']
+            user = User.objects.get(username=username)
+            user.delete()
 
     roles = Role.objects.all()
     users = User.objects.all()
     context = {'users':users,
-               'roles':roles}
+               'roles':roles,
+               'User_loinged':User_loinged}
     return render(request,'usermanage.html',context)
