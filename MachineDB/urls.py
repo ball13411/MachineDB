@@ -23,5 +23,6 @@ urlpatterns = [
     path('resetpassword/', views.resetpassword,name='resetpassword'),
     path('adminmanage/', views.adminmanage,name='adminmanage'),
     path('rolemanage/', views.rolemanage,name='rolemanage'),
+    path('screenmanage/', views.screenmanage,name='screenmanage'),
 
 ]

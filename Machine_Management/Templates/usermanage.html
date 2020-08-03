@@ -228,7 +228,7 @@ $(document).ready(function(){
             <div class="navbar-nav">
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link active"><b>User Management</b></a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Management</a>
-                <a href="#" class="nav-item nav-link">Screen Management</a>
+                <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Management</a>
             </div>
             <div class="collapse navbar-collapse" id="navbarCollapse"></div>
                 <form method="POST" action="{% url 'signin' %}">

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Role Management</title>
+<title>Screen Management</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -22,7 +22,7 @@
         $("#setting").on("show.bs.modal", function(event){
             // Get the button that triggered the modal
             var button = $(event.relatedTarget);
-
+    
             // Extract value from the custom data-* attribute
             var titleData = button.data("title");
             $(this).find(".modal-title").text(titleData);
@@ -104,7 +104,7 @@ table.table th i {
     font-size: 13px;
     margin: 0 5px;
     cursor: pointer;
-}
+}	
 table.table td:last-child i {
     opacity: 0.9;
     font-size: 22px;
@@ -170,11 +170,11 @@ table.table .avatar {
 }
 .pagination li a:hover {
     color: #666;
-}
+}	
 .pagination li.active a, .pagination li.active a.page-link {
     background: #837766;
 }
-.pagination li.active a:hover {
+.pagination li.active a:hover {        
     background: #cf152d;
 }
 .pagination li.disabled i {
@@ -226,15 +226,15 @@ $(document).ready(function(){
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
-                <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Management</a>
-                <a href="{% url 'rolemanage' %}" class="nav-item nav-link active"><b>Role Management</b></a>
-                <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Management</a>
+                <a href="{% url 'usermanage' %}" class="nav-item nav-link ">User Management</a>
+                <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Management</a>
+                <a href="{% url 'screenmanage' %}" class="nav-item nav-link active"><b>Screen Management</b></a>
             </div>
             <div class="collapse navbar-collapse" id="navbarCollapse"></div>
                 <form method="POST" action="{% url 'signin' %}">
                     {% csrf_token %}
                     <ul class="nav navbar-nav ml-auto">
-                        <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                        <a href="#" class="nav-item nav-link">{{User_logined.username}}</a>
                         <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                     </ul>
                 </form>
@@ -247,17 +247,17 @@ $(document).ready(function(){
         {% for message in messages %}
           <div class="alert">
             <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            การสร้าง Role ล้มเหลว
+            การสร้าง Screen ล้มเหลว
           </div>
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Role <b>Management</b></h2>
+                        <h2>Screen <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7">
-                        <a href="#createrole" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Role</span></a>
+                        <a href="#createscreen" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Screen</span></a>
                     </div>
                 </div>
             </div>
@@ -265,83 +265,31 @@ $(document).ready(function(){
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Role ID</th>
-                        <th>Role name</th>
-                        <th>Action</th>
+                        <th>Screen ID</th>
+                        <th>Screen name</th>
+                        <th>File py</th>
+                        <th>File html</th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for role in roles %}
+            {% for screen in screens %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#"><img src="/static/img/king.png" width="30" height="30">&nbsp;&nbsp;{{role.role_id}}</a></td>
-                        <td>{{role.role_name}}</td>
-                        <td>
-                            <a href="#setting{{role.role_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{role.role_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
-                        </td>
+                        <td><a href="#"><img src="/static/img/laptop.png" width="30" height="30">&nbsp;&nbsp;{{screen.screen_id}}</a></td>
+                        <td>{{screen.screen_name}}</td>
+                        <td>{{screen.file_py}}</td>
+                        <td>{{screen.file_html}}</td>
                     </tr>
 
-            <!-- Modal Setting -->
-            <div id="setting{{role.role_id}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form method="POST" action="{% url 'rolemanage' %}">
-                            {% csrf_token %}
-                            <div class="modal-header">
-                                <h5 class="modal-title">Setting</h5>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" value="{{role.role_id}}" name="roleid" readonly >
-                                </div>
-                                <div class="form-group">
-                                    <label class="control-label">Role Name</label>
-                                    <input type="text" class="form-control" id="rolename" value="{{role.role_name}}" name="rolename" >
-                                </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Editrole">Submit</button>
-                            </div>
-                        </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <!-- Modal Delete -->
-            <div id="delete{{role.role_id}}" class="modal fade" tabindex="-1" >
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Confirmation</h5>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" id="roleid" class="form-control" value="role id : {{role.role_id}}" name="roleid" readonly>
-                            <br><p>Do you want to delete this role?</p>
-                            <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
-                        </div>
-                        <div class="modal-footer">
-                            <form method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger" value="{{role.role_id}}" name="deleterole">Delete</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {% endfor %}
-            <!-- Modal Adduser -->
-            <div id="createrole" class="modal fade" tabindex="-1">
+            <!-- Modal Addscreen -->
+            <div id="createscreen" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="POST">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Add new user</h5>
+                                <h5 class="modal-title">Add new screen</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             {% for message in messages %}
@@ -352,16 +300,24 @@ $(document).ready(function(){
                             {% endfor %}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" name="roleid" autocomplete="off" >
+                                    <label for="disabledTextInput">screen ID</label>
+                                    <input type="text" id="screen_id" class="form-control" name="screen_id" autocomplete="off" >
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Role name</label>
-                                    <input type="text" class="form-control" id="rolename"  name="rolename">
+                                    <label for="disabledTextInput">screen Name</label>
+                                    <input type="text" id="screen_name" class="form-control" name="screen_name" autocomplete="off" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="disabledTextInput">File PY</label>
+                                    <input type="text" id="file_py" class="form-control" name="file_py" autocomplete="off" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="disabledTextInput">File HTML</label>
+                                    <input type="text" id="file_html" class="form-control" name="file_html" autocomplete="off" >
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Addrole">Submit</button>
+                                <button type="submit" class="btn btn-primary" name="Addscreen">Submit</button>
                             </div>
                         </div>
                         </form>

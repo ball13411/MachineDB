@@ -4,9 +4,9 @@ from django.db import models
 
 class Screen(models.Model):
     screen_id = models.CharField(max_length=6,primary_key=True)
-    screen_name = models.CharField(max_length=15)
+    screen_name = models.CharField(max_length=20)
     file_py = models.CharField(max_length=10)
-    file_html = models.CharField(max_length=10)
+    file_html = models.CharField(max_length=20)
     class Meta:
         db_table = "Screen"
 

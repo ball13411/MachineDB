@@ -40,7 +40,9 @@ def usermanage(request):
     # Templates/usermanage.html
     global User_loinged     #Call User sign in
     production_lines = Production_line.objects.all()
-
+    if str(User_loinged.role) != 'admin':
+        User_loinged = None
+        return redirect('/')
     if request.method == "POST":
         # Form Edituser (Settings of user)
         if 'Edituser' in request.POST:
@@ -142,6 +144,9 @@ def resetpassword(requset):
 
 def rolemanage(request):
     global User_loinged     #Call User sign in
+    if str(User_loinged.role) != 'admin':
+        User_loinged = None
+        return redirect('/')
     if request.method == "POST":
         if 'Editrole' in request.POST:
             role_id = request.POST['roleid']                 # Get var('role id') from HTML
@@ -166,8 +171,32 @@ def rolemanage(request):
                'User_loinged':User_loinged}
     return render(request,'rolemanage.html',context)
 
+def screenmanage(request):
+    global User_loinged
+    if request.method == "POST":
+        if 'Addscreen' in request.POST:
+            screen_id = request.POST['screen_id']
+            screen_name = request.POST['screen_name']
+            file_py = request.POST['file_py']
+            file_html = request.POST['file_html']
+            screen = Screen.objects.create(
+                screen_id=screen_id,
+                screen_name=screen_name,
+                file_py=file_py,
+                file_html=file_html
+            )
+            screen.save()
+    screens = Screen.objects.all()
+    context = {'User_logined':User_loinged,
+               'screens':screens}
+    return render(request,'screenmanage.html',context)
+
 def adminmanage(request):
     global User_loinged
-    context = {'User_loinged':User_loinged,
-               'User_role_logined':str(User_loinged.role)}
+    if str(User_loinged.role) != 'admin':
+        User_loinged = None
+        return redirect('/')
+    context = {'User_loinged':User_loinged}
     return render(request,'machineoruser.html',context)
+
+
