@@ -30,7 +30,7 @@ def signin(request):
                     global User_loinged                         # Set user login
                     User_loinged = user
                     if str(User_loinged.role) == "admin" :      # Check Role of User
-                        return redirect('/usermanage')
+                        return redirect('/adminmanage')
             except Machine_Management.models.User.DoesNotExist: # Message Wrong username or password
                 messages.info(request,"username หรือ password ไม่ถูกต้อง")
     return render(request,'signin.html')
@@ -39,13 +39,19 @@ def usermanage(request):
     # Functions for User Management
     # Templates/usermanage.html
     global User_loinged     #Call User sign in
+    production_lines = Production_line.objects.all()
+
     if request.method == "POST":
         # Form Edituser (Settings of user)
         if 'Edituser' in request.POST:
             username = request.POST['username']                 # Get var('username') from HTML
             update_role = request.POST['select_role']           # Get var('role') from HTML
+            update_prod_line = request.POST.getlist('lines[]','')
             now = datetime.datetime.now()                       # Call Datetime now
             user = User.objects.get(username=username)          # Query user
+            user.production.clear()
+            for line in update_prod_line:
+                user.production.add(line)
             user.update_date = now                              # Update UpdateDate to now
             user.update_by = str(User_loinged.username)         # Update UserUpdate of UserSelect
             role = Role.objects.get(role_id=update_role)        # Get RoleID of UserSelect
@@ -61,6 +67,7 @@ def usermanage(request):
             create_role = request.POST['select_role']
             passwd = request.POST['password']
             conpasswd = request.POST['conpassword']
+            create_prod_line = request.POST.getlist('lines[]','')
             now = datetime.datetime.now()
             role = Role.objects.get(role_id=create_role)
             if passwd==conpasswd:                               # Check password and confirm password
@@ -85,8 +92,10 @@ def usermanage(request):
                         last_login_date=None,
                         role = role
                     )
+                    for line in create_prod_line:
+                        user.production.add(line)
                     user.save()                                 # Save User
-                    return redirect('/usermanage')
+                    # return redirect('/usermanage')
             else:
                 messages.info(request,"รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบใหม่")     # Show Message Password != ConPassword
         # Button Sign Out
@@ -102,7 +111,8 @@ def usermanage(request):
     users = User.objects.all()
     context = {'users':users,
                'roles':roles,
-               'User_loinged':User_loinged}
+               'User_loinged':User_loinged,
+               'production_lines':production_lines}
     return render(request,'usermanage.html',context)
 
 def resetpassword(requset):
@@ -129,3 +139,35 @@ def resetpassword(requset):
         except Machine_Management.models.User.DoesNotExist:     # Failed Connect User in model(DB)
             messages.info(requset,'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
     return render(requset,'resetpassword.html')
+
+def rolemanage(request):
+    global User_loinged     #Call User sign in
+    if request.method == "POST":
+        if 'Editrole' in request.POST:
+            role_id = request.POST['roleid']                 # Get var('role id') from HTML
+            role_name = request.POST['rolename']           # Get var('role name') from HTML
+            role = Role.objects.get(role_id=role_id)
+            role.role_name = role_name
+            role.save()
+        elif 'Addrole' in request.POST:
+            role_id = request.POST['roleid']                 # Get var('role id') from HTML
+            role_name = request.POST['rolename']           # Get var('role name') from HTML
+            role = Role.objects.create(role_id=role_id,role_name=role_name)
+            role.save()
+        elif 'deleterole' in request.POST:
+            role_id = request.POST['deleterole']                 # Get var('role id') from HTML
+            print(role_id)
+            role = Role.objects.get(role_id=role_id)
+            role.delete()
+        elif 'signout' in request.POST:
+            User_loinged = None                                 # Set User_login is None
+    roles = Role.objects.all()
+    context = {'roles':roles,
+               'User_loinged':User_loinged}
+    return render(request,'rolemanage.html',context)
+
+def adminmanage(request):
+    global User_loinged
+    context = {'User_loinged':User_loinged,
+               'User_role_logined':str(User_loinged.role)}
+    return render(request,'machineoruser.html',context)

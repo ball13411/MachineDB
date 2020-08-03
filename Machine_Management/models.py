@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+
 class Screen(models.Model):
     screen_id = models.CharField(max_length=6,primary_key=True)
     screen_name = models.CharField(max_length=15)
@@ -11,7 +12,7 @@ class Screen(models.Model):
 
 class Role(models.Model):
     role_id = models.CharField(max_length=5,primary_key=True)
-    role_name = models.CharField(max_length=10)
+    role_name = models.CharField(max_length=15)
     screen = models.ManyToManyField(Screen)
     def __str__(self):
         return self.role_name
@@ -20,11 +21,18 @@ class Role(models.Model):
 
 class Production_line(models.Model):
     line_id = models.CharField(max_length=6,primary_key=True)
+    def __str__(self):
+        return self.line_id
+    class Meta:
+        db_table = "Production_line"
+
+class Machine(models.Model):
     machine_code = models.CharField(max_length=10)
     machine_name = models.CharField(max_length=20)
     machine_type = models.CharField(max_length=10)
+    line = models.ForeignKey(Production_line,on_delete=models.CASCADE)
     class Meta:
-        db_table = "Production_line"
+        db_table = "Machine"
 
 class User(models.Model):
     username = models.CharField(max_length=6,primary_key=True)
@@ -46,8 +54,7 @@ class User(models.Model):
         db_table = "User"
 
 
-# class role_screen(models.Model):
-#     role_id =
+
 
 
 
