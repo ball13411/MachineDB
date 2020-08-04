@@ -3,6 +3,7 @@ from django.contrib import messages
 from .models import *
 import Machine_Management
 import datetime
+import django
 # Create your views here.
 
 # GLOBAL var
@@ -24,8 +25,10 @@ def signin(request):
                 user.save()                                     # Save Update
                 if user.start_date > datenow:                   # Check StartDate and DateNow
                     messages.info(request,f'ชื่อผู้ใช้นี้ยังไม่สามารถเข้าสู่ระบบได้ สามารถเข้าได้ในวันที่ {user.start_date}')
+                    return redirect('/')
                 elif datenow > user.expired_date:                 # Check ExpirdDate if expird link to resetpassword
                     messages.info(request,'รหัสผ่านหมดอายุแล้ว กรุณาทำการ Reset Password')
+                    return redirect('/')
                 if user is not None :                           # Check login User
                     global User_loinged                         # Set user login
                     User_loinged = user
@@ -78,7 +81,7 @@ def usermanage(request):
                 elif User.objects.filter(email=email).exists():       # Query email is exists in model(DB)
                     messages.info(request,"มีผู้ใช้ Email นี้แล้ว")          # Show Message Email is exists
                 else:
-                    user = User.objects.create(                 # Create User (Set all arg*)
+                    user = User.objects.create(
                         username=username,
                         email=email,
                         firstname=fname.capitalize(),
@@ -157,8 +160,11 @@ def rolemanage(request):
         elif 'Addrole' in request.POST:
             role_id = request.POST['roleid']                 # Get var('role id') from HTML
             role_name = request.POST['rolename']           # Get var('role name') from HTML
-            role = Role.objects.create(role_id=role_id,role_name=role_name)
-            role.save()
+            try:
+                role = Role.objects.create(role_id=role_id,role_name=role_name)
+                role.save()
+            except django.db.utils.IntegrityError:
+                messages.info(request,"มีชื่อ Role ID นี้แล้ว กรุณาตั้งใหม่")
         elif 'deleterole' in request.POST:
             role_id = request.POST['deleterole']                 # Get var('role id') from HTML
             role = Role.objects.get(role_id=role_id)
@@ -178,13 +184,16 @@ def screenmanage(request):
             screen_name = request.POST['screen_name']
             file_py = request.POST['file_py']
             file_html = request.POST['file_html']
-            screen = Screen.objects.create(
-                screen_id=screen_id,
-                screen_name=screen_name,
-                file_py=file_py,
-                file_html=file_html
-            )
-            screen.save()
+            try:
+                screen = Screen.objects.create(
+                    screen_id=screen_id,
+                    screen_name=screen_name,
+                    file_py=file_py,
+                    file_html=file_html
+                )
+                screen.save()
+            except django.db.utils.IntegrityError:
+                messages.info(request,"มีชื่อ Screen ID นี้แล้ว กรุณาตั้งใหม่")
     screens = Screen.objects.all()
     context = {'User_logined':User_loinged,
                'screens':screens}
@@ -212,28 +221,33 @@ def role_screen(request):
             rs_insert = request.POST['rs_insert']
             rs_update = request.POST['rs_update']
             rs_delete = request.POST['rs_delete']
-            role_screen = Role_Screen.objects.get(id=rs_id)
-            role_screen.role_id = rs_role_id
-            role_screen.screen.screen_id = rs_screen_id
-            role_screen.permission_insert = rs_insert
-            role_screen.permission_update = rs_update
-            role_screen.permission_delete = rs_delete
-            role_screen.save()
+            if Role_Screen.objects.get(role_id = rs_role_id,screen_id = rs_screen_id) is not None:
+                messages.info(request,'ไม่สามารถทำรายการนี้ได้ เนื่องจากมีรายการนี้อยู่แล้ว')
+            else:
+                role_screen = Role_Screen.objects.get(id=rs_id)
+                role_screen.role_id = rs_role_id
+                role_screen.screen.screen_id = rs_screen_id
+                role_screen.permission_insert = rs_insert
+                role_screen.permission_update = rs_update
+                role_screen.permission_delete = rs_delete
+                role_screen.save()
         elif 'Addrolescreen' in request.POST:
             rs_role_id = request.POST['rs_role']
             rs_screen_id = request.POST['rs_screen']
             rs_insert = request.POST['rs_insert']
             rs_update = request.POST['rs_update']
             rs_delete = request.POST['rs_delete']
-            # role = Role.object.get(role_id=rs_screen_id)
-            role_screen = Role_Screen.objects.create(
-                role_id = rs_role_id,
-                screen_id = rs_screen_id,
-                permission_insert = rs_insert,
-                permission_update = rs_update,
-                permission_delete = rs_delete
-            )
-            role_screen.save()
+            if Role_Screen.objects.get(role_id = rs_role_id,screen_id = rs_screen_id) is not None:
+                messages.info(request,'ไม่สามารถทำรายการนี้ได้ เนื่องจากมีรายการนี้อยู่แล้ว')
+            else:
+                role_screen = Role_Screen.objects.create(
+                    role_id = rs_role_id,
+                    screen_id = rs_screen_id,
+                    permission_insert = rs_insert,
+                    permission_update = rs_update,
+                    permission_delete = rs_delete
+                )
+                role_screen.save()
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
