@@ -161,7 +161,6 @@ def rolemanage(request):
             role.save()
         elif 'deleterole' in request.POST:
             role_id = request.POST['deleterole']                 # Get var('role id') from HTML
-            print(role_id)
             role = Role.objects.get(role_id=role_id)
             role.delete()
         elif 'signout' in request.POST:
@@ -199,4 +198,48 @@ def adminmanage(request):
     context = {'User_loinged':User_loinged}
     return render(request,'machineoruser.html',context)
 
+def role_screen(request):
+    global User_loinged
+    if request.method == "POST":
+        if 'delete_rs' in request.POST:
+            rs_id = request.POST['delete_rs']
+            role_screen = Role_Screen.objects.get(id=rs_id)
+            role_screen.delete()
+        elif 'Edit_rs' in request.POST:
+            rs_id = request.POST['Edit_rs']
+            rs_role_id = request.POST['rs_role']
+            rs_screen_id = request.POST['rs_screen']
+            rs_insert = request.POST['rs_insert']
+            rs_update = request.POST['rs_update']
+            rs_delete = request.POST['rs_delete']
+            role_screen = Role_Screen.objects.get(id=rs_id)
+            role_screen.role_id = rs_role_id
+            role_screen.screen.screen_id = rs_screen_id
+            role_screen.permission_insert = rs_insert
+            role_screen.permission_update = rs_update
+            role_screen.permission_delete = rs_delete
+            role_screen.save()
+        elif 'Addrolescreen' in request.POST:
+            rs_role_id = request.POST['rs_role']
+            rs_screen_id = request.POST['rs_screen']
+            rs_insert = request.POST['rs_insert']
+            rs_update = request.POST['rs_update']
+            rs_delete = request.POST['rs_delete']
+            # role = Role.object.get(role_id=rs_screen_id)
+            role_screen = Role_Screen.objects.create(
+                role_id = rs_role_id,
+                screen_id = rs_screen_id,
+                permission_insert = rs_insert,
+                permission_update = rs_update,
+                permission_delete = rs_delete
+            )
+            role_screen.save()
+    list_role_screen = Role_Screen.objects.all()
+    roles = Role.objects.all()
+    screens = Screen.objects.all()
+    context = {'User_loinged':User_loinged,
+               'list_role_screen':list_role_screen,
+               'roles':roles,
+               'screens':screens}
+    return render(request,'role_screen_manage.html',context)
 

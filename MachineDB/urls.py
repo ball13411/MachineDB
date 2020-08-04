@@ -24,5 +24,6 @@ urlpatterns = [
     path('adminmanage/', views.adminmanage,name='adminmanage'),
     path('rolemanage/', views.rolemanage,name='rolemanage'),
     path('screenmanage/', views.screenmanage,name='screenmanage'),
+    path('rolescreen/',views.role_screen,name='role_screen_manage')
 
 ]

@@ -229,6 +229,7 @@ $(document).ready(function(){
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link ">User Management</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Management</a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link active"><b>Screen Management</b></a>
+                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role Screen Management</a>
             </div>
             <div class="collapse navbar-collapse" id="navbarCollapse"></div>
                 <form method="POST" action="{% url 'signin' %}">
@@ -301,19 +302,19 @@ $(document).ready(function(){
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="disabledTextInput">screen ID</label>
-                                    <input type="text" id="screen_id" class="form-control" name="screen_id" autocomplete="off" >
+                                    <input type="text" id="screen_id" class="form-control" name="screen_id" autocomplete="off" maxlength="6">
                                 </div>
                                 <div class="form-group">
                                     <label for="disabledTextInput">screen Name</label>
-                                    <input type="text" id="screen_name" class="form-control" name="screen_name" autocomplete="off" >
+                                    <input type="text" id="screen_name" class="form-control" name="screen_name" autocomplete="off" maxlength="20">
                                 </div>
                                 <div class="form-group">
                                     <label for="disabledTextInput">File PY</label>
-                                    <input type="text" id="file_py" class="form-control" name="file_py" autocomplete="off" >
+                                    <input type="text" id="file_py" class="form-control" name="file_py" autocomplete="off" maxlength="10">
                                 </div>
                                 <div class="form-group">
                                     <label for="disabledTextInput">File HTML</label>
-                                    <input type="text" id="file_html" class="form-control" name="file_html" autocomplete="off" >
+                                    <input type="text" id="file_html" class="form-control" name="file_html" autocomplete="off" maxlength="20">
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

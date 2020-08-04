@@ -227,9 +227,9 @@ $(document).ready(function(){
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Management</a>
-                <a href="{% url 'rolemanage' %}" class="nav-item nav-link active"><b>Role Management</b></a>
+                <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Management</a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Management</a>
-                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role Screen Management</a>
+                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link active"><b>Role Screen Management</b></a>
             </div>
             <div class="collapse navbar-collapse" id="navbarCollapse"></div>
                 <form method="POST" action="{% url 'signin' %}">
@@ -255,39 +255,48 @@ $(document).ready(function(){
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Role <b>Management</b></h2>
+                        <h2>Role and Screen <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7">
-                        <a href="#createrole" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Role</span></a>
+                        <a href="#createrolescreen" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New RoleScreen</span></a>
                     </div>
                 </div>
             </div>
             <table class="table table-striped table-hover" id="myTable">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Role ID</th>
-                        <th>Role name</th>
-                        <th>Action</th>
+                        <th rowspan="2">#</th>
+                        <th rowspan="2">Role ID</th>
+                        <th rowspan="2">Screen ID</th>
+                        <th colspan="3" scope="colgroup"><center>Permission</center></th>
+                        <th rowspan="2"><center>Action</center></th>
+                    </tr>
+                    <tr>
+                        <th scope="col" width="100">Insert</th>
+                        <th scope="col" width="100">Update</th>
+                        <th scope="col" width="100">Delete</th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for role in roles %}
+            {% for rs in list_role_screen %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#"><img src="/static/img/king.png" width="30" height="30">&nbsp;&nbsp;{{role.role_id}}</a></td>
-                        <td>{{role.role_name}}</td>
+                        <td><img src="/static/img/king.png" width="30" height="30">&nbsp;&nbsp;{{rs.role_id}}</a></td>
+                        <td>{{rs.screen_id}} ({{rs.screen.screen_name}})</td>
+                        <td>{% if rs.permission_insert == 'Y' %}<img src="/static/img/icons8-checkmark-48.png" width="30" height="30">{% else %}<img src="/static/img/icons8-cross-mark-48.png" width="30" height="30">{% endif %}</td>
+                        <td>{% if rs.permission_update == 'Y' %}<img src="/static/img/icons8-checkmark-48.png" width="30" height="30">{% else %}<img src="/static/img/icons8-cross-mark-48.png" width="30" height="30">{% endif %}</td>
+                        <td>{% if rs.permission_delete == 'Y' %}<img src="/static/img/icons8-checkmark-48.png" width="30" height="30">{% else %}<img src="/static/img/icons8-cross-mark-48.png" width="30" height="30">{% endif %}</td>
                         <td>
-                            <a href="#setting{{role.role_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{role.role_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            &nbsp;&nbsp;<a href="#setting{{rs.id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                            &nbsp;&nbsp;<a href="#delete{{rs.id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
 
             <!-- Modal Setting -->
-            <div id="setting{{role.role_id}}" class="modal fade" tabindex="-1">
+            <div id="setting{{rs.id}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" action="{% url 'rolemanage' %}">
+                        <form method="POST" action="{% url 'role_screen_manage' %}">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Setting</h5>
@@ -295,16 +304,45 @@ $(document).ready(function(){
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" value="{{role.role_id}}" name="roleid" maxlength="5" readonly >
+                                    <label for="exampleFormControlSelect1">Select Role ID</label>
+                                    <select class="form-control" id="rs_role" name="rs_role">
+                                    {% for role in roles %}
+                                    <option value="{{role.role_id}}" {% if role.role_id == rs.role_id %}selected{% endif %}>{{role}}</option>
+                                    {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Role Name</label>
-                                    <input type="text" class="form-control" id="rolename" value="{{role.role_name}}" maxlength="15" name="rolename" >
+                                    <label for="exampleFormControlSelect1">Select Screen ID</label>
+                                    <select class="form-control" id="rs_screen" name="rs_screen">
+                                    {% for screen in screens %}
+                                    <option value="{{screen.screen_id}}" {% if screen.screen_id == rs.screen_id %}selected{% endif %}>{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Insert</label>
+                                    <select class="form-control" id="rs_insert" name="rs_insert">
+                                    <option value="Y" {% if rs.permission_insert == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_insert == 'N' %}selected{% endif %}>N</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Update</label>
+                                    <select class="form-control" id="rs_update" name="rs_update">
+                                    <option value="Y" {% if rs.permission_update == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_update == 'N' %}selected{% endif %}>N</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Delete</label>
+                                    <select class="form-control" id="rs_delete" name="rs_delete">
+                                    <option value="Y" {% if rs.permission_delete == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_delete == 'N' %}selected{% endif %}>N</option>
+                                    </select>
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Editrole">Submit</button>
+                                <button type="submit" class="btn btn-primary" name="Edit_rs" value="{{rs.id}}">Submit</button>
                             </div>
                         </div>
                         </form>
@@ -312,7 +350,7 @@ $(document).ready(function(){
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{role.role_id}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{rs.id}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -320,14 +358,14 @@ $(document).ready(function(){
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" id="roleid" class="form-control" value="role id : {{role.role_id}}" name="roleid" readonly>
+                            <input type="text" id="rs_var" class="form-control" value="role id : {{rs.role_id}} &nbsp;||&nbsp; screen id : {{rs.screen_id}}" name="rs_var" readonly>
                             <br><p>Do you want to delete this role?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
                         <div class="modal-footer">
                             <form method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger" value="{{role.role_id}}" name="deleterole">Delete</button>
+                                <button type="submit" class="btn btn-danger" value="{{rs.id}}" name="delete_rs">Delete</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </form>
                         </div>
@@ -335,14 +373,14 @@ $(document).ready(function(){
                 </div>
             </div>
             {% endfor %}
-            <!-- Modal Addrole -->
-            <div id="createrole" class="modal fade" tabindex="-1">
+            <!-- Modal Add Role_Screen -->
+            <div id="createrolescreen" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="POST">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Add new role</h5>
+                                <h5 class="modal-title">Add new RoleScreen</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             {% for message in messages %}
@@ -353,16 +391,45 @@ $(document).ready(function(){
                             {% endfor %}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" name="roleid" autocomplete="off" maxlength="5">
+                                    <label for="exampleFormControlSelect1">Select Role ID</label>
+                                    <select class="form-control" id="rs_role" name="rs_role">
+                                    {% for role in roles %}
+                                    <option value="{{role.role_id}}" {% if role.role_id == rs.role_id %}selected{% endif %}>{{role}}</option>
+                                    {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Role name</label>
-                                    <input type="text" class="form-control" id="rolename"  name="rolename" maxlength="15">
+                                    <label for="exampleFormControlSelect1">Select Screen ID</label>
+                                    <select class="form-control" id="rs_screen" name="rs_screen">
+                                    {% for screen in screens %}
+                                    <option value="{{screen.screen_id}}" {% if screen.screen_id == rs.screen_id %}selected{% endif %}>{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Insert</label>
+                                    <select class="form-control" id="rs_insert" name="rs_insert">
+                                    <option value="Y" {% if rs.permission_insert == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_insert == 'N' %}selected{% endif %}>N</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Update</label>
+                                    <select class="form-control" id="rs_update" name="rs_update">
+                                    <option value="Y" {% if rs.permission_update == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_update == 'N' %}selected{% endif %}>N</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Delete</label>
+                                    <select class="form-control" id="rs_delete" name="rs_delete">
+                                    <option value="Y" {% if rs.permission_delete == 'Y' %}selected{% endif %}>Y</option>
+                                    <option value="N" {% if rs.permission_delete == 'N' %}selected{% endif %}>N</option>
+                                    </select>
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Addrole">Submit</button>
+                                <button type="submit" class="btn btn-primary" name="Addrolescreen">Submit</button>
                             </div>
                         </div>
                         </form>

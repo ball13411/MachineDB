@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Screen(models.Model):
     screen_id = models.CharField(max_length=6,primary_key=True)
     screen_name = models.CharField(max_length=20)
@@ -13,11 +14,20 @@ class Screen(models.Model):
 class Role(models.Model):
     role_id = models.CharField(max_length=5,primary_key=True)
     role_name = models.CharField(max_length=15)
-    screen = models.ManyToManyField(Screen)
+    members = models.ManyToManyField(Screen,through='Role_Screen')
     def __str__(self):
         return self.role_name
     class Meta:
         db_table = "Role"
+
+class Role_Screen(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    screen = models.ForeignKey(Screen, on_delete=models.CASCADE)
+    permission_insert = models.CharField(max_length=5)
+    permission_update = models.CharField(max_length=5)
+    permission_delete = models.CharField(max_length=5)
+    class Meta:
+        db_table = "Role_Screen"
 
 class Production_line(models.Model):
     line_id = models.CharField(max_length=6,primary_key=True)
