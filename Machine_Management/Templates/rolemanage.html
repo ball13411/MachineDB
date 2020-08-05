@@ -222,22 +222,20 @@
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse1">
             <div class="navbar-nav">
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Management</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link active"><b>Role Management</b></a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Management</a>
                 <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role Screen Management</a>
             </div>
-            <div class="collapse navbar-collapse" id="navbarCollapse"></div>
-                <form method="POST" action="{% url 'signin' %}">
-                    {% csrf_token %}
-                    <ul class="nav navbar-nav ml-auto">
-                        <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
-                        <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
-                    </ul>
-                </form>
-            </div>
+            <form method="POST" action="{% url 'signin' %}">
+                {% csrf_token %}
+                <ul class="nav navbar-nav ml-auto">
+                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                    <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
+                </ul>
+            </form>
         </div>
     </nav>
 </div>
@@ -273,7 +271,7 @@
             {% for role in roles %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#"><img src="/static/img/king.png" width="30" height="30">&nbsp;&nbsp;{{role.role_id}}</a></td>
+                        <td><a href="#">{% if role.role_id == 'admin' %}<img src="/static/img/king.png" width="30" height="30">{% else %}<img src="/static/img/witch.png" width="30" height="30">{% endif %}&nbsp;&nbsp;{{role.role_id}}</a></td>
                         <td>{{role.role_name}}</td>
                         <td>
                             <a href="#setting{{role.role_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
@@ -293,12 +291,12 @@
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" value="{{role.role_id}}" name="roleid" maxlength="5" readonly >
+                                    <label>Role ID</label>
+                                    <input type="text" id="set_roleid" class="form-control" value="{{role.role_id}}" name="set_roleid" maxlength="5" readonly >
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role Name</label>
-                                    <input type="text" class="form-control" id="rolename" value="{{role.role_name}}" maxlength="15" name="rolename" >
+                                    <input type="text" class="form-control" id="set_rolename" value="{{role.role_name}}" maxlength="15" name="set_rolename" >
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -318,7 +316,7 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" id="roleid" class="form-control" value="role id : {{role.role_id}}" name="roleid" readonly>
+                            <input type="text" id="del_roleid" class="form-control" value="role id : {{role.role_id}}" name="del_roleid" readonly>
                             <br><p>Do you want to delete this role?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
@@ -351,12 +349,12 @@
                             {% endfor %}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="disabledTextInput">Role ID</label>
-                                    <input type="text" id="roleid" class="form-control" name="roleid" autocomplete="off" maxlength="5">
+                                    <label>Role ID</label>
+                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="5">
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role name</label>
-                                    <input type="text" class="form-control" id="rolename"  name="rolename" maxlength="15">
+                                    <input type="text" class="form-control" id="add_rolename"  name="add_rolename" maxlength="15">
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

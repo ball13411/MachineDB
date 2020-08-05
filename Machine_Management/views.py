@@ -49,7 +49,7 @@ def usermanage(request):
     if request.method == "POST":
         # Form Edituser (Settings of user)
         if 'Edituser' in request.POST:
-            username = request.POST['username']                 # Get var('username') from HTML
+            username = request.POST['set_username']                 # Get var('username') from HTML
             update_role = request.POST['select_role']           # Get var('role') from HTML
             update_prod_line = request.POST.getlist('lines[]','')
             now = datetime.datetime.now()                       # Call Datetime now
@@ -64,14 +64,14 @@ def usermanage(request):
             user.save()                                         # Save all Update
         # Form Add User (Add New User)
         elif 'Adduser' in request.POST:
-            username = request.POST['username']                 # Get var('username') form HTML
-            fname = request.POST['fname']
-            lname = request.POST['lname']
-            email = request.POST['email']
-            startdate = request.POST['startdate']
+            username = request.POST['add_username']                 # Get var('username') form HTML
+            fname = request.POST['add_fname']
+            lname = request.POST['add_lname']
+            email = request.POST['add_email']
+            startdate = request.POST['add_startdate']
             create_role = request.POST['select_role']
-            passwd = request.POST['password']
-            conpasswd = request.POST['conpassword']
+            passwd = request.POST['add_password']
+            conpasswd = request.POST['add_conpassword']
             create_prod_line = request.POST.getlist('lines[]','')
             now = datetime.datetime.now()
             role = Role.objects.get(role_id=create_role)
@@ -152,14 +152,14 @@ def rolemanage(request):
         return redirect('/')
     if request.method == "POST":
         if 'Editrole' in request.POST:
-            role_id = request.POST['roleid']                 # Get var('role id') from HTML
-            role_name = request.POST['rolename']           # Get var('role name') from HTML
+            role_id = request.POST['set_roleid']                 # Get var('role id') from HTML
+            role_name = request.POST['set_rolename']           # Get var('role name') from HTML
             role = Role.objects.get(role_id=role_id)
             role.role_name = role_name
             role.save()
         elif 'Addrole' in request.POST:
-            role_id = request.POST['roleid']                 # Get var('role id') from HTML
-            role_name = request.POST['rolename']           # Get var('role name') from HTML
+            role_id = request.POST['add_roleid']                 # Get var('role id') from HTML
+            role_name = request.POST['add_rolename']           # Get var('role name') from HTML
             try:
                 role = Role.objects.create(role_id=role_id,role_name=role_name)
                 role.save()
@@ -216,27 +216,24 @@ def role_screen(request):
             role_screen.delete()
         elif 'Edit_rs' in request.POST:
             rs_id = request.POST['Edit_rs']
-            rs_role_id = request.POST['rs_role']
-            rs_screen_id = request.POST['rs_screen']
-            rs_insert = request.POST['rs_insert']
-            rs_update = request.POST['rs_update']
-            rs_delete = request.POST['rs_delete']
-            if Role_Screen.objects.get(role_id = rs_role_id,screen_id = rs_screen_id) is not None:
-                messages.info(request,'ไม่สามารถทำรายการนี้ได้ เนื่องจากมีรายการนี้อยู่แล้ว')
-            else:
-                role_screen = Role_Screen.objects.get(id=rs_id)
-                role_screen.role_id = rs_role_id
-                role_screen.screen.screen_id = rs_screen_id
-                role_screen.permission_insert = rs_insert
-                role_screen.permission_update = rs_update
-                role_screen.permission_delete = rs_delete
-                role_screen.save()
+            rs_role_id = request.POST['set_rs_role']
+            rs_screen_id = request.POST['set_rs_screen']
+            rs_insert = request.POST['set_rs_insert']
+            rs_update = request.POST['set_rs_update']
+            rs_delete = request.POST['set_rs_delete']
+            role_screen = Role_Screen.objects.get(id=rs_id)
+            role_screen.role_id = rs_role_id
+            role_screen.screen.screen_id = rs_screen_id
+            role_screen.permission_insert = rs_insert
+            role_screen.permission_update = rs_update
+            role_screen.permission_delete = rs_delete
+            role_screen.save()
         elif 'Addrolescreen' in request.POST:
-            rs_role_id = request.POST['rs_role']
-            rs_screen_id = request.POST['rs_screen']
-            rs_insert = request.POST['rs_insert']
-            rs_update = request.POST['rs_update']
-            rs_delete = request.POST['rs_delete']
+            rs_role_id = request.POST['add_rs_role']
+            rs_screen_id = request.POST['add_rs_screen']
+            rs_insert = request.POST['add_rs_insert']
+            rs_update = request.POST['add_rs_update']
+            rs_delete = request.POST['add_rs_delete']
             if Role_Screen.objects.get(role_id = rs_role_id,screen_id = rs_screen_id) is not None:
                 messages.info(request,'ไม่สามารถทำรายการนี้ได้ เนื่องจากมีรายการนี้อยู่แล้ว')
             else:
