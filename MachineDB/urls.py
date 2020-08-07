@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from Machine_Management import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin,name='signin'),
@@ -24,6 +25,10 @@ urlpatterns = [
     path('adminmanage/', views.adminmanage,name='adminmanage'),
     path('rolemanage/', views.rolemanage,name='rolemanage'),
     path('screenmanage/', views.screenmanage,name='screenmanage'),
-    path('rolescreen/',views.role_screen,name='role_screen_manage')
+    path('rolescreen/',views.role_screen,name='role_screen_manage'),
+    path('machinemanage/',views.machinemanage,name='machinemanage'),
+    path('machinemanage/register/',views.machine_register,name='machineregister'),
+    path('machinemanage/data/',views.machine_data,name='machinedata'),
+    path('test/',views.test)
 
 ]

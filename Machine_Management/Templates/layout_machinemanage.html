@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Machine Management</title>
+    <!-- Bootstrap CSS CDN -->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pridi&display=swap" rel="stylesheet">
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+<!--    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">-->
+<!--    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>-->
+    <script>
+    	$(document).ready(function () {
+
+		    $('#sidebarCollapse').on('click', function () {
+		        $('#sidebar').toggleClass('active');
+		    });
+
+		});
+    </script>
+    <style>
+    	.wrapper {
+		    display: flex;
+		    align-items: stretch;
+		}
+        .container {
+            width: 100%;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto; }
+            @media (min-width: 576px) {
+                .container {
+                max-width: 540px; } }
+            @media (min-width: 768px) {
+                .container {
+                max-width: 720px; } }
+            @media (min-width: 992px) {
+                .container {
+                max-width: 960px; } }
+            @media (min-width: 1200px) {
+                .container {
+                max-width: 1140px; } }
+		#sidebar {
+		    min-width: 270px;
+		    max-width: 270px;
+		    min-height: 100vh;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 18px;
+            line-height: 1.8;
+            font-weight: normal;
+            background: #cf152d;
+		    color: #fff;
+		    padding: 0;
+            font-family: 'Pridi', serif;
+		}
+
+		#sidebar ul.components {
+		    padding: 20px 0;
+		    border-bottom: 1px solid #cf152d;
+		}
+
+		#sidebar ul p {
+		    color: #fff;
+		    padding: 10px;
+		}
+
+		#sidebar ul li a {
+		    padding: 10px;
+		    font-size: 1.1em;
+		    display: block;
+		}
+		#sidebar ul li a:hover {
+		    color: #cf152d;
+		    background: #fff;
+		}
+
+		#sidebar ul li.active > a, a[aria-expanded="true"] {
+		    color: #fff;
+		    background: #cf152d;
+		}
+		ul ul a {
+		    font-size: 0.9em !important;
+		    padding-left: 30px !important;
+		    background: #cf152d;
+		}
+        button {
+            -webkit-writing-mode: horizontal-tb !important;
+        }
+
+        #sidebar .custom-menu {
+            display: inline-block;
+            position: absolute;
+            top: 20px;
+            right: 0;
+            margin-right: -20px;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+		#sidebar.active {
+		    margin-left: -270px;
+		}
+
+        #sidebar.active .custom-menu{
+            margin-right: -50px;
+        }
+		a[data-toggle="collapse"] {
+		    position: relative;
+		}
+
+		.dropdown-toggle::after {
+		    display: block;
+		    position: absolute;
+		    top: 50%;
+		    right: 20px;
+		    transform: translateY(-50%);
+		}
+        #content {
+            width: 100%;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+        @media (min-width: 992px){
+            .col-lg {
+                flex-basis: 0; 
+                flex-grow: 1;
+                max-width: 100%;
+            }
+        }
+        @media (min-width: 768px) {
+            .p-md-5 {
+                padding: 3rem !important;
+            }
+            .pt-5 {
+                padding-top: 2rem !important;
+            }
+            .col-md-6 {
+                flex: 0 0 50%;
+            }
+            .col-md-4 {
+                flex: 0 0 33.333333%;
+            }
+          }
+
+		body {
+		    font-family: 'Pridi', serif;
+		    background: #fafafa;
+		}
+
+		p {
+		    font-family: 'Pridi', serif;
+		    font-size: 1rem;
+		    font-weight: 300;
+		    line-height: 1.7em;
+		    color: #999;
+		}
+
+		a, a:hover, a:focus {
+		    color: inherit;
+		    text-decoration: none;
+		    transition: all 0.3s;
+		}
+		.list-unstyled {
+		    padding-left: 0;
+		    list-style: none;
+		}
+
+		.btn, .btn-dark, .btn:hover, .btn:focus, .btn-info{
+			display: inline-block;
+			font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+			border: 1px solid transparent;
+    		padding: 0.375rem 0.75rem;	
+			background: #810000;
+    		border-color: #810000;
+            width: 40px;
+            height: 40px;
+			border-radius: 50%;
+			text-indent: 0px;
+    		text-shadow: none;
+			text-decoration: none !important;
+			outline: none !important;
+   			box-shadow: none !important;
+		}
+        h1 {
+            font-size: 2.5rem;
+        }
+		h2 {
+			font-size: 2rem;
+		}
+        .search-box {
+            position: absolute;
+            top: 30px;
+            right: 0px;
+            transform: translate(-50%,-50%);
+            background: transparent;
+            height: 35px;
+            border-radius: 40px;
+            padding: 10px;
+        }
+        .search-btn {
+            color: #810000;
+            float: right;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.4s;
+        }
+        .search-txt {
+            border: none;
+            background: none;
+            outline: none;
+            float: left;
+            padding: 0;
+            color: #810000;
+            font-size: 14px;
+            transition: 0.4s;
+            line-height: 15px;
+            width: 240px;
+        }
+        .card {
+            border: none;
+            border-radius: .625rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background-clip: border-box;
+        }
+        .userprofile {
+            color: #800000;
+            font-size: 20px;
+        }
+        .stats-small {
+            min-height: 8.7rem;
+            overflow: hidden!important;
+        }
+        .row {
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-right: -15px;
+            margin-left: -15px;
+        }
+        .p-0 {
+            padding: 0!important;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
+
+<!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">-->
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+<!--    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="custom-menu">
+                <button type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fa fa-bars"></i>
+                    <span class="sr-only">Toggle Menu</span>
+                </button>
+            </div>
+            <div class="p-4">
+                <h1><b>Machine</b></h1> 
+                <h2>Management</h2>
+                <ul class="list-unstyled components mb-5">
+                    <li class="active">
+                        <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Machines</a>
+                        <ul class="collapse list-unstyled" id="Machinemenu">
+                            {% if 'mch_data' in List_user_Screen %}
+                            <li><a href="{% url 'machinedata' %}">Machine Data</a></li>
+                            {% endif %}
+                            {% if 'mch_register' in List_user_Screen %}
+                            <li><a href="{% url 'machineregister' %}">Machine Register</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li><a href="#">Spare part</a></li>
+                    <li>
+                        <a href="#Dailymenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Daily reports</a>
+                        <ul class="collapse list-unstyled" id="Dailymenu">
+                            <li><a href="#">Maintenance info</a></li>
+                            <li><a href="#">Preventive maintenance</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#Reportmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
+                        <ul class="collapse list-unstyled" id="Reportmenu">
+                            <li><a href="#">Maintenance history</a></li>
+                            <li><a href="#">OEE</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <ul class="list-unstyled CTAs">
+                    <li>
+                        <form method="POST" action="{% url 'signin' %}">
+                            {% csrf_token %}
+                            <h4><b>{{User_loinged.username}} ({{UserRole}})</b></h4>
+                        </form>
+                    </li>
+                    <li><a href="" name="user_setting">Setting</a></li>
+                    <li><a href="{% url 'signin' %}" name="signout">Sign out</a></li>
+                    {% if UserRole == "admin" %}
+                    <li><a href="{% url 'adminmanage' %}" class="article">Admin Management</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content" class="p-4 p-md-5 pt-5">
+              <!-- End Users By Device Stats -->
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+    <script>
+        $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+    </script>
+</body>
+
+</html>

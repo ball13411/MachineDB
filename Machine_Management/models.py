@@ -4,10 +4,12 @@ from django.db import models
 
 
 class Screen(models.Model):
-    screen_id = models.CharField(max_length=6,primary_key=True)
+    screen_id = models.CharField(max_length=15,primary_key=True)
     screen_name = models.CharField(max_length=20)
-    file_py = models.CharField(max_length=10)
+    file_py = models.CharField(max_length=30)
     file_html = models.CharField(max_length=20)
+    def __str__(self):
+        return self.screen_id
     class Meta:
         db_table = "Screen"
 
@@ -16,7 +18,7 @@ class Role(models.Model):
     role_name = models.CharField(max_length=15)
     members = models.ManyToManyField(Screen,through='Role_Screen')
     def __str__(self):
-        return self.role_name
+        return self.role_id
     class Meta:
         db_table = "Role"
 
@@ -37,12 +39,23 @@ class Production_line(models.Model):
         db_table = "Production_line"
 
 class Machine(models.Model):
-    machine_code = models.CharField(max_length=10)
-    machine_name = models.CharField(max_length=20)
-    machine_type = models.CharField(max_length=10)
+    serial_id = models.CharField(max_length=10,default=None,null=True)
+    machine_code = models.CharField(max_length=10,default=None,null=True)
+    machine_name = models.CharField(max_length=20,default=None,null=True)
+    machine_type = models.CharField(max_length=10,default=None,null=True)
+    machine_brand = models.CharField(max_length=10,default=None,null=True)
+    machine_model = models.CharField(max_length=10,default=None,null=True)
+    machine_supplier_code = models.CharField(max_length=10,default=None,null=True)
+    machine_location_id = models.CharField(max_length=10,default=None,null=True)
+    machine_emp_id_response = models.CharField(max_length=15,default=None,null=True)
+    machine_capacity_per_minute = models.CharField(max_length=10,default=None,null=True)
+    machine_capacity_measure_unit = models.CharField(max_length=10,default=None,null=True)
+    machine_power_use_watt_per_hour = models.CharField(max_length=10,default=None,null=True)
+    machine_installed_datetime = models.DateField(default=None,null=True)
+    machine_start_use_datetime = models.DateField(default=None,null=True)
     line = models.ForeignKey(Production_line,on_delete=models.CASCADE)
     class Meta:
-        db_table = "Machine"
+        db_table = "Machine_master"
 
 class User(models.Model):
     username = models.CharField(max_length=6,primary_key=True)
