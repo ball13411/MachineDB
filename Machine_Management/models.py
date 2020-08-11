@@ -11,7 +11,20 @@ class Screen(models.Model):
     def __str__(self):
         return self.screen_id
     class Meta:
-        db_table = "Screen"
+        db_table = "Screen_management"
+
+class Menu(models.Model):
+    menu_id = models.CharField(max_length=30,primary_key=True)
+    name = models.CharField(max_length=30)
+    level = models.IntegerField()
+    parent_menu = models.CharField(max_length=30,default=None,null=True)
+    index = models.IntegerField()
+    path_url = models.CharField(max_length=30,default=None,null=True)
+    screen = models.ForeignKey(Screen, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.menu_id
+    class Meta:
+        db_table = "Menu_management"
 
 class Role(models.Model):
     role_id = models.CharField(max_length=5,primary_key=True)
@@ -20,7 +33,7 @@ class Role(models.Model):
     def __str__(self):
         return self.role_id
     class Meta:
-        db_table = "Role"
+        db_table = "Role_management"
 
 class Role_Screen(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
@@ -32,16 +45,24 @@ class Role_Screen(models.Model):
         db_table = "Role_Screen"
 
 class Production_line(models.Model):
-    line_id = models.CharField(max_length=6,primary_key=True)
+    site_choice = [
+        ('BC',"บางชัน"),
+        ('CAD1',"ลาดกระบัง 1"),
+        ('CAD2',"ลาดกระบัง 2")
+    ]
+    productionline_id = models.AutoField(primary_key=True)
+    site = models.CharField(choices=site_choice,max_length=5)
+    productionline = models.IntegerField()
     def __str__(self):
-        return self.line_id
+        return self.productionline
     class Meta:
         db_table = "Production_line"
 
 class Machine(models.Model):
-    serial_id = models.CharField(max_length=10,default=None,null=True)
-    machine_code = models.CharField(max_length=10,default=None,null=True)
-    machine_name = models.CharField(max_length=20,default=None,null=True)
+    # machine_id = models. auto run
+    serial_id = models.CharField(max_length=50,default=None,null=True)
+    machine_code = models.CharField(max_length=20,default=None,null=True)
+    machine_name = models.CharField(max_length=50,default=None,null=True)
     machine_type = models.CharField(max_length=10,default=None,null=True)
     machine_brand = models.CharField(max_length=10,default=None,null=True)
     machine_model = models.CharField(max_length=10,default=None,null=True)
@@ -74,7 +95,7 @@ class User(models.Model):
     last_login_date = models.DateTimeField(default=None,null=True)
     production = models.ManyToManyField(Production_line)
     class Meta:
-        db_table = "User"
+        db_table = "User_management"
 
 
 

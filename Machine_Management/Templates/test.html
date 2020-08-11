@@ -5,14 +5,63 @@
     <title>Title</title>
 </head>
 <body>
-<form method="POST">
-    {% csrf_token %}
-    {% for field in form %}
-    <div class="form-group">
-        {{ field.label_tag }} {{ field }} {% for error in field.errors %}<label style="color:#C22D1E">{{error}}</label>{% endfor %}
-    </div>
-    {% endfor %}
-    <input type="submit" value="Save">
-</form>
+<!--<form method="POST">-->
+<!--    {% csrf_token %}-->
+<!--    {% for field in form %}-->
+<!--    <div class="form-group">-->
+<!--        {{ field.label_tag }} {{ field }} {% for error in field.errors %}<label style="color:#C22D1E">{{error}}</label>{% endfor %}-->
+<!--    </div>-->
+<!--    {% endfor %}-->
+<!--    <input type="submit" value="Save">-->
+
+<!--{% for level,list_menu in dict_menu_level %}-->
+<!--    {% for level_family in List_menu_level %}-->
+<!--        {% if level == level_family %}-->
+<!--            {% for menu in list_menu %}-->
+<!--            <h1>{{menu}}</h1>-->
+<!--            {% endfor %}-->
+<!--        {% endif %}-->
+<!--    {% endfor %}-->
+<!--{% endfor %}-->
+<div class="p-4">
+    <h1><b>Machine</b></h1>
+    <ul class="list-unstyled components mb-5">
+        {% for menu_lv0 in List_user_menu_lv0 %}
+        <li class="active">
+            <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{menu_lv0}}</a>
+            <ul class="collapse list-unstyled" id="Machinemenu">
+                {% for menu_lv1 in List_user_menu_lv1 %}
+                    {% if menu_lv0.menu_id == menu_lv1.parent_menu %}
+                        <li><a href="{% url 'machinedata' %}">{{menu_lv1}}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<div class="p-4">
+    <h1><b>Machine</b></h1>
+    <ul class="list-unstyled components mb-5">
+        {% for root,list_child in dict_menu_level %}
+        <li class="active">
+            <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{root}}</a>
+            <ul class="collapse list-unstyled" id="Machinemenu">
+                {% for child in list_child %}
+                    <li><a href="{% url 'machinedata' %}">{{child}}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+<!--{% for menu_lv0 in List_user_menu_lv0 %}-->
+<!--    <h1><b>{{menu_lv0}}</b></h1>-->
+<!--    {% for menu_lv1 in List_user_menu_lv1 %}-->
+<!--        {% if menu_lv0.menu_id == menu_lv1.parent_menu %}-->
+<!--            <h3>- {{menu_lv1}}</h3>-->
+<!--        {% endif %}-->
+<!--    {% endfor %}-->
+<!--{% endfor %}-->
 </body>
 </html>

@@ -29,6 +29,7 @@ urlpatterns = [
     path('machinemanage/',views.machinemanage,name='machinemanage'),
     path('machinemanage/register/',views.machine_register,name='machineregister'),
     path('machinemanage/data/',views.machine_data,name='machinedata'),
+    path('menumanage/',views.menumanage,name='menumanage'),
     path('test/',views.test)
 
 ]

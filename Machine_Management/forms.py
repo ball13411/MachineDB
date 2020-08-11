@@ -2,9 +2,9 @@ from django import forms
 from .models import *
 import datetime
 class MachineForm(forms.ModelForm):
-    serial_id                   = forms.CharField(label='Serial ID : ',widget=forms.TextInput(attrs={"placeholder":"Machine Serial ID","maxlength":10}))
-    machine_code                = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_name                = forms.CharField(label='Machine Name : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
+    serial_id                   = forms.CharField(label='Serial ID : ',widget=forms.TextInput(attrs={"maxlength":50}))
+    machine_code                = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
+    machine_name                = forms.CharField(label='Machine Name : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":50}))
     machine_type                = forms.CharField(label='Machine type : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_brand               = forms.CharField(label='Machine brand : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_model               = forms.CharField(label='Machine model : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))

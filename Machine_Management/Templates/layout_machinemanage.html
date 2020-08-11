@@ -284,36 +284,19 @@
                 </button>
             </div>
             <div class="p-4">
-                <h1><b>Machine</b></h1> 
+                <h1><b>Machine</b></h1>
                 <h2>Management</h2>
                 <ul class="list-unstyled components mb-5">
+                    {% for root , list_child in dict_menu_level %}
                     <li class="active">
-                        <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Machines</a>
-                        <ul class="collapse list-unstyled" id="Machinemenu">
-                            {% if 'mch_data' in List_user_Screen %}
-                            <li><a href="{% url 'machinedata' %}">Machine Data</a></li>
-                            {% endif %}
-                            {% if 'mch_register' in List_user_Screen %}
-                            <li><a href="{% url 'machineregister' %}">Machine Register</a></li>
-                            {% endif %}
+                        <a href="#{{root}}menu" aria-expanded="false" {% if list_child|length != 0 %} data-toggle="collapse" class="dropdown-toggle"{% endif %}>{{root}}</a>
+                        <ul class="collapse list-unstyled" id="{{root}}menu">
+                            {% for child in list_child %}
+                                <li><a href="{% url child.path_url %}">{{child.name}}</a></li>
+                            {% endfor %}
                         </ul>
                     </li>
-                    <li><a href="#">Spare part</a></li>
-                    <li>
-                        <a href="#Dailymenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Daily reports</a>
-                        <ul class="collapse list-unstyled" id="Dailymenu">
-                            <li><a href="#">Maintenance info</a></li>
-                            <li><a href="#">Preventive maintenance</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#Reportmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
-                        <ul class="collapse list-unstyled" id="Reportmenu">
-                            <li><a href="#">Maintenance history</a></li>
-                            <li><a href="#">OEE</a></li>
-                        </ul>
-                    </li>
-
+                    {% endfor %}
                 </ul>
 
                 <ul class="list-unstyled CTAs">
