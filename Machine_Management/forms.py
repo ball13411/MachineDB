@@ -1,11 +1,11 @@
 from django import forms
 from .models import *
 import datetime
+
 class MachineForm(forms.ModelForm):
     serial_id                   = forms.CharField(label='Serial ID : ',widget=forms.TextInput(attrs={"maxlength":50}))
     machine_code                = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
     machine_name                = forms.CharField(label='Machine Name : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":50}))
-    machine_type                = forms.CharField(label='Machine type : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_brand               = forms.CharField(label='Machine brand : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_model               = forms.CharField(label='Machine model : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_supplier_code       = forms.CharField(label='Machine supplier code : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
@@ -22,7 +22,6 @@ class MachineForm(forms.ModelForm):
             'serial_id',
             'machine_code',
             'machine_name',
-            'machine_type',
             'machine_brand',
             'machine_model',
             'machine_supplier_code',
@@ -33,15 +32,26 @@ class MachineForm(forms.ModelForm):
             'machine_power_use_watt_per_hour',
             'machine_installed_datetime',
             'machine_start_use_datetime',
+            'machine_type',
             'line'
         ]
 
     def clean_machine_code(self,*args,**kwargs):
         machine_code = self.cleaned_data.get("machine_code")
-        print(machine_code)
         if "mch" not in machine_code:
             raise forms.ValidationError("This is not 'mch'")
         return machine_code
+
+class ProductLineForm(forms.ModelForm):
+    class Meta:
+        model = Production_line
+        fields = [
+            'productionline_id',
+            'location_site',
+            'location_building',
+            'location_floor',
+            'production_line'
+        ]
 
 class UserForm(forms.ModelForm):
     username = forms.CharField(label='Username : ',widget=forms.TextInput(attrs={"maxlength":6}))
@@ -69,5 +79,4 @@ class UserForm(forms.ModelForm):
             'expired_day',
             'create_date',
             'role',
-            'production',
         ]

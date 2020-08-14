@@ -45,25 +45,51 @@ class Role_Screen(models.Model):
         db_table = "Role_Screen"
 
 class Production_line(models.Model):
-    site_choice = [
-        ('BC',"บางชัน"),
-        ('CAD1',"ลาดกระบัง 1"),
-        ('CAD2',"ลาดกระบัง 2")
-    ]
+
+    site = [('BC','บางชัน'),('CAD1','ลาดกระบัง1'),('CAD2','ลาดกระบัง2')]
+    building = [('บางชัน1','บางชัน1'),('บางชัน2','บางชัน2'),('ลาดกระบัง1','ลาดกระบัง1'),('ลาดกระบัง2','ลาดกระบัง2')]
+    floor = [('3','3'),('2','2'),('1','1')]
+
     productionline_id = models.AutoField(primary_key=True)
-    site = models.CharField(choices=site_choice,max_length=5)
-    productionline = models.IntegerField()
+    location_site = models.CharField(choices=site,max_length=15,default='------')
+    location_building = models.CharField(max_length=15,choices=building,default='-------')
+    location_floor = models.CharField(max_length=10,choices=floor,default='1')
+    production_line = models.IntegerField()
+
     def __str__(self):
-        return self.productionline
+        return str(self.production_line)
     class Meta:
         db_table = "Production_line"
 
+class Organization(models.Model):
+    org_id =  models.AutoField(primary_key=True)
+    org_code = models.CharField(max_length=10)
+    org_name = models.CharField(max_length=20)
+    org_line = models.ManyToManyField(Production_line)
+    def __str__(self):
+        return self.org_code
+    class Meta:
+        db_table = "Organization"
+
+class Machine_type(models.Model):
+    mtype_id = models.AutoField(primary_key=True)
+    mtype_code = models.CharField(max_length=20)
+    mtype_name = models.CharField(max_length=50)
+    create_by = models.CharField(max_length=20)
+    create_date = models.DateField()
+    last_update_by = models.CharField(max_length=20,default=None,null=True)
+    last_update_date = models.DateField(default=None,null=True)
+    def __str__(self):
+        return self.mtype_code
+    class Meta:
+        db_table = "Machine_type"
+
 class Machine(models.Model):
-    # machine_id = models. auto run
+    machine_id = models.AutoField(primary_key=True)
     serial_id = models.CharField(max_length=50,default=None,null=True)
     machine_code = models.CharField(max_length=20,default=None,null=True)
     machine_name = models.CharField(max_length=50,default=None,null=True)
-    machine_type = models.CharField(max_length=10,default=None,null=True)
+    machine_type = models.ManyToManyField(Machine_type)
     machine_brand = models.CharField(max_length=10,default=None,null=True)
     machine_model = models.CharField(max_length=10,default=None,null=True)
     machine_supplier_code = models.CharField(max_length=10,default=None,null=True)
@@ -93,7 +119,7 @@ class User(models.Model):
     update_by = models.CharField(max_length=6,default=None,null=True)
     update_date = models.DateTimeField(default=None,null=True)
     last_login_date = models.DateTimeField(default=None,null=True)
-    production = models.ManyToManyField(Production_line)
+    org = models.ForeignKey(Organization,on_delete=models.CASCADE)
     class Meta:
         db_table = "User_management"
 

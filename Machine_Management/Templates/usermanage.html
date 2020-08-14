@@ -34,10 +34,11 @@
         color: #566787;
         background: #f5f5f5;
         font-family: 'Pridi', serif;
-        font-size: 16px;
+        font-size: 18px;
     }
     .table-responsive {
         margin: 30px 0;
+        font-size: 16px;
     }
     .table-wrapper {
         min-width: 1000px;
@@ -216,7 +217,7 @@
     </script>
 </head>
 <body>
-<div class="container px-0 px-xl-3">
+<div class="container px-0 px-xl-0">
     <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
         <a href="{% url 'adminmanage' %}" class="navbar-brand">
             <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
@@ -226,17 +227,18 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
-                <a href="{% url 'usermanage' %}" class="nav-item nav-link active"><b>User Management</b></a>
-                <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Management</a>
-                <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Management</a>
+                <a href="{% url 'usermanage' %}" class="nav-item nav-link active"><b>User Manage</b></a>
+                <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
+                <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Manage</a>
+                <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
                 <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role-Screen</a>
-                <a href="{% url 'menumanage' %}" class="nav-item nav-link">Menu Management</a>
+                <a href="{% url 'menumanage' %}" class="nav-item nav-link">Menu Manage</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
-                    <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
                 </ul>
             </form>
         </div>
@@ -268,6 +270,7 @@
                         <th>Username</th>
                         <th>Full name</th>
                         <th>Role</th>
+                        <th>Organize</th>
                         <th>Date Created</th>
                         <th>Last Signin</th>
                         <th>Action</th>
@@ -280,6 +283,7 @@
                         <td><a href="#"><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{user.username}}</a></td>
                         <td>{{user.firstname}} {{user.lastname}}</td>
                         <td>{{user.role}}</td>
+                        <td>{{user.org}}</td>
                         <td>{{user.create_date}}</td>
                         <td>{{user.last_login_date}}</td>
                         <td>
@@ -308,20 +312,20 @@
                                     <input type="text" class="form-control" id="fullname" placeholder="{{user.firstname}} {{user.lastname}}" readonly>
                                 </div>
                             <div class="form-group">
-                                <label>Select role</label>
+                                <label>Select Role</label>
                                 <select class="form-control" id="select_role" name="select_role">
                                 {% for role in roles %}
-                                <option value="{{role.role_id}}" {% if role.role_id == user.role.role_id %} selected {% endif %}>{{role}}</option>
+                                    <option value="{{role.role_id}}" {% if role.role_id == user.role.role_id %} selected {% endif %}>{{role}}</option>
                                 {% endfor %}
                                 </select>
                             </div>
-                            <h6>Choose Production Line</h6>
                             <div class="form-group">
-                                <label class="d-block" >
-                                    {% for line in production_lines %}
-                                    <input type="checkbox" class="mr-1" name="lines[]" value="{{line}}" {% if line in user.production.all %} checked{% endif %}>{{line}}&nbsp</input>
-                                    {% endfor %}
-                                </label>
+                                <label>Select Organize</label>
+                                <select class="form-control" id="select_org" name="select_org">
+                                {% for org in orgs %}
+                                    <option value="{{org.org_id}}" {% if org.org_id == user.org.org_id %} selected {% endif %}>{{org.org_code}}</option>
+                                {% endfor %}
+                                </select>
                             </div>
 
                             <div class="modal-footer">
@@ -408,13 +412,13 @@
                                 {% endfor %}
                                 </select>
                             </div>
-                            <h6>Choose Production Line</h6>
                             <div class="form-group">
-                                <label class="d-block">
-                                    {% for line in production_lines %}
-                                    <input type="checkbox" class="mr-1" name="lines[]" value="{{line}}" {% if line in user.production.all %} checked{% endif %}>{{line}}&nbsp</input>
-                                    {% endfor %}
-                                </label>
+                                <label>Select Organize</label>
+                                <select class="form-control" id="add_select_org" name="add_select_org">
+                                {% for org in orgs %}
+                                    <option value="{{org.org_id}}">{{org.org_code}}</option>
+                                {% endfor %}
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Password</label>

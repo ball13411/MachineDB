@@ -289,7 +289,7 @@
                 <ul class="list-unstyled components mb-5">
                     {% for root , list_child in dict_menu_level %}
                     <li class="active">
-                        <a href="#{{root}}menu" aria-expanded="false" {% if list_child|length != 0 %} data-toggle="collapse" class="dropdown-toggle"{% endif %}>{{root}}</a>
+                        <a  aria-expanded="false" {% if list_child|length != 0 %} href="#{{root}}menu" data-toggle="collapse" class="dropdown-toggle"{% else %}href="{% url root.path_url %}"{% endif %}>{{root.name}}</a>
                         <ul class="collapse list-unstyled" id="{{root}}menu">
                             {% for child in list_child %}
                                 <li><a href="{% url child.path_url %}">{{child.name}}</a></li>

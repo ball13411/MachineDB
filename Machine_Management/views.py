@@ -5,15 +5,16 @@ import Machine_Management
 import datetime
 import django
 from .forms import *
+from .filters import MachineFilter
 # Create your views here.
 
 # GLOBAL var
-User_loinged,UserRole,List_user_Screen,dict_menu_level = None,None,[],{}         # User Login for use all pages
+User_loinged,UserRole,List_user_Screen,dict_menu_level,User_org_machine_line = None,None,[],{},None         # User Login for use all pages
 
 def signin(request):
     # Functions for Sign In to webapp
     # Templates/signin.html
-    global User_loinged,UserRole,List_user_Screen,dict_menu_level
+    global User_loinged,UserRole
     User_loinged = None
     if request.method == "POST":
         # Form Sign In
@@ -35,20 +36,6 @@ def signin(request):
                 if user is not None :                           # Check login User                    # Set user login
                     User_loinged = user
                     UserRole = str(User_loinged.role)
-                    User_role = Role.objects.get(role_id=User_loinged.role)
-                    List_user_Screen = User_role.members.all()
-                    List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
-                    List_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
-                    List_menu_role = []
-                    dict_menu_level = {}
-                    for menu_role in List_user_Screen:
-                        List_menu_role.append(Menu.objects.get(screen=menu_role))
-                    for root in List_user_menu_lv0 :
-                        if root in List_menu_role :
-                            dict_menu_level[root.menu_id] = []
-                    for child in List_user_menu_lv1:
-                        if child in List_menu_role :
-                            dict_menu_level[child.parent_menu].append(child)
                     if str(User_loinged.role) == "admin" :      # Check Role of User
                         return redirect('/adminmanage')
                     else:
@@ -70,14 +57,13 @@ def usermanage(request):
         if 'Edituser' in request.POST:
             username = request.POST['set_username']                 # Get var('username') from HTML
             update_role = request.POST['select_role']           # Get var('role') from HTML
-            update_prod_line = request.POST.getlist('lines[]','')
+            update_org = request.POST['select_org']
             now = datetime.datetime.now()                       # Call Datetime now
             user = User.objects.get(username=username)          # Query user
-            user.production.clear()
-            for line in update_prod_line:
-                user.production.add(line)
             user.update_date = now                              # Update UpdateDate to now
             user.update_by = str(User_loinged.username)         # Update UserUpdate of UserSelect
+            org = Organization.objects.get(org_id=update_org)
+            user.org = org
             role = Role.objects.get(role_id=update_role)        # Get RoleID of UserSelect
             user.role = role                                    # Update Role of UserSelect
             user.save()                                         # Save all Update
@@ -91,8 +77,9 @@ def usermanage(request):
             create_role = request.POST['select_role']
             passwd = request.POST['add_password']
             conpasswd = request.POST['add_conpassword']
-            create_prod_line = request.POST.getlist('lines[]','')
+            add_org = request.POST['add_select_org']
             now = datetime.datetime.now()
+            org = Organization.objects.get(org_id=add_org)
             role = Role.objects.get(role_id=create_role)
             if passwd==conpasswd:                               # Check password and confirm password
                 if User.objects.filter(username=username).exists():    # Query username is exists in model(DB)
@@ -114,10 +101,9 @@ def usermanage(request):
                         update_by=None,
                         update_date=None,
                         last_login_date=None,
-                        role = role
+                        role = role,
+                        org = org
                     )
-                    for line in create_prod_line:
-                        user.production.add(line)
                     user.save()                                 # Save User
                     # return redirect('/usermanage')
             else:
@@ -133,10 +119,12 @@ def usermanage(request):
     # return var to HTML
     roles = Role.objects.all()
     users = User.objects.all()
+    orgs = Organization.objects.all()
     context = {'users':users,
                'roles':roles,
                'User_loinged':User_loinged,
-               'production_lines':production_lines}
+               'production_lines':production_lines,
+               'orgs':orgs}
     return render(request,'usermanage.html',context)
 
 def resetpassword(requset):
@@ -165,7 +153,7 @@ def resetpassword(requset):
     return render(requset,'resetpassword.html')
 
 def rolemanage(request):
-    global User_loinged,dict_menu_level                     #Call User sign in
+    global User_loinged               #Call User sign in
     if str(User_loinged.role) != 'admin':
         User_loinged = None
         return redirect('/')
@@ -190,26 +178,13 @@ def rolemanage(request):
             role.delete()
         elif 'signout' in request.POST:
             User_loinged = None                                 # Set User_login is None
-        List_user_Screen = User_loinged.members.all()
-        List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
-        List_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
-        List_menu_role = []
-        dict_menu_level = {}
-        for menu_role in List_user_Screen:
-            List_menu_role.append(Menu.objects.get(screen=menu_role))
-        for root in List_user_menu_lv0 :
-            if root in List_menu_role :
-                dict_menu_level[root.menu_id] = []
-        for child in List_user_menu_lv1:
-            if child in List_menu_role :
-                dict_menu_level[child.parent_menu].append(child)
     roles = Role.objects.all()
     context = {'roles':roles,
                'User_loinged':User_loinged}
     return render(request,'rolemanage.html',context)
 
 def screenmanage(request):
-    global User_loinged,dict_menu_level
+    global User_loinged
     if str(User_loinged.role) != 'admin':
         User_loinged = None
         return redirect('/')
@@ -243,19 +218,6 @@ def screenmanage(request):
             screen.file_py = set_file_py
             screen.file_html = set_file_html
             screen.save()
-        List_user_Screen = User_loinged.members.all()
-        List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
-        List_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
-        List_menu_role = []
-        dict_menu_level = {}
-        for menu_role in List_user_Screen:
-            List_menu_role.append(Menu.objects.get(screen=menu_role))
-        for root in List_user_menu_lv0 :
-            if root in List_menu_role :
-                dict_menu_level[root.menu_id] = []
-        for child in List_user_menu_lv1:
-            if child in List_menu_role :
-                dict_menu_level[child.parent_menu].append(child)
     screens = Screen.objects.all()
     context = {'User_logined':User_loinged,
                'screens':screens}
@@ -318,15 +280,25 @@ def role_screen(request):
 
 def machinemanage(request):
     global User_loinged,UserRole,dict_menu_level
-    print(dict_menu_level)
-    # print(Role_Screen.objects.get(role=User_loinged.role,screen=1))
-    # a=Role.objects.get(role_id=User_loinged.role)
-    # print(a.members.all())
-    # for i in a.members.all():
-    #     print(type(i.screen_id))
     if request.method == "POST":
         if 'signout' in request.POST:
             User_loinged = None
+    User_role = Role.objects.get(role_id=User_loinged.role)
+    List_user_Screen = User_role.members.all()
+    List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
+    List_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
+    List_menu_role = []
+    dict_menu_level = {}
+    for menu_role in List_user_Screen:
+        List_menu_role.append(Menu.objects.get(screen=menu_role))
+    for root in List_user_menu_lv0 :
+        if root in List_menu_role :
+            dict_menu_level[root] = []
+    for child in List_user_menu_lv1:
+        if child in List_menu_role :
+            root = Menu.objects.get(menu_id=child.parent_menu)
+            dict_menu_level[root].append(child)
+    print(dict_menu_level)
     context = {'User_loinged':User_loinged,'UserRole':UserRole,'dict_menu_level':dict_menu_level.items()}
     return render(request,'machinemanage.html',context)
 
@@ -345,47 +317,30 @@ def machine_register(request):
     return render(request,'machine_register.html',context)
 
 def machine_data(request):
-    global User_loinged,UserRole,dict_menu_level
-    machine_data = Machine.objects.all()
+    global User_loinged,UserRole,dict_menu_level,User_org_machine_line
+    # machine_data = Machine.objects.all()
+    User_org = User_loinged.org.org_line.all()
+    User_org_machine_line = Machine.objects.filter(line__in=User_org)
     context = {
-        'User_loinged':User_loinged,'UserRole':UserRole,'List_user_Screen':List_user_Screen,
-        'machine_data':machine_data,'dict_menu_level':dict_menu_level.items()
+        'User_loinged':User_loinged,'UserRole':UserRole,
+        'dict_menu_level':dict_menu_level.items(),'User_org_machine_line':User_org_machine_line
     }
     return render(request,'machine_data.html',context)
 
 def test(request):
     form = UserForm(request.POST or None)
-    User_loinged = User.objects.get(username='system')
-    User_role = Role.objects.get(role_id=User_loinged.role)
-    List_user_Screen = User_role.members.all()
-    List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
-    List_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
-    List_menu_role = []
-    dict_menu_level = {}
-    for menu_role in List_user_Screen:
-        List_menu_role.append(Menu.objects.get(screen=menu_role))
-    for root in List_user_menu_lv0 :
-        if root in List_menu_role :
-            dict_menu_level[root.menu_id] = []
-    for child in List_user_menu_lv1:
-        if child in List_menu_role :
-            dict_menu_level[child.parent_menu].append(child)
-    # for screen_class in List_user_Screen:
-    #     List_menu.append(Menu.objects.get(screen=screen_class))
-    # for level in menu_level:
-    #     List_menu_level.append(level['level'])
-    #     dict_menu_level[level['level']] = []
-    # for menu in List_menu:
-    #     dict_menu_level[menu.level].insert(menu.index,menu.menu_id)
+    form = ProductLineForm(request.POST or None)
     if form.is_valid():
         form.save()
         form = UserForm()
-    context = {'form':form,'dict_menu_level':dict_menu_level.items(),
-               'List_user_menu_lv0':List_user_menu_lv0,'List_user_menu_lv1':List_user_menu_lv1}
+    context = {'form':form}
     return render(request,'test.html',context)
 
 def menumanage(request):
     global User_loinged
+    if str(User_loinged.role) != 'admin':
+        User_loinged = None
+        return redirect('/')
     if request.method == 'POST':
         if 'Addmenu' in request.POST:
             add_menu_id = request.POST['add_menu_id']
@@ -450,3 +405,44 @@ def menumanage(request):
         'list_screen':list_screen
     }
     return render(request,'menumanage.html',context)
+
+def organization(request):
+    global User_loinged
+    if str(User_loinged.role) != 'admin':
+        User_loinged = None
+        return redirect('/')
+    if request.method == 'POST':
+        if 'Addorg' in request.POST:
+            add_org_code = request.POST['add_org_code']
+            add_org_name = request.POST['add_org_name']
+            organize = Organization.objects.create(
+                org_code = add_org_code,
+                org_name = add_org_name
+            )
+            organize.save()
+    orgs = Organization.objects.all()
+    context = {
+        'orgs':orgs,'User_loinged':User_loinged
+    }
+    return render(request,'organization.html',context)
+
+def machine_search(request):
+    global User_loinged,dict_menu_level,UserRole,User_org_machine_line
+    User_org = User_loinged.org.org_line.all()
+    User_org_machine_line = Machine.objects.filter(line__in=User_org)
+    filtered_machine = MachineFilter(request.GET,queryset=User_org_machine_line)
+    context = {
+        'User_loinged':User_loinged,'dict_menu_level':dict_menu_level.items(),'UserRole':UserRole,'filtered_machine':filtered_machine
+    }
+    return render(request,'machine_search.html',context)
+
+def machine_update(request):
+    global User_loinged,UserRole,User_org_machine_line,dict_menu_level
+    User_org = User_loinged.org.org_line.all()
+    User_org_machine_line = Machine.objects.filter(line__in=User_org)
+    print(User_org_machine_line)
+    context = {
+        'User_loinged':User_loinged,'UserRole':UserRole,'User_org_machine_line':User_org_machine_line,
+        'dict_menu_level':dict_menu_level.items()
+    }
+    return render(request,'machine_update.html',context)

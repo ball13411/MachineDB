@@ -30,6 +30,10 @@ urlpatterns = [
     path('machinemanage/register/',views.machine_register,name='machineregister'),
     path('machinemanage/data/',views.machine_data,name='machinedata'),
     path('menumanage/',views.menumanage,name='menumanage'),
+    path('organization/',views.organization,name='organization'),
+    path('machinemanage/search',views.machine_search,name='machinesearch'),
+    path('machinemanage/update',views.machine_update,name='machineupdate'),
+    # path('machinemanage/sparepart/',views.sparepart,name='sparepart'),
     path('test/',views.test)
 
 ]
