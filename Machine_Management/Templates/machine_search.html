@@ -1,0 +1,44 @@
+{% extends 'layout_machinemanage.html' %}
+{% block content %}
+
+<form method="GET">
+    {{ filtered_machine.form}}
+    <input type="submit" value="Searching">
+</form>
+<br><br>
+<table class="table table-striped table-hover" id="myTabe">
+        <thead>
+            <tr>
+                <th colspan="15" scope="colgroup"><center>Machine</center></th>
+            </tr>
+            <tr style="text-align:center;">
+                <th style="vertical-align:middle;">No</th>
+                <th>Machine ID</th>
+                <th>Serial ID</th>
+                <th style="vertical-align:middle;">Code</th>
+                <th style="vertical-align:middle;">Name</th>
+                <th style="vertical-align:middle;">Type</th>
+                <th style="vertical-align:middle;">Brand</th>
+                <th style="vertical-align:middle;">Model</th>
+                <th style="vertical-align:middle;">Line</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for machine in filtered_machine.qs %}
+            <tr align="center">
+                <td>{{forloop.counter}}</td>
+                <td>{{machine.machine_id}}</td>
+                <td>{{machine.serial_id}}</td>
+                <td>{{machine.machine_code}}</td>
+                <td width="100">{{machine.machine_name}}</td>
+                {% for mtype in machine.machine_type.all%}
+                <td>{{mtype.mtype_name}}</td>
+                {% endfor %}
+                <td>{{machine.machine_brand}}</td>
+                <td>{{machine.machine_model}}</td>
+                <td>{{machine.line.production_line}}</td>
+            </tr>
+    {% endfor %}
+        </tbody>
+</table>
+{% endblock %}
