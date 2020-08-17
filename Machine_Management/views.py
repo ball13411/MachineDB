@@ -6,6 +6,8 @@ import datetime
 import django
 from .forms import *
 from .filters import MachineFilter
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 # GLOBAL var
@@ -76,7 +78,7 @@ def usermanage(request):
             startdate = request.POST['add_startdate']
             create_role = request.POST['select_role']
             passwd = request.POST['add_password']
-            conpasswd = request.POST['add_conpassword']
+            conpasswd = request.POST['add_cfpassword']
             add_org = request.POST['add_select_org']
             now = datetime.datetime.now()
             org = Organization.objects.get(org_id=add_org)
@@ -117,6 +119,7 @@ def usermanage(request):
             user = User.objects.get(username=username)          # Query Username
             user.delete()                                       # Delete User from Model(DB)
     # return var to HTML
+    form = AddUserForm()
     roles = Role.objects.all()
     users = User.objects.all()
     orgs = Organization.objects.all()
@@ -124,8 +127,73 @@ def usermanage(request):
                'roles':roles,
                'User_loinged':User_loinged,
                'production_lines':production_lines,
-               'orgs':orgs}
+               'orgs':orgs,
+               'form':form}
     return render(request,'usermanage.html',context)
+
+@csrf_exempt
+def check_username(request):
+    if request.method == 'POST':
+        response_data = {}
+        add_username = request.POST["add_username"]
+        userid = User.objects.filter(username=add_username)
+        user = None
+
+        try:
+            try:
+                # we are matching the input again hardcoded value to avoid use of DB.
+                # You can use DB and fetch value from table and proceed accordingly.
+                if userid.count():
+                    user = True
+
+            except ObjectDoesNotExist as e:
+                pass
+            except Exception as e:
+                raise e
+            print("status user:",user)
+
+            if not user:
+                response_data["username_success"] = True
+            else:
+                response_data["username_success"] = False
+
+        except Exception as e:
+            response_data["username_success"] = False
+            response_data["msg"] = "Some error occurred. Please let Admin know."
+
+        return JsonResponse(response_data)
+
+@csrf_exempt
+def check_email(request):
+    if request.method == 'POST':
+        response_data = {}
+        add_email = request.POST["add_email"]
+        mail = User.objects.filter(email=add_email)
+        email = None
+
+        try:
+            try:
+                # we are matching the input again hardcoded value to avoid use of DB.
+                # You can use DB and fetch value from table and proceed accordingly.
+                if mail.count():
+                    email = True
+
+            except ObjectDoesNotExist as e:
+                pass
+            except Exception as e:
+                raise e
+            print("status email:",email)
+
+            if not email:
+                response_data["email_success"] = True
+            else:
+                response_data["email_success"] = False
+
+        except Exception as e:
+            response_data["email_success"] = False
+            response_data["msg"] = "Some error occurred. Please let Admin know."
+
+        return JsonResponse(response_data)
 
 def resetpassword(requset):
     # Form Reset Password
@@ -446,3 +514,6 @@ def machine_update(request):
         'dict_menu_level':dict_menu_level.items()
     }
     return render(request,'machine_update.html',context)
+
+def machine_edit(request):
+    return render(request,'machine_edit.html')

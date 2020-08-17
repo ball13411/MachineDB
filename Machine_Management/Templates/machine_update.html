@@ -36,7 +36,7 @@
                 <td>{{machine.machine_model}}</td>
                 <td>{{machine.line.production_line}}</td>
                 <td>
-                    &nbsp;&nbsp;<a href="/machinemanage/update/{{forloop.counter}}">Edit</i></a>
+                    &nbsp;&nbsp;<a href="{% url 'machineedit' %}">Edit</i></a>
                     &nbsp;&nbsp;<a href="#delete{{rs.id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                 </td>
             </tr>

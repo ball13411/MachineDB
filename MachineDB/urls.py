@@ -33,6 +33,9 @@ urlpatterns = [
     path('organization/',views.organization,name='organization'),
     path('machinemanage/search',views.machine_search,name='machinesearch'),
     path('machinemanage/update',views.machine_update,name='machineupdate'),
+    path('machinemanage/update/edit',views.machine_edit,name='machineedit'),
+    path('check_username', views.check_username, name='check_username'),
+    path('check_email', views.check_email, name='check_email'),
     # path('machinemanage/sparepart/',views.sparepart,name='sparepart'),
     path('test/',views.test)
 

@@ -1,5 +1,10 @@
 from django import forms
 from .models import *
+
+from django.forms import ModelForm
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
+from datetime import datetime
 import datetime
 
 class MachineForm(forms.ModelForm):
@@ -80,3 +85,43 @@ class UserForm(forms.ModelForm):
             'create_date',
             'role',
         ]
+
+class AddUserForm(forms.ModelForm):
+
+    add_username = forms.CharField(max_length=6)
+    add_email = forms.EmailField()
+
+    add_password = forms.CharField(widget=forms.PasswordInput)
+    add_cfpassword = forms.CharField(widget=forms.PasswordInput)
+
+    # write the name of models for which the form is made
+    class Meta:
+        model = User
+
+        # Custom fields
+        #fileds = '__all__'
+        fields = ['add_username','add_email','add_password','add_cfpassword']
+
+    # this function will be used for the validation
+    def clean(self):
+
+        super(AddUserForm, self).clean()
+
+        username = self.cleaned_data.get('add_username')
+        email = self.cleaned_data.get('add_email')
+        password = self.cleaned_data.get('add_password')
+        cfpassword = self.cleaned_data.get('add_cfpassword')
+
+        userid = User.objects.filter(username=username)
+        if userid.count():
+            raise ValidationError("Username already exists")
+
+        mail = User.objects.filter(email=email)
+
+        if mail.count():
+            raise ValidationError("Email already exists")
+
+        if password and cfpassword and password != cfpassword:
+            raise ValidationError("Password don't match")
+
+        return self.cleaned_data
