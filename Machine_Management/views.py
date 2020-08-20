@@ -11,13 +11,13 @@ from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 # GLOBAL var
-User_loinged,UserRole,List_user_Screen,dict_menu_level,User_org_machine_line = None,None,[],{},None         # User Login for use all pages
+User_loinged,UserRole,List_user_Screen,dict_menu_level,User_org_machine_line,List_user_Screen = None,None,[],{},None,None         # User Login for use all pages
 
 def signin(request):
     # Functions for Sign In to webapp
     # Templates/signin.html
     global User_loinged,UserRole
-    User_loinged = None
+    User_loinged,UserRole = None,None
     if request.method == "POST":
         # Form Sign In
         if 'signin' in request.POST:
@@ -38,10 +38,7 @@ def signin(request):
                 if user is not None :                           # Check login User                    # Set user login
                     User_loinged = user
                     UserRole = str(User_loinged.role)
-                    if str(User_loinged.role) == "admin" :      # Check Role of User
-                        return redirect('/adminmanage')
-                    else:
-                        return redirect('/machinemanage')
+                    return redirect('/home')
             except Machine_Management.models.User.DoesNotExist: # Message Wrong username or password
                 messages.info(request,"username หรือ password ไม่ถูกต้อง")
     return render(request,'signin.html')
@@ -49,10 +46,9 @@ def signin(request):
 def usermanage(request):
     # Functions for User Management
     # Templates/usermanage.html
-    global User_loinged     #Call User sign in
+    global User_loinged,List_user_Screen     #Call User sign in
     production_lines = Production_line.objects.all()
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='usermanage').exists():
         return redirect('/')
     if request.method == "POST":
         # Form Edituser (Settings of user)
@@ -138,7 +134,6 @@ def check_username(request):
         add_username = request.POST["add_username"]
         userid = User.objects.filter(username=add_username)
         user = None
-
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
@@ -222,8 +217,7 @@ def resetpassword(requset):
 
 def rolemanage(request):
     global User_loinged               #Call User sign in
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='rolemanage').exists():
         return redirect('/')
     if request.method == "POST":
         if 'Editrole' in request.POST:
@@ -253,8 +247,7 @@ def rolemanage(request):
 
 def screenmanage(request):
     global User_loinged
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='screenmanage').exists():
         return redirect('/')
     if request.method == "POST":
         if 'Addscreen' in request.POST:
@@ -301,8 +294,7 @@ def adminmanage(request):
 
 def role_screen(request):
     global User_loinged
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='role_screen').exists():
         return redirect('/')
     if request.method == "POST":
         if 'delete_rs' in request.POST:
@@ -346,11 +338,12 @@ def role_screen(request):
                'screens':screens}
     return render(request,'role_screen_manage.html',context)
 
-def machinemanage(request):
-    global User_loinged,UserRole,dict_menu_level
+def home(request):
+    global User_loinged,UserRole,dict_menu_level,List_user_Screen
     if request.method == "POST":
         if 'signout' in request.POST:
             User_loinged = None
+            UserRole = None
     User_role = Role.objects.get(role_id=User_loinged.role)
     List_user_Screen = User_role.members.all()
     List_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
@@ -368,10 +361,12 @@ def machinemanage(request):
             dict_menu_level[root].append(child)
     print(dict_menu_level)
     context = {'User_loinged':User_loinged,'UserRole':UserRole,'dict_menu_level':dict_menu_level.items()}
-    return render(request,'machinemanage.html',context)
+    return render(request,'home.html',context)
 
 def machine_register(request):
     global User_loinged,UserRole,dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole,screen_id='mch_register').exists():
+        return redirect('/')
     form = MachineForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -386,7 +381,8 @@ def machine_register(request):
 
 def machine_data(request):
     global User_loinged,UserRole,dict_menu_level,User_org_machine_line
-    # machine_data = Machine.objects.all()
+    if not Role_Screen.objects.filter(role=UserRole,screen_id='mch_data').exists():
+        return redirect('/')
     User_org = User_loinged.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
     context = {
@@ -406,8 +402,7 @@ def test(request):
 
 def menumanage(request):
     global User_loinged
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='menumanage').exists():
         return redirect('/')
     if request.method == 'POST':
         if 'Addmenu' in request.POST:
@@ -474,10 +469,9 @@ def menumanage(request):
     }
     return render(request,'menumanage.html',context)
 
-def organization(request):
+def organizemanage(request):
     global User_loinged
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='organize_manage').exists():
         return redirect('/')
     if request.method == 'POST':
         if 'Addorg' in request.POST:
@@ -488,14 +482,24 @@ def organization(request):
                 org_name = add_org_name
             )
             organize.save()
+        elif 'delete_org' in request.POST:
+            organize = Organization.objects.get(org_id=request.POST['delete_org'])
+            organize.delete()
+        elif 'Editorg' in request.POST:
+            organize = Organization.objects.get(org_id=request.POST['set_org_id'])
+            organize.org_code = request.POST['set_org_code']
+            organize.org_name = request.POST['set_org_name']
+            organize.save()
     orgs = Organization.objects.all()
     context = {
         'orgs':orgs,'User_loinged':User_loinged
     }
-    return render(request,'organization.html',context)
+    return render(request,'organizemanage.html',context)
 
 def machine_search(request):
     global User_loinged,dict_menu_level,UserRole,User_org_machine_line
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_search').exists():
+        return redirect('/')
     User_org = User_loinged.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
     filtered_machine = MachineFilter(request.GET,queryset=User_org_machine_line)
@@ -506,9 +510,10 @@ def machine_search(request):
 
 def machine_update(request):
     global User_loinged,UserRole,User_org_machine_line,dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_update').exists():
+        return redirect('/')
     User_org = User_loinged.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
-    print(User_org_machine_line)
     context = {
         'User_loinged':User_loinged,'UserRole':UserRole,'User_org_machine_line':User_org_machine_line,
         'dict_menu_level':dict_menu_level.items()
@@ -516,4 +521,170 @@ def machine_update(request):
     return render(request,'machine_update.html',context)
 
 def machine_edit(request):
-    return render(request,'machine_edit.html')
+    global User_loinged,UserRole,dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_update').exists():
+        return redirect('/')
+    get_machine = None
+    list_mtype = Machine_type.objects.all()
+    list_line = Production_line.objects.all()
+    if request.method == "POST":
+        if 'edit_mch_id' in request.POST:
+            machine_id = request.POST['edit_mch_id']
+            get_machine = Machine.objects.filter(machine_id=machine_id)
+        elif 'mch_update' in request.POST:
+            machine = Machine.objects.get(machine_id=request.POST['edit_machine_id'])
+            machine.serial_id = request.POST['edit_serial_id']
+            machine.machine_code = request.POST['edit_machine_code']
+            machine.machine_name = request.POST['edit_machine_name']
+            machine_type = Machine_type.objects.get(mtype_id=request.POST['select_mtype'])
+            machine.machine_type = machine_type
+            machine.machine_brand = request.POST['edit_machine_brand']
+            machine.machine_model = request.POST['edit_machine_model']
+            machine.machine_supplier_code = request.POST['edit_machine_supplier_code']
+            machine.machine_location_id = request.POST['edit_machine_location_id']
+            machine.machine_emp_id_response = request.POST['edit_machine_emp_id_response']
+            machine.machine_capacity_per_minute = request.POST['edit_machine_capacity_per_minute']
+            machine.machine_capacity_measure_unit = request.POST['edit_machine_capacity_measure_unit']
+            machine.machine_power_use_watt_per_hour = request.POST['edit_machine_power_use_watt_per_hour']
+            machine.machine_installed_datetime = request.POST['edit_machine_installed_datetime']
+            machine.machine_start_use_datetime = request.POST['edit_machine_start_use_datetime']
+            machine_line = Production_line.objects.get(pid=request.POST['select_pline'])
+            machine.line = machine_line
+            machine.save()
+    context = {
+        'User_loinged':User_loinged,'UserRole':UserRole,
+        'dict_menu_level':dict_menu_level.items(),'get_machine':get_machine,'list_mtype':list_mtype,'list_line':list_line
+    }
+    return render(request,'machine_edit.html',context)
+
+def production_line_create(request):
+    form = ProductLineForm()
+    if request.method == "POST":
+        form = ProductLineForm(request.POST)
+        if form.is_valid():
+            form.save()
+    context = {'form':form}
+    return render(request,'line_create.html',context)
+
+def load_building(request):
+    site_id = request.GET.get('location_site_id')
+    building = Building.objects.filter(site_id=site_id).all()
+    context = {'building':building}
+    return render(request,'building_dropdown_list.html',context)
+
+def load_floor(request):
+    site_id = request.GET.get('location_site_id')
+    building_id = request.GET.get('location_building_id')
+    floors = Floor.objects.filter(building_id=building_id,site_id=site_id).all()
+    context = {'floors':floors}
+    return render(request,'floor_dropdown_list.html',context)
+
+def production_line(request):
+    global User_loinged,UserRole
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='production_line').exists():
+        return redirect('/')
+    if request.method == "POST":
+        if 'Addprodline' in request.POST:
+            if not Production_line.objects.filter(production_line=request.POST['add_prodline'],
+                                                location_site=Site.objects.get(id=request.POST['add_select_site']),
+                                                location_building=Building.objects.get(id=request.POST['add_select_building']),
+                                                location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
+                                              ).exists():
+                pline = Production_line.objects.create(
+                                                        production_line=request.POST['add_prodline'],
+                                                        location_site=Site.objects.get(id=request.POST['add_select_site']),
+                                                        location_building=Building.objects.get(id=request.POST['add_select_building']),
+                                                        location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
+                                                        )
+                pline.save()
+            else:
+                messages.info(request,"มี Production Line นี้แล้วอยู่ในระบบ")
+        elif 'Editprodline' in request.POST:
+            if not Production_line.objects.filter(production_line=request.POST['set_production_line'],
+                                                  location_site=Site.objects.get(id=request.POST['select_site']),
+                                                  location_building=Building.objects.get(
+                                                      id=request.POST['select_building']),
+                                                  location_floor=Floor.objects.get(id=request.POST['select_floor'])
+                                                  ).exists():
+                pline = Production_line.objects.get(pid=request.POST['set_prodline_id'])
+                pline.production_line = request.POST['set_production_line']
+                pline.location_site = Site.objects.get(id=request.POST['select_site'])
+                pline.location_building = Building.objects.get(id=request.POST['select_building'])
+                pline.location_floor = Floor.objects.get(id=request.POST['select_floor'])
+                pline.save()
+            else:
+                messages.info(request,"มี Production Line นี้แล้วอยู่ในระบบ")
+        elif 'delete_line' in request.POST:
+            pline = Production_line.objects.get(pid=request.POST['delete_line'])
+            pline.delete()
+    lines = Production_line.objects.all()
+    sites = Site.objects.all()
+    buildings = Building.objects.all()
+    floors = Floor.objects.all()
+    context = {
+        'User_loinged':User_loinged,'lines':lines,'sites':sites,'buildings':buildings,'floors':floors
+    }
+    return render(request,'production_line.html',context)
+
+def location(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='location').exists():
+        return redirect('/')
+    if request.method == "POST":
+        if 'add_location' in request.POST:
+            if Site.objects.filter(site=request.POST['add_site']).exists():
+                site = Site.objects.get(site=request.POST['add_site'])
+            else:
+                site = Site.objects.create(site=request.POST['add_site'])
+                site.save()
+            if Building.objects.filter(building=request.POST['add_building'],site=site).exists():
+                building = Building.objects.get(building=request.POST['add_building'])
+            else:
+                building = Building.objects.create(building=request.POST['add_building'], site=site)
+                building.save()
+            if Floor.objects.filter(floor=request.POST['add_floor'], site=site, building=building).exists():
+                messages.info(request,"มี Location นี้แล้ว")
+            else:
+                floor = Floor.objects.create(floor=request.POST['add_floor'], site=site, building=building)
+                floor.save()
+        elif 'Editlocation' in request.POST:
+            floor = Floor.objects.get(id=request.POST['set_location_id'])
+            if floor.site.site != request.POST['set_site']:
+                if Site.objects.filter(site=request.POST['set_site']).exists():
+                    site = Site.objects.get(site=request.POST['set_site'])
+                else:
+                    site = Site.objects.create(site=request.POST['set_site'])
+                    site.save()
+                floor.site = site
+            else:
+                site = floor.site
+            if floor.building.building != request.POST['set_building']:
+                if Building.objects.filter(building=request.POST['set_building'], site=site).exists():
+                    building = Building.objects.get(building=request.POST['set_building'])
+                else:
+                    building = Building.objects.create(building=request.POST['set_building'], site=site)
+                    building.save()
+                floor.building = building
+            else:
+                building = floor.building
+            if floor.floor != request.POST['set_floor']:
+                if Floor.objects.filter(floor=request.POST['set_floor'], site=site, building=building).exists():
+                    messages.info(request, "มี Location นี้แล้ว")
+                else:
+                    floor.floor = request.POST['set_floor']
+                    floor.save()
+
+    sites = Site.objects.all()
+    buildings = Building.objects.all()
+    floors = Floor.objects.all()
+    context = {
+        'User_loinged':User_loinged,'sites':sites,'buildings':buildings,'floors':floors
+    }
+    return render(request,'location.html',context)
+
+def org_productline(request):
+    org_lines = Organization.objects.all()
+    context = {
+        'org_lines':org_lines
+    }
+    return render(request,'org_prodline.html',context)

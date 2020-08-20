@@ -1,4 +1,4 @@
-{% extends 'layout_machinemanage.html' %}
+{% extends 'layout_home.html' %}
 {% block content %}
 
 <H1 style="color:#1E88E5"><center>Machine <strong>Data</strong></center></H1>
@@ -11,12 +11,12 @@
             </tr>
             <tr style="text-align:center;">
                 <th style="vertical-align:middle;">No</th>
-                <th>Serial ID</th>
-                <th style="vertical-align:middle;">Code</th>
-                <th style="vertical-align:middle;">Name</th>
-                <th style="vertical-align:middle;">Type</th>
-                <th style="vertical-align:middle;">Brand</th>
-                <th style="vertical-align:middle;">Model</th>
+                <th>mSerial ID</th>
+                <th style="vertical-align:middle;">mCode</th>
+                <th style="vertical-align:middle;">mName</th>
+                <th style="vertical-align:middle;">mType</th>
+                <th style="vertical-align:middle;">mBrand</th>
+                <th style="vertical-align:middle;">mModel</th>
                 <th>Supplier Code</th>
                 <th>Location ID</th>
                 <th>EMP ID Response</th>
@@ -25,7 +25,7 @@
                 <th>Power (watt/hour)</th>
                 <th>Installed Date</th>
                 <th style="vertical-align:middle;">Start Date</th>
-                <th style="vertical-align:middle;">Line</th>
+                <th style="vertical-align:middle;">pLine</th>
             </tr>
         </thead>
         <tbody>
@@ -35,9 +35,7 @@
                 <td>{{machine.serial_id}}</td>
                 <td>{{machine.machine_code}}</td>
                 <td width="100">{{machine.machine_name}}</td>
-                {% for mtype in machine.machine_type.all%}
-                <td>{{mtype.mtype_name}}</td>
-                {% endfor %}
+                <td>{{machine.machine_type}}</td>
                 <td>{{machine.machine_brand}}</td>
                 <td>{{machine.machine_model}}</td>
                 <td>{{machine.machine_supplier_code}}</td>

@@ -1,34 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Title</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<form method="POST">-->
+<!--    {% csrf_token %}-->
+<!--    {% for field in form %}-->
+<!--    <div class="form-group">-->
+<!--        {{ field.label_tag }} {{ field }} {% for error in field.errors %}<label style="color:#C22D1E">{{error}}</label>{% endfor %}-->
+<!--    </div>-->
+<!--    {% endfor %}-->
+<!--    <input type="submit" value="Save">-->
+<!--</form>-->
+
+<!--&lt;!&ndash;<div class="p-4">&ndash;&gt;-->
+<!--&lt;!&ndash;    <h1><b>Machine</b></h1>&ndash;&gt;-->
+<!--&lt;!&ndash;    <ul class="list-unstyled components mb-5">&ndash;&gt;-->
+<!--&lt;!&ndash;        {% for root,list_child in dict_menu_level %}&ndash;&gt;-->
+<!--&lt;!&ndash;        <li class="active">&ndash;&gt;-->
+<!--&lt;!&ndash;            <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{root}}</a>&ndash;&gt;-->
+<!--&lt;!&ndash;            <ul class="collapse list-unstyled" id="Machinemenu">&ndash;&gt;-->
+<!--&lt;!&ndash;                {% for child in list_child %}&ndash;&gt;-->
+<!--&lt;!&ndash;                    <li><a href="{% url 'machinedata' %}">{{child}}</a></li>&ndash;&gt;-->
+<!--&lt;!&ndash;                {% endfor %}&ndash;&gt;-->
+<!--&lt;!&ndash;            </ul>&ndash;&gt;-->
+<!--&lt;!&ndash;        </li>&ndash;&gt;-->
+<!--&lt;!&ndash;        {% endfor %}&ndash;&gt;-->
+<!--&lt;!&ndash;    </ul>&ndash;&gt;-->
+<!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+
+<!--</body>-->
+<!--</html>-->
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<script type="text/javascript">
+  function CheckColors(val){
+   var element=document.getElementById('color');
+   if(val=='pick a color'||val=='others')
+     element.style.display='block';
+   else
+     element.style.display='none';
+  }
+
+</script>
 </head>
 <body>
-<form method="POST">
-    {% csrf_token %}
-    {% for field in form %}
-    <div class="form-group">
-        {{ field.label_tag }} {{ field }} {% for error in field.errors %}<label style="color:#C22D1E">{{error}}</label>{% endfor %}
-    </div>
-    {% endfor %}
-    <input type="submit" value="Save">
-</form>
-
-<!--<div class="p-4">-->
-<!--    <h1><b>Machine</b></h1>-->
-<!--    <ul class="list-unstyled components mb-5">-->
-<!--        {% for root,list_child in dict_menu_level %}-->
-<!--        <li class="active">-->
-<!--            <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{root}}</a>-->
-<!--            <ul class="collapse list-unstyled" id="Machinemenu">-->
-<!--                {% for child in list_child %}-->
-<!--                    <li><a href="{% url 'machinedata' %}">{{child}}</a></li>-->
-<!--                {% endfor %}-->
-<!--            </ul>-->
-<!--        </li>-->
-<!--        {% endfor %}-->
-<!--    </ul>-->
-<!--</div>-->
+  <select name="color" onchange='CheckColors(this.value);'>
+    <option>pick a color</option>
+    <option value="red">RED</option>
+    <option value="blue">BLUE</option>
+    <option value="others">others</option>
+  </select>
+<input type="text" name="color" id="color" style='display:none;'/>
 </body>
 </html>

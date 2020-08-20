@@ -51,12 +51,23 @@ class ProductLineForm(forms.ModelForm):
     class Meta:
         model = Production_line
         fields = [
-            'productionline_id',
+            'pid',
+            'production_line',
             'location_site',
             'location_building',
-            'location_floor',
-            'production_line'
+            'location_floor'
         ]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['location_building'].queryset = Building.objects.none()
+        if 'location_site' in self.data:
+            try:
+                location_site_id = int(self.data.get('location_site'))
+                self.fields['location_building'].queryset = Building.objects.filter(site_id=location_site_id).order_by('production_line')
+            except (ValueError,TypeError):
+                pass
+        elif self.instance.pk:
+            self.fields['location_building'].queryset = self.instance.location_site.location_building_set.order_by('production_line')
 
 class UserForm(forms.ModelForm):
     username = forms.CharField(label='Username : ',widget=forms.TextInput(attrs={"maxlength":6}))
