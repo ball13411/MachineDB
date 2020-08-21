@@ -359,7 +359,6 @@ def home(request):
         if child in List_menu_role :
             root = Menu.objects.get(menu_id=child.parent_menu)
             dict_menu_level[root].append(child)
-    print(dict_menu_level)
     context = {'User_loinged':User_loinged,'UserRole':UserRole,'dict_menu_level':dict_menu_level.items()}
     return render(request,'home.html',context)
 
