@@ -42,6 +42,7 @@ urlpatterns = [
     path('organizemanage/line',views.production_line,name='productionline'),
     path('organizemanage/location',views.location,name='location'),
     path('organziemanage/orgline',views.org_productline,name='org_prodline'),
+    path('organziemanage/productmanage',views.productmanage,name='productmanage'),
     # path('machinemanage/sparepart/',views.sparepart,name='sparepart'),
     path('test/',views.test)
 

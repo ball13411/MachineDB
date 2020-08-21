@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Screen(models.Model):
-    screen_id = models.CharField(max_length=15,primary_key=True)
+    screen_id = models.CharField(max_length=20,primary_key=True)
     screen_name = models.CharField(max_length=20)
     file_py = models.CharField(max_length=30)
     file_html = models.CharField(max_length=20)
@@ -28,8 +28,8 @@ class Menu(models.Model):
         ordering = ["level", "parent_menu", "index"]
 
 class Role(models.Model):
-    role_id = models.CharField(max_length=5,primary_key=True)
-    role_name = models.CharField(max_length=15)
+    role_id = models.CharField(max_length=20,primary_key=True)
+    role_name = models.CharField(max_length=20)
     members = models.ManyToManyField(Screen,through='Role_Screen')
     def __str__(self):
         return self.role_id
@@ -79,15 +79,27 @@ class Production_line(models.Model):
     location_building = models.ForeignKey(Building,on_delete=models.CASCADE,blank=True,null=True)
     location_floor = models.ForeignKey(Floor,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
-        return str(self.production_line)
+        return str(self.location_site)+"/line:"+str(self.production_line)
     class Meta:
         db_table = "Production_line"
-        ordering = ["location_site","location_building"]
+        ordering = ["location_site", "location_building"]
+
+class Product(models.Model):
+    product_name = models.CharField(max_length=30)
+    product_code = models.CharField(max_length=30)
+    capacity = models.CharField(max_length=15)
+    labour = models.CharField(max_length=10)
+    line = models.ForeignKey(Production_line,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.product_name
+    class Meta:
+        db_table = "Product"
+
 
 class Organization(models.Model):
     org_id =  models.AutoField(primary_key=True)
-    org_code = models.CharField(max_length=10)
-    org_name = models.CharField(max_length=20)
+    org_code = models.CharField(max_length=25)
+    org_name = models.CharField(max_length=25)
     org_line = models.ManyToManyField(Production_line)
     def __str__(self):
         return self.org_code
@@ -128,12 +140,12 @@ class Machine(models.Model):
         db_table = "Machine_master"
 
 class User(models.Model):
-    username = models.CharField(max_length=6,primary_key=True)
+    username = models.CharField(max_length=10,primary_key=True)
     firstname = models.CharField(max_length=20)
     lastname = models.CharField(max_length=20)
     password = models.CharField(max_length=15)
     email = models.CharField(max_length=30)
-    create_by = models.CharField(max_length=6)
+    create_by = models.CharField(max_length=10)
     create_date = models.DateTimeField()
     start_date = models.DateField()
     expired_date = models.DateField()

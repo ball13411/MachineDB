@@ -229,6 +229,7 @@
                 <a href="{% url 'productionline' %}" class="nav-item nav-link">Productionfloor Manage</a>
                 <a href="{% url 'location' %}" class="nav-item nav-link active"><b>Location</b></a>
                 <a href="{% url 'org_prodline' %}" class="nav-item nav-link">Organize&Line</a>
+                <a href="{% url 'productmanage' %}" class="nav-item nav-link active">Product Manage</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
