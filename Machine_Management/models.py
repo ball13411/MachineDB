@@ -25,6 +25,7 @@ class Menu(models.Model):
         return self.menu_id
     class Meta:
         db_table = "Menu_management"
+        ordering = ["level", "parent_menu", "index"]
 
 class Role(models.Model):
     role_id = models.CharField(max_length=5,primary_key=True)
@@ -35,6 +36,7 @@ class Role(models.Model):
     class Meta:
         db_table = "Role_management"
 
+
 class Role_Screen(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     screen = models.ForeignKey(Screen, on_delete=models.CASCADE)
@@ -43,6 +45,7 @@ class Role_Screen(models.Model):
     permission_delete = models.CharField(max_length=5)
     class Meta:
         db_table = "Role_Screen"
+        ordering = ["role"]
 
 class Site(models.Model):
     site = models.CharField(max_length=30)
@@ -67,6 +70,7 @@ class Floor(models.Model):
         return self.floor
     class Meta:
         db_table = "Floor"
+        ordering = ["site", "building","floor"]
 
 class Production_line(models.Model):
     pid = models.AutoField(primary_key=True)
@@ -78,6 +82,7 @@ class Production_line(models.Model):
         return str(self.production_line)
     class Meta:
         db_table = "Production_line"
+        ordering = ["location_site","location_building"]
 
 class Organization(models.Model):
     org_id =  models.AutoField(primary_key=True)

@@ -627,7 +627,7 @@ def production_line(request):
     return render(request,'production_line.html',context)
 
 def location(request):
-    global User_loinged
+    global User_loinged,UserRole
     if not Role_Screen.objects.filter(role=UserRole, screen_id='location').exists():
         return redirect('/')
     if request.method == "POST":
@@ -683,8 +683,23 @@ def location(request):
     return render(request,'location.html',context)
 
 def org_productline(request):
+    global User_loinged,UserRole
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='location').exists():
+        return redirect('/')
+    if request.method == "POST":
+        if "Editorgline" in request.POST:
+            org = Organization.objects.get(org_id=request.POST["org_id"])
+            line = Production_line.objects.get(pid=request.POST["select_line"])
+            org.org_line.add(line)
+            org.save()
+        elif "delete_org" in request.POST:
+            org = Organization.objects.get(org_id=request.POST["delete_org"])
+            line = Production_line.objects.get(pid=request.POST["select_del_line"])
+            org.org_line.remove(line)
+            org.save()
     org_lines = Organization.objects.all()
+    prod_lines = Production_line.objects.all()
     context = {
-        'org_lines':org_lines
+        'org_lines':org_lines,'prod_lines':prod_lines,'User_loinged':User_loinged,'UserRole':UserRole
     }
     return render(request,'org_prodline.html',context)
