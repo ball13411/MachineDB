@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Production Line Management</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pridi&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
+    <script>
+        $(document).ready(function(){
+            $("#setting").on("show.bs.modal", function(event){
+                // Get the button that triggered the modal
+                var button = $(event.relatedTarget);
+
+                // Extract value from the custom data-* attribute
+                var titleData = button.data("title");
+                $(this).find(".modal-title").text(titleData);
+            });
+        });
+    </script>
+    <style>
+    body {
+        color: #566787;
+        background: #f5f5f5;
+        font-family: 'Pridi', serif;
+        font-size: 18px;
+    }
+    .table-responsive {
+        margin: 30px 0;
+        font-size: 16px;
+    }
+    .table-wrapper {
+        min-width: 1000px;
+        background: #fff;
+        padding: 20px 25px;
+        border-radius: 3px;
+        box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    }
+    .table-title {
+        padding-bottom: 15px;
+        background: #cf152d;
+        color: #fff;
+        padding: 16px 30px;
+        margin: -20px -25px 10px;
+        border-radius: 3px 3px 0 0;
+    }
+    .table-title h2 {
+        margin: 5px 0 0;
+        font-size: 24px;
+    }
+    .table-title .btn {
+        color: #566787;
+        float: right;
+        font-size: 13px;
+        background: #fff;
+        border: none;
+        min-width: 50px;
+        border-radius: 2px;
+        border: none;
+        outline: none !important;
+        margin-left: 10px;
+    }
+    .table-title .btn:hover, .table-title .btn:focus {
+        color: #566787;
+        background: #f2f2f2;
+    }
+    .table-title .btn i {
+        float: left;
+        font-size: 21px;
+        margin-right: 5px;
+    }
+    .table-title .btn span {
+        float: left;
+        margin-top: 2px;
+    }
+    table.table tr th, table.table tr td {
+        border-color: #e9e9e9;
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+    table.table tr th:first-child {
+        width: 60px;
+    }
+    table.table tr th:last-child {
+        width: 100px;
+    }
+    table.table-striped tbody tr:nth-of-type(odd) {
+        background-color: #fcfcfc;
+    }
+    table.table-striped.table-hover tbody tr:hover {
+        background: #f5f5f5;
+    }
+    table.table th i {
+        font-size: 13px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+    table.table td:last-child i {
+        opacity: 0.9;
+        font-size: 22px;
+        margin: 0 5px;
+    }
+    table.table td a {
+        font-weight: bold;
+        color: #566787;
+        display: inline-block;
+        text-decoration: none;
+    }
+    table.table td a:hover {
+        color: #cf152d;
+    }
+    table.table td a.settings {
+        color: #2196F3;
+    }
+    table.table td a.delete {
+        color: #F44336;
+    }
+    table.table td i {
+        font-size: 19px;
+    }
+    table.table .avatar {
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+    .status {
+        font-size: 30px;
+        margin: 2px 2px 0 0;
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 10px;
+    }
+    .text-success {
+        color: #10c469;
+    }
+    .text-info {
+        color: #62c9e8;
+    }
+    .text-warning {
+        color: #FFC107;
+    }
+    .text-danger {
+        color: #ff5b5b;
+    }
+    .pagination {
+        float: right;
+        margin: 0 0 5px;
+    }
+    .pagination li a {
+        border: none;
+        font-size: 13px;
+        min-width: 30px;
+        min-height: 30px;
+        color: #999;
+        margin: 0 2px;
+        line-height: 30px;
+        border-radius: 2px !important;
+        text-align: center;
+        padding: 0 6px;
+    }
+    .pagination li a:hover {
+        color: #666;
+    }
+    .pagination li.active a, .pagination li.active a.page-link {
+        background: #837766;
+    }
+    .pagination li.active a:hover {
+        background: #cf152d;
+    }
+    .pagination li.disabled i {
+        color: #ccc;
+    }
+    .pagination li i {
+        font-size: 16px;
+        padding-top: 6px
+    }
+    .hint-text {
+        float: left;
+        margin-top: 10px;
+        font-size: 13px;
+    }
+    .alert {
+        padding: 20px;
+        background-color: #C0392B;
+        color: white;
+    }
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .closebtn:hover {
+        color: black;
+    }
+    </style>
+    <script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+</head>
+<body>
+<div class="container px-0 px-xl-0">
+    <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
+        <a href="{% url 'home' %}" class="navbar-brand">
+            <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+            <div class="navbar-nav">
+                <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
+                <a href="{% url 'productionline' %}" class="nav-item nav-link active"><b>ProductionLine Manage</b></a>
+                <a href="{% url 'location' %}" class="nav-item nav-link">Location</a>
+                <a href="{% url 'org_prodline' %}" class="nav-item nav-link">Organize&Line</a>
+            </div>
+            <form method="POST" action="{% url 'signin' %}">
+                {% csrf_token %}
+                <ul class="nav navbar-nav ml-auto">
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
+                </ul>
+            </form>
+        </div>
+    </nav>
+</div>
+<div class="container-xl">
+    <div class="table-responsive">
+        {% for message in messages %}
+          <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            {{message}}
+          </div>
+        {% endfor %}
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <h2>Production Line <b>Management</b></h2>
+                    </div>
+                    <div class="col-sm-7">
+                        <a href="#createprodline" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Line</span></a>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-striped table-hover" id="myTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Production Line</th>
+                        <th>Location Site</th>
+                        <th>Location Building</th>
+                        <th>Location Floor</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+            {% for line in lines %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td><a href="#"><img src="/static/img/production2.png" width="30" height="30">&nbsp;&nbsp;{{line.production_line}}</a></td>
+                        <td>{{line.location_site}}</td>
+                        <td>{{line.location_building}}</td>
+                        <td>{{line.location_floor}}</td>
+                        <td>
+                            <a href="#setting{{line.pid}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{line.pid}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                        </td>
+                    </tr>
+
+            <!-- Modal Setting -->
+            <div id="setting{{line.pid}}" class="modal fade" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" id="form_prodline" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">Setting</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>ProductionID</label>
+                                    <input type="text" id="set_prodline_id" class="form-control" value="{{line.pid}}" name="set_prodline_id" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Production Line</label>
+                                    <input type="text" id="set_production_line" class="form-control" value="{{line.production_line}}" name="set_production_line">
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Location Site (set : {{line.location_site}})</label>
+                                    <select class="form-control" id="select_site" name="select_site">
+                                        <option value="0">-----------</option>
+<!--                                        <option value="{{site.id}}" {% if site.id == line.location_site_id %} selected {% endif %}>{% if site.id == line.location_site_id %} Default : {{site}} {% else %} {{site}} {% endif %}</option>-->
+                                    {% for site in sites %}
+                                        <option value="{{site.id}}">{{site}}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Location Building (set : {{line.location_building}})</label>
+                                    <select class="form-control" id="select_building" name="select_building">
+                                        <option value="0" selected>---------</option>
+<!--                                        <option value="{{line.location_building_id}}" selected>Default : {{line.location_building}}</option>-->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Location Floor (set : {{line.location_floor}})</label>
+                                    <select class="form-control" id="select_floor" name="select_floor">
+                                        <option value="0" selected>---------</option>
+<!--                                        <option value="{{line.location_floor_id}}" selected>Default : {{line.location_floor}}</option>-->
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary" name="Editprodline">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Delete -->
+            <div id="delete{{line.pid}}" class="modal fade" tabindex="-1" >
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmation</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" id="del_org" class="form-control" value="Production Line (ID:{{line.pid}}) : {{line.location_building}} / Line {{line.production_line}}" name="del_org" readonly>
+                            <br><p>Do you want to delete this user?</p>
+                            <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" value="{{line.pid}}" name="delete_line">Delete</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Modal Adduser -->
+            <div id="createprodline" class="modal fade" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" id="add_prodline" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add new organization</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Production Line</label>
+                                    <input type="text" id="add_prodline" class="form-control" name="add_prodline" autocomplete="off" maxlength="10" >
+                                </div>
+                                <div class="form-group">
+                                    <label>Location Site</label>
+                                    <select class="form-control" id="add_select_site" name="add_select_site">
+                                        <option value="0">-----------</option>
+                                        {% for site in sites %}
+                                        <option value="{{site.id}}">{{site}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Location Building</label>
+                                    <select class="form-control" id="add_select_building" name="add_select_building">
+                                        <option value="0" selected>---------</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Location Floor</label>
+                                    <select class="form-control" id="add_select_floor" name="add_select_floor">
+                                        <option value="0" selected>---------</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary" name="Addprodline">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready( function () {
+    $('#myTable').DataTable();
+} );
+</script>
+<script>
+    $("#add_select_site").change(function () {
+        const url = $("#add_prodline").attr("data-building-url");  // get the url of the `load_cities` view
+        const siteId = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'location_site_id': siteId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#add_select_building").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+    $("#add_select_site").change(function () {
+            const url = $("#add_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+            const siteId = $(this).val();  // get the selected country ID from the HTML input
+            const buildingId = 0;
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'location_site_id': siteId,       // add the country id to the GET parameters
+                    'location_building_id': buildingId
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#add_select_floor").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+
+        });
+    $("#add_select_building").change(function () {
+        const url = $("#add_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+        const siteId = $("#add_select_site").val();
+        const buildingId = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'location_site_id':siteId,
+                'location_building_id': buildingId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#add_select_floor").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>
+<script>
+    $("#select_site").change(function () {
+        const url = $("#form_prodline").attr("data-building-url");  // get the url of the `load_cities` view
+        const siteId = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'location_site_id': siteId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#select_building").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>
+<script>
+    $("#select_site").change(function () {
+            const url = $("#form_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+            const siteId = $(this).val();  // get the selected country ID from the HTML input
+            const buildingId = 0;
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'location_site_id': siteId,       // add the country id to the GET parameters
+                    'location_building_id': buildingId
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#select_floor").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+
+        });
+    $("#select_building").change(function () {
+        const url = $("#form_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+        const siteId = $("#select_site").val();
+        const buildingId = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'location_site_id':siteId,
+                'location_building_id': buildingId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#select_floor").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>
+<!--<script>-->
+<!--    function myFunction() {-->
+<!--      var siteId = document.getElementById("select_site").value;-->
+<!--      const url = $("#form_prodline").attr("data-building-url");-->
+
+<!--      $.ajax({-->
+<!--            url: url,-->
+<!--            data: {-->
+<!--                'location_site_id': siteId-->
+<!--            },-->
+<!--            success: function (data) {-->
+<!--                document.getElementById("select_building").value = data-->
+<!--                $("#select_building").html(data);-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+<!--</script>-->
+</body>
+</html>

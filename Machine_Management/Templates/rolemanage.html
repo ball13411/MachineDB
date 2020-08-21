@@ -217,7 +217,7 @@
 <body>
 <div class="container px-0 px-xl-0">
     <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
-        <a href="{% url 'adminmanage' %}" class="navbar-brand">
+        <a href="{% url 'home' %}" class="navbar-brand">
             <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
         </a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
@@ -226,7 +226,6 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse1">
             <div class="navbar-nav">
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Manage</a>
-                <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link active"><b>Role Manage</b></a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
                 <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role-Screen</a>
@@ -235,7 +234,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>

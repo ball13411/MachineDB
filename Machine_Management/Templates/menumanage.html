@@ -219,7 +219,7 @@
 <body>
 <div class="container px-0 px-xl-0">
     <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
-        <a href="{% url 'adminmanage' %}" class="navbar-brand">
+        <a href="{% url 'home' %}" class="navbar-brand">
             <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
         </a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
@@ -228,7 +228,6 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Manage</a>
-                <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Manage</a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
                 <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role-Screen</a>
@@ -237,7 +236,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>
@@ -267,8 +266,8 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th width="170">Menu ID</th>
-                        <th width="200">Menu Name</th>
+                        <th hidden>Menu ID</th>
+                        <th>Menu Name</th>
                         <th>Level</th>
                         <th>Screen</th>
                         <th>Parent menu</th>
@@ -282,8 +281,9 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
 <!--                        <td><a href="#"><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{menu.menu_id}}</a></td>-->
-                        <td><img src="/static/img/menu.png" width="20" height="20">&nbsp;&nbsp;{{menu.menu_id}}</td>
-                        <td>{{menu.name}}</td>
+<!--                        <td><img src="/static/img/menu.png" width="20" height="20">&nbsp;&nbsp;{{menu.menu_id}}</td>-->
+                        <td hidden>{{menu.menu_id}}</td>
+                        <td><img src="/static/img/menu.png" width="15" height="15">&nbsp;{{menu.name}}</td>
                         <td>{{menu.level}}</td>
                         <td>{{menu.screen}}</td>
                         <td>{{menu.parent_menu}}</td>
@@ -329,9 +329,10 @@
                                 <div class="form-group">
                                     <label>Select Parent</label>
                                     <select class="form-control" id="select_parent" name="select_parent">
-                                    {% for menu_select in list_menu %}
-                                    <option value="{{menu_select.menu_id}}">{{menu_select.menu_id}}</option>
-                                    {% endfor %}
+                                        <option value="">None</option>
+                                        {% for menu_select in list_menu %}
+                                        <option value="{{menu_select.menu_id}}" {% if menu.parent_menu == menu_select.menu_id %} selected {% endif %}>{{menu_select.menu_id}} {% if menu_select.level == 0 %}[root]{% endif %}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">

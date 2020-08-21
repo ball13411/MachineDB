@@ -25,6 +25,7 @@ class Menu(models.Model):
         return self.menu_id
     class Meta:
         db_table = "Menu_management"
+        ordering = ["level", "parent_menu", "index"]
 
 class Role(models.Model):
     role_id = models.CharField(max_length=5,primary_key=True)
@@ -35,6 +36,7 @@ class Role(models.Model):
     class Meta:
         db_table = "Role_management"
 
+
 class Role_Screen(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     screen = models.ForeignKey(Screen, on_delete=models.CASCADE)
@@ -43,23 +45,44 @@ class Role_Screen(models.Model):
     permission_delete = models.CharField(max_length=5)
     class Meta:
         db_table = "Role_Screen"
+        ordering = ["role"]
+
+class Site(models.Model):
+    site = models.CharField(max_length=30)
+    def __str__(self):
+        return self.site
+    class Meta:
+        db_table = "Site"
+
+class Building(models.Model):
+    building = models.CharField(max_length=30)
+    site = models.ForeignKey(Site,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.building
+    class Meta:
+        db_table = "Building"
+
+class Floor(models.Model):
+    floor = models.CharField(max_length=20)
+    site = models.ForeignKey(Site,on_delete=models.CASCADE)
+    building = models.ForeignKey(Building,on_delete=models.CASCADE)
+    def __str__(self):
+        return self.floor
+    class Meta:
+        db_table = "Floor"
+        ordering = ["site", "building","floor"]
 
 class Production_line(models.Model):
-
-    site = [('BC','บางชัน'),('CAD1','ลาดกระบัง1'),('CAD2','ลาดกระบัง2')]
-    building = [('บางชัน1','บางชัน1'),('บางชัน2','บางชัน2'),('ลาดกระบัง1','ลาดกระบัง1'),('ลาดกระบัง2','ลาดกระบัง2')]
-    floor = [('3','3'),('2','2'),('1','1')]
-
-    productionline_id = models.AutoField(primary_key=True)
-    location_site = models.CharField(choices=site,max_length=15,default='------')
-    location_building = models.CharField(max_length=15,choices=building,default='-------')
-    location_floor = models.CharField(max_length=10,choices=floor,default='1')
+    pid = models.AutoField(primary_key=True)
     production_line = models.IntegerField()
-
+    location_site = models.ForeignKey(Site,on_delete=models.CASCADE,blank=True,null=True)
+    location_building = models.ForeignKey(Building,on_delete=models.CASCADE,blank=True,null=True)
+    location_floor = models.ForeignKey(Floor,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
         return str(self.production_line)
     class Meta:
         db_table = "Production_line"
+        ordering = ["location_site","location_building"]
 
 class Organization(models.Model):
     org_id =  models.AutoField(primary_key=True)
@@ -89,7 +112,7 @@ class Machine(models.Model):
     serial_id = models.CharField(max_length=50,default=None,null=True)
     machine_code = models.CharField(max_length=20,default=None,null=True)
     machine_name = models.CharField(max_length=50,default=None,null=True)
-    machine_type = models.ManyToManyField(Machine_type)
+    machine_type = models.ForeignKey(Machine_type,on_delete=models.CASCADE)
     machine_brand = models.CharField(max_length=10,default=None,null=True)
     machine_model = models.CharField(max_length=10,default=None,null=True)
     machine_supplier_code = models.CharField(max_length=10,default=None,null=True)
