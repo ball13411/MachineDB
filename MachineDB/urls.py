@@ -27,13 +27,13 @@ urlpatterns = [
     path('usermanage/screen/', views.screenmanage,name='screenmanage'),
     path('usermanage/rolescreen/',views.role_screen,name='role_screen_manage'),
     path('home/',views.home,name='home'),
-    path('machinemanage/register/',views.machine_register,name='machineregister'),
-    path('machinemanage/data/',views.machine_data,name='machinedata'),
+    path('machine/register/',views.machine_register,name='machineregister'),
+    path('machine/data/',views.machine_data,name='machinedata'),
     path('usermanage/menu/',views.menumanage,name='menumanage'),
     path('organizemanage/organization',views.organizemanage,name='organization'),
-    path('machinemanage/search',views.machine_search,name='machinesearch'),
-    path('machinemanage/update',views.machine_update,name='machineupdate'),
-    path('machinemanage/update/edit',views.machine_edit,name='machineedit'),
+    path('machine/search',views.machine_search,name='machinesearch'),
+    path('machine/update',views.machine_update,name='machineupdate'),
+    path('machine/update/edit',views.machine_edit,name='machineedit'),
     path('check_username', views.check_username, name='check_username'),
     path('check_email', views.check_email, name='check_email'),
     path('productionline/create',views.production_line_create,name='linecreate'),
@@ -42,6 +42,9 @@ urlpatterns = [
     path('organizemanage/line',views.production_line,name='productionline'),
     path('organizemanage/location',views.location,name='location'),
     path('organziemanage/orgline',views.org_productline,name='org_prodline'),
+    path('organziemanage/productmanage',views.productmanage,name='productmanage'),
+    path('machinemanage/machine',views.machine_manage,name='machine_manage'),
+
     # path('machinemanage/sparepart/',views.sparepart,name='sparepart'),
     path('test/',views.test)
 

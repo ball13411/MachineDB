@@ -229,6 +229,7 @@
                 <a href="{% url 'productionline' %}" class="nav-item nav-link active"><b>ProductionLine Manage</b></a>
                 <a href="{% url 'location' %}" class="nav-item nav-link">Location</a>
                 <a href="{% url 'org_prodline' %}" class="nav-item nav-link">Organize&Line</a>
+                <a href="{% url 'productmanage' %}" class="nav-item nav-link ">Product Manage</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -274,7 +275,7 @@
             {% for line in lines %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#"><img src="/static/img/production2.png" width="30" height="30">&nbsp;&nbsp;{{line.production_line}}</a></td>
+                        <td><a href="#"><img src="/static/img/company.png" width="30" height="30">&nbsp;&nbsp;{{line.production_line}}</a></td>
                         <td>{{line.location_site}}</td>
                         <td>{{line.location_building}}</td>
                         <td>{{line.location_floor}}</td>
@@ -288,7 +289,7 @@
             <div id="setting{{line.pid}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="form_prodline" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
+                        <form method="POST" id="form_prodline{{forloop.counter}}" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Setting</h5>
@@ -297,15 +298,15 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>ProductionID</label>
-                                    <input type="text" id="set_prodline_id" class="form-control" value="{{line.pid}}" name="set_prodline_id" readonly>
+                                    <input type="text" id="set_prodline_id{{forloop.counter}}" class="form-control" value="{{line.pid}}" name="set_prodline_id" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Production Line</label>
-                                    <input type="text" id="set_production_line" class="form-control" value="{{line.production_line}}" name="set_production_line">
+                                    <input type="text" id="set_production_line{{forloop.counter}}" class="form-control" value="{{line.production_line}}" name="set_production_line">
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Location Site (set : {{line.location_site}})</label>
-                                    <select class="form-control" id="select_site" name="select_site">
+                                    <select class="form-control" id="select_site{{forloop.counter}}" name="select_site">
                                         <option value="0">-----------</option>
 <!--                                        <option value="{{site.id}}" {% if site.id == line.location_site_id %} selected {% endif %}>{% if site.id == line.location_site_id %} Default : {{site}} {% else %} {{site}} {% endif %}</option>-->
                                     {% for site in sites %}
@@ -315,14 +316,14 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Location Building (set : {{line.location_building}})</label>
-                                    <select class="form-control" id="select_building" name="select_building">
+                                    <select class="form-control" id="select_building{{forloop.counter}}" name="select_building">
                                         <option value="0" selected>---------</option>
 <!--                                        <option value="{{line.location_building_id}}" selected>Default : {{line.location_building}}</option>-->
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Location Floor (set : {{line.location_floor}})</label>
-                                    <select class="form-control" id="select_floor" name="select_floor">
+                                    <select class="form-control" id="select_floor{{forloop.counter}}" name="select_floor">
                                         <option value="0" selected>---------</option>
 <!--                                        <option value="{{line.location_floor_id}}" selected>Default : {{line.location_floor}}</option>-->
                                     </select>
@@ -345,8 +346,8 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" id="del_org" class="form-control" value="Production Line (ID:{{line.pid}}) : {{line.location_building}} / Line {{line.production_line}}" name="del_org" readonly>
-                            <br><p>Do you want to delete this user?</p>
+                            <input type="text" id="del_org{{line.pid}}" class="form-control" value="Production Line (ID:{{line.pid}}) : {{line.location_building}} / Line {{line.production_line}}" name="del_org" readonly>
+                            <br><p>Do you want to delete this production line?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
                         <div class="modal-footer">
@@ -364,7 +365,7 @@
             <div id="createprodline" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="add_prodline" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
+                        <form method="POST" id="add_prodline_script" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Add new organization</h5>
@@ -418,7 +419,7 @@
 </script>
 <script>
     $("#add_select_site").change(function () {
-        const url = $("#add_prodline").attr("data-building-url");  // get the url of the `load_cities` view
+        const url = $("#add_prodline_script").attr("data-building-url");  // get the url of the `load_cities` view
         const siteId = $(this).val();  // get the selected country ID from the HTML input
 
         $.ajax({                       // initialize an AJAX request
@@ -432,7 +433,7 @@
         });
     });
     $("#add_select_site").change(function () {
-            const url = $("#add_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+            const url = $("#add_prodline_script").attr("data-floor-url");  // get the url of the `load_cities` view
             const siteId = $(this).val();  // get the selected country ID from the HTML input
             const buildingId = 0;
 
@@ -449,7 +450,7 @@
 
         });
     $("#add_select_building").change(function () {
-        const url = $("#add_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+        const url = $("#add_prodline_script").attr("data-floor-url");  // get the url of the `load_cities` view
         const siteId = $("#add_select_site").val();
         const buildingId = $(this).val();  // get the selected country ID from the HTML input
 
@@ -466,24 +467,33 @@
     });
 </script>
 <script>
-    $("#select_site").change(function () {
-        const url = $("#form_prodline").attr("data-building-url");  // get the url of the `load_cities` view
-        const siteId = $(this).val();  // get the selected country ID from the HTML input
+    var i;
+    for (i = 0; i <= {{lines|length}}; i++) {
+        $("#select_site"+i).change(function () {
+            var numID = this.id.substring(11,);
+            const url = $("#form_prodline"+numID).attr("data-building-url");  // get the url of the `load_cities` view
+            const siteId = $(this).val();  // get the selected country ID from the HTML input
 
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-            data: {
-                'location_site_id': siteId       // add the country id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#select_building").html(data);  // replace the contents of the city input with the data that came from the server
-            }
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'location_site_id': siteId       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#select_building"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+
         });
-    });
+    }
 </script>
 <script>
-    $("#select_site").change(function () {
-            const url = $("#form_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
+    var i;
+    for (i = 0; i <= {{lines|length}}; i++)
+    {
+        $("#select_site"+i).change(function () {
+            var numID = this.id.substring(11,);
+            const url = $("#form_prodline"+numID).attr("data-floor-url");  // get the url of the `load_cities` view
             const siteId = $(this).val();  // get the selected country ID from the HTML input
             const buildingId = 0;
 
@@ -494,44 +504,30 @@
                     'location_building_id': buildingId
                 },
                 success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#select_floor").html(data);  // replace the contents of the city input with the data that came from the server
+                    $("#select_floor"+numID).html(data);  // replace the contents of the city input with the data that came from the server
                 }
             });
 
         });
-    $("#select_building").change(function () {
-        const url = $("#form_prodline").attr("data-floor-url");  // get the url of the `load_cities` view
-        const siteId = $("#select_site").val();
-        const buildingId = $(this).val();  // get the selected country ID from the HTML input
+        $("#select_building"+i).change(function () {
+            var numID = this.id.substring(15,);
+            const url = $("#form_prodline"+numID).attr("data-floor-url");  // get the url of the `load_cities` view
+            const siteId = $("#select_site"+numID).val();
+            const buildingId = $(this).val();  // get the selected country ID from the HTML input
 
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-            data: {
-                'location_site_id':siteId,
-                'location_building_id': buildingId       // add the country id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#select_floor").html(data);  // replace the contents of the city input with the data that came from the server
-            }
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'location_site_id': siteId,
+                    'location_building_id': buildingId       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#select_floor"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
         });
-    });
+    }
 </script>
-<!--<script>-->
-<!--    function myFunction() {-->
-<!--      var siteId = document.getElementById("select_site").value;-->
-<!--      const url = $("#form_prodline").attr("data-building-url");-->
 
-<!--      $.ajax({-->
-<!--            url: url,-->
-<!--            data: {-->
-<!--                'location_site_id': siteId-->
-<!--            },-->
-<!--            success: function (data) {-->
-<!--                document.getElementById("select_building").value = data-->
-<!--                $("#select_building").html(data);-->
-<!--            }-->
-<!--        });-->
-<!--    }-->
-<!--</script>-->
 </body>
 </html>

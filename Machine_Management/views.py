@@ -274,7 +274,8 @@ def screenmanage(request):
             set_screen_name = request.POST['set_screenname']
             set_file_py = request.POST['set_filepy']
             set_file_html = request.POST['set_filehtml']
-            screen = Screen.objects.get(screen_id=set_screen_id)
+            screen = Screen.objects.get(screen_id=request.POST['Editscreen'])
+            screen.screen_id = set_screen_id
             screen.screen_name = set_screen_name
             screen.file_py = set_file_py
             screen.file_html = set_file_html
@@ -351,12 +352,15 @@ def home(request):
     List_menu_role = []
     dict_menu_level = {}
     for menu_role in List_user_Screen:
-        List_menu_role.append(Menu.objects.get(screen=menu_role))
-    for root in List_user_menu_lv0 :
-        if root in List_menu_role :
+        try:
+            List_menu_role.append(Menu.objects.get(screen=menu_role))
+        except Machine_Management.models.Menu.DoesNotExist:
+            pass
+    for root in List_user_menu_lv0:
+        if root in List_menu_role:
             dict_menu_level[root] = []
     for child in List_user_menu_lv1:
-        if child in List_menu_role :
+        if child in List_menu_role:
             root = Menu.objects.get(menu_id=child.parent_menu)
             dict_menu_level[root].append(child)
     print(dict_menu_level)
@@ -703,3 +707,41 @@ def org_productline(request):
         'org_lines':org_lines,'prod_lines':prod_lines,'User_loinged':User_loinged,'UserRole':UserRole
     }
     return render(request,'org_prodline.html',context)
+
+def productmanage(request):
+    global User_loinged,UserRole
+    if request.method == "POST":
+        if 'Addpline' in request.POST:
+            if not Product.objects.filter(product_code=request.POST['add_product_code']).exists():
+                line = Production_line.objects.get(pk=request.POST['add_select_pline'])
+                product = Product.objects.create(
+                    product_name=request.POST['add_product_name'],
+                    product_code=request.POST['add_product_code'],
+                    capacity=request.POST['add_product_capacity'],
+                    labour=request.POST['add_product_labour'],
+                    line=line
+                )
+                product.save()
+            else:
+                messages.info(request,"มีเลขรหัสผลิตภัณฑ์นี้แล้วนในไลน์การผลิต")
+        elif 'Editproduct' in request.POST:
+            line = Production_line.objects.get(pk=request.POST['set_select_pline'])
+            product = Product.objects.get(pk=request.POST['Editproduct'])
+            product.product_name = request.POST['set_product_name']
+            product.product_code = request.POST['set_product_code']
+            product.capacity = request.POST['set_product_capacity']
+            product.labour = request.POST['set_product_labour']
+            product.line = line
+            product.save()
+        elif 'delete_line' in request.POST:
+            product = Product.objects.get(pk=request.POST['delete_line'])
+            product.delete()
+    products = Product.objects.all()
+    plines = Production_line.objects.all()
+    context = {
+        "User_loinged":User_loinged,"UserRole":UserRole,"products":products,'plines':plines
+    }
+    return render(request,'productmanage.html',context)
+
+def machine_manage(request):
+    return render(request, 'machine_manage.html')

@@ -230,7 +230,7 @@
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Manage</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Manage</a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
-                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link active"><b>Role-Screen</b></a>
+                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link active"><b>Role&Screen</b></a>
                 <a href="{% url 'menumanage' %}" class="nav-item nav-link">Menu Manage</a>
             </div>
                 <form method="POST" action="{% url 'signin' %}">
@@ -255,7 +255,7 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Role and Screen <b>Management</b></h2>
+                        <h2>Role & Screen <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7">
                         <a href="#createrolescreen" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New RoleScreen</span></a>
@@ -359,7 +359,7 @@
                         </div>
                         <div class="modal-body">
                             <input type="text" id="rs_var" class="form-control" value="role id : {{rs.role_id}} &nbsp;||&nbsp; screen id : {{rs.screen_id}}" name="rs_var" readonly>
-                            <br><p>Do you want to delete this role?</p>
+                            <br><p>Do you want to delete this Role&Screen?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
                         <div class="modal-footer">
@@ -394,15 +394,15 @@
                                     <label>Select Role ID</label>
                                     <select class="form-control" id="add_rs_role" name="add_rs_role">
                                     {% for role in roles %}
-                                    <option value="{{role.role_id}}" {% if role.role_id == rs.role_id %}selected{% endif %}>{{role}}</option>
+                                    <option value="{{role.role_id}}">{{role}}</option>
                                     {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Screen ID</label>
+                                    <label>Select Screen ID </label>
                                     <select class="form-control" id="add_rs_screen" name="add_rs_screen">
                                     {% for screen in screens %}
-                                    <option value="{{screen.screen_id}}" {% if screen.screen_id == rs.screen_id %}selected{% endif %}>{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
+                                    <option value="{{screen.screen_id}}" >{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
                                     {% endfor %}
                                     </select>
                                 </div>
