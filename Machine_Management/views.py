@@ -274,7 +274,8 @@ def screenmanage(request):
             set_screen_name = request.POST['set_screenname']
             set_file_py = request.POST['set_filepy']
             set_file_html = request.POST['set_filehtml']
-            screen = Screen.objects.get(screen_id=set_screen_id)
+            screen = Screen.objects.get(screen_id=request.POST['Editscreen'])
+            screen.screen_id = set_screen_id
             screen.screen_name = set_screen_name
             screen.file_py = set_file_py
             screen.file_html = set_file_html
@@ -351,14 +352,18 @@ def home(request):
     List_menu_role = []
     dict_menu_level = {}
     for menu_role in List_user_Screen:
-        List_menu_role.append(Menu.objects.get(screen=menu_role))
-    for root in List_user_menu_lv0 :
-        if root in List_menu_role :
+        try:
+            List_menu_role.append(Menu.objects.get(screen=menu_role))
+        except Machine_Management.models.Menu.DoesNotExist:
+            pass
+    for root in List_user_menu_lv0:
+        if root in List_menu_role:
             dict_menu_level[root] = []
     for child in List_user_menu_lv1:
-        if child in List_menu_role :
+        if child in List_menu_role:
             root = Menu.objects.get(menu_id=child.parent_menu)
             dict_menu_level[root].append(child)
+    print(dict_menu_level)
     context = {'User_loinged':User_loinged,'UserRole':UserRole,'dict_menu_level':dict_menu_level.items()}
     return render(request,'home.html',context)
 
@@ -737,3 +742,6 @@ def productmanage(request):
         "User_loinged":User_loinged,"UserRole":UserRole,"products":products,'plines':plines
     }
     return render(request,'productmanage.html',context)
+
+def machine_manage(request):
+    return render(request, 'machine_manage.html')

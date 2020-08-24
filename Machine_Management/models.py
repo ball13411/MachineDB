@@ -97,7 +97,7 @@ class Product(models.Model):
 
 
 class Organization(models.Model):
-    org_id =  models.AutoField(primary_key=True)
+    org_id = models.AutoField(primary_key=True)
     org_code = models.CharField(max_length=25)
     org_name = models.CharField(max_length=25)
     org_line = models.ManyToManyField(Production_line)
