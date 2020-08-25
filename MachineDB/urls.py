@@ -44,6 +44,7 @@ urlpatterns = [
     path('organziemanage/orgline',views.org_productline,name='org_prodline'),
     path('organziemanage/productmanage',views.productmanage,name='productmanage'),
     path('machinemanage/machine',views.machine_manage,name='machine_manage'),
+    path('check_role', views.check_role, name='check_role'),
 
     # path('machinemanage/sparepart/',views.sparepart,name='sparepart'),
     path('test/',views.test)

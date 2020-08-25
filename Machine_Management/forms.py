@@ -9,7 +9,7 @@ import datetime
 
 class MachineForm(forms.ModelForm):
     serial_id                   = forms.CharField(label='Serial ID : ',widget=forms.TextInput(attrs={"maxlength":50}))
-    machine_code                = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
+    machine_production_line_code    = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
     machine_name                = forms.CharField(label='Machine Name : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":50}))
     machine_brand               = forms.CharField(label='Machine brand : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
     machine_model               = forms.CharField(label='Machine model : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
@@ -25,7 +25,7 @@ class MachineForm(forms.ModelForm):
         model = Machine
         fields = [
             'serial_id',
-            'machine_code',
+            'machine_production_line_code',
             'machine_name',
             'machine_brand',
             'machine_model',
@@ -37,15 +37,15 @@ class MachineForm(forms.ModelForm):
             'machine_power_use_watt_per_hour',
             'machine_installed_datetime',
             'machine_start_use_datetime',
-            'machine_type',
+            'subtype',
             'line'
         ]
 
     def clean_machine_code(self,*args,**kwargs):
-        machine_code = self.cleaned_data.get("machine_code")
-        if "mch" not in machine_code:
+        machine_production_line_code = self.cleaned_data.get("machine_production_line_code")
+        if "mch" not in machine_production_line_code:
             raise forms.ValidationError("This is not 'mch'")
-        return machine_code
+        return machine_production_line_code
 
 class ProductLineForm(forms.ModelForm):
     class Meta:

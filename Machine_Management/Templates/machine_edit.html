@@ -89,15 +89,15 @@
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="machine_installed_datetime">Machine Install : </label>
+        <label class="col-sm-2 col-form-label" for="machine_installed_datetime">Machine Install :</label>
         <div class="col-sm-3">
-            <input type="date" class="form-control" name="edit_machine_installed_datetime" id="edit_machine_installed_datetime" value="{{machine.machine_start_use_datetime}}">
+            <input type="date" class="form-control" name="edit_machine_installed_datetime" id="edit_machine_installed_datetime" value="{{machine.machine_start_use_datetime|date:"Y-m-d"}}">
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="machine_start_use_datetime">Machine Start : </label>
         <div class="col-sm-3">
-            <input type="date" class="form-control" name="edit_machine_start_use_datetime" id="edit_machine_start_use_datetime" value="{{machine.machine_start_use_datetime}}">
+            <input type="date" class="form-control" name="edit_machine_start_use_datetime" id="edit_machine_start_use_datetime" value="{{machine.machine_start_use_datetime|date:"Y-m-d"}}">
         </div>
     </div>
     <div class="form-group row">

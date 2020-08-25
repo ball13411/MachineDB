@@ -1,4 +1,8 @@
 {% extends 'layout_home.html' %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item">machine</li>
+    <li class="breadcrumb-item active">update</li>
+{% endblock %}
 {% block content %}
 
 <H1 style="color:#1E88E5"><center>Machine <strong>Update Data</strong></center></H1>
@@ -29,9 +33,9 @@
                 <td>{{forloop.counter}}</td>
                 <td hidden>{{machine.machine_id}}</td>
                 <td>{{machine.serial_id}}</td>
-                <td>{{machine.machine_code}}</td>
+                <td>{{machine.machine_production_line_code}}</td>
                 <td width="100">{{machine.machine_name}}</td>
-                <td>{{machine.machine_type}}</td>
+                <td>{{machine.subtype.mchtype}}</td>
                 <td>{{machine.machine_brand}}</td>
                 <td>{{machine.machine_model}}</td>
                 <td>{{machine.line.production_line}}</td>
