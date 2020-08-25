@@ -7,20 +7,23 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 import datetime
 
+
 class MachineForm(forms.ModelForm):
-    serial_id                   = forms.CharField(label='Serial ID : ',widget=forms.TextInput(attrs={"maxlength":50}))
-    machine_production_line_code    = forms.CharField(label='Machine Code : ',widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
-    machine_name                = forms.CharField(label='Machine Name : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":50}))
-    machine_brand               = forms.CharField(label='Machine brand : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_model               = forms.CharField(label='Machine model : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_supplier_code       = forms.CharField(label='Machine supplier code : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_location_id         = forms.CharField(label='Machine location id : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_emp_id_response     = forms.CharField(label='Machine emp id response : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":15}))
-    machine_capacity_per_minute = forms.CharField(label='Machine capacity/min : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_capacity_measure_unit   = forms.CharField(label='Machine capacity measure unit : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_power_use_watt_per_hour = forms.CharField(label='Machine power use watt/hour : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
-    machine_installed_datetime  = forms.DateField(required=False,widget=forms.DateInput(attrs={"type":"date"}))
-    machine_start_use_datetime  = forms.DateField(required=False,widget=forms.DateInput(attrs={"type":"date"}))
+    serial_id = forms.CharField(label='หมายเลขซีเรียล : ', widget=forms.TextInput(attrs={"maxlength":50}))
+    machine_production_line_code = forms.CharField(label='รหัสไลน์ผลิตและเครื่องจักร : ', widget=forms.TextInput(attrs={"placeholder":"","maxlength":20}))
+    machine_name = forms.CharField(label='ชื่อเครื่องจักร์ : ', required=False, widget=forms.TextInput(attrs={"placeholder":"","maxlength":50}))
+    machine_brand = forms.CharField(label='แบรนด์เครื่องจักร : ', required=False, widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_model = forms.CharField(label='โมเดลเครื่องจักร : ', required=False, widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_supplier_code = forms.CharField(label='รหัสผู้จำหน่ายเครื่องจักร : ',required=False, widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_location_id = forms.CharField(label='รหัสตำแหน่งเครื่อง : ', required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_emp_id_response = forms.CharField(label='Machine emp id response : ', required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":15}))
+    machine_capacity_per_minute = forms.CharField(label='กำลังการผลิตเครื่อง (ชิ้น/นาที) : ', required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_capacity_measure_unit = forms.CharField(label='หน่วยวัดความจุเครื่อง : ',required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_power_use_watt_per_hour = forms.CharField(label='กำลังเครื่องจักร (วัตต์/ชม.) : ', required=False,widget=forms.TextInput(attrs={"placeholder":"","maxlength":10}))
+    machine_installed_datetime = forms.DateField(label='วันที่ติดตั้งเครื่องจักร', required=False, widget=forms.DateInput(attrs={"type":"date"}))
+    machine_start_use_datetime = forms.DateField(label='วันที่เริ่มใช้งาน', required=False, widget=forms.DateInput(attrs={"type":"date"}))
+    sub_type = forms.ModelChoiceField(label='ประเภทเครื่องจักร', queryset=Machine_subtype.objects.all())
+    p_line = forms.ModelChoiceField(label='ประเภทเครื่องจักร', queryset=Production_line.objects.all())
     class Meta:
         model = Machine
         fields = [
@@ -36,9 +39,7 @@ class MachineForm(forms.ModelForm):
             'machine_capacity_measure_unit',
             'machine_power_use_watt_per_hour',
             'machine_installed_datetime',
-            'machine_start_use_datetime',
-            'subtype',
-            'line'
+            'machine_start_use_datetime'
         ]
 
     def clean_machine_code(self,*args,**kwargs):

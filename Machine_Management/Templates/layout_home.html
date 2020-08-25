@@ -339,9 +339,6 @@
                     </li>
                     <li><a href="" name="user_setting">Setting</a></li>
                     <li><a href="{% url 'signin' %}" name="signout">Sign out</a></li>
-                    {% if UserRole == "admin" %}
-                    <li><a href="{% url 'adminmanage' %}" class="article">Admin Management</a></li>
-                    {% endif %}
                 </ul>
             </div>
         </nav>

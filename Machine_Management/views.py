@@ -260,11 +260,11 @@ def screenmanage(request):
         return redirect('/')
     if request.method == "POST":
         if 'Addscreen' in request.POST:
-            screen_id = request.POST['screen_id']
-            screen_name = request.POST['screen_name']
-            file_py = request.POST['file_py']
-            file_html = request.POST['file_html']
-            try:
+            if not Screen.objects.filter(screen_id=request.POST['screen_id']).exists():
+                screen_id = request.POST['screen_id']
+                screen_name = request.POST['screen_name']
+                file_py = request.POST['file_py']
+                file_html = request.POST['file_html']
                 screen = Screen.objects.create(
                     screen_id=screen_id,
                     screen_name=screen_name,
@@ -272,7 +272,7 @@ def screenmanage(request):
                     file_html=file_html
                 )
                 screen.save()
-            except django.db.utils.IntegrityError:
+            else:
                 messages.info(request, "มีชื่อ Screen ID นี้แล้ว กรุณาตั้งใหม่")
         elif 'deletescreen' in request.POST:
             del_screen_id = request.POST['deletescreen']
@@ -294,16 +294,6 @@ def screenmanage(request):
                'screens': screens}
     return render(request, 'screenmanage.html', context)
 
-
-def adminmanage(request):
-    global User_loinged
-    if str(User_loinged.role) != 'admin':
-        User_loinged = None
-        return redirect('/')
-    context = {'User_loinged': User_loinged}
-    return render(request, 'machineoruser.html', context)
-
-
 def role_screen(request):
     global User_loinged
     if not Role_Screen.objects.filter(role=UserRole, screen_id='role_screen').exists():
@@ -314,33 +304,54 @@ def role_screen(request):
             role_screen = Role_Screen.objects.get(id=rs_id)
             role_screen.delete()
         elif 'Edit_rs' in request.POST:
-            rs_id = request.POST['Edit_rs']
-            rs_role_id = request.POST['set_rs_role']
-            rs_screen_id = request.POST['set_rs_screen']
-            rs_insert = request.POST['set_rs_insert']
-            rs_update = request.POST['set_rs_update']
-            rs_delete = request.POST['set_rs_delete']
-            role_screen = Role_Screen.objects.get(id=rs_id)
-            role_screen.role_id = rs_role_id
-            role_screen.screen_id = rs_screen_id
-            role_screen.permission_insert = rs_insert
-            role_screen.permission_update = rs_update
-            role_screen.permission_delete = rs_delete
-            role_screen.save()
+            rs = Role_Screen.objects.get(id=request.POST['Edit_rs'])
+            if rs.role_id == request.POST['set_rs_role'] and rs.screen_id == request.POST['set_rs_screen'] :
+                rs_id = request.POST['Edit_rs']
+                rs_role_id = request.POST['set_rs_role']
+                rs_screen_id = request.POST['set_rs_screen']
+                rs_insert = request.POST['set_rs_insert']
+                rs_update = request.POST['set_rs_update']
+                rs_delete = request.POST['set_rs_delete']
+                role_screen = Role_Screen.objects.get(id=rs_id)
+                role_screen.role_id = rs_role_id
+                role_screen.screen_id = rs_screen_id
+                role_screen.permission_insert = rs_insert
+                role_screen.permission_update = rs_update
+                role_screen.permission_delete = rs_delete
+                role_screen.save()
+            elif not Role_Screen.objects.filter(role_id=request.POST['set_rs_role'], screen_id=request.POST['set_rs_screen']).exists():
+                rs_id = request.POST['Edit_rs']
+                rs_role_id = request.POST['set_rs_role']
+                rs_screen_id = request.POST['set_rs_screen']
+                rs_insert = request.POST['set_rs_insert']
+                rs_update = request.POST['set_rs_update']
+                rs_delete = request.POST['set_rs_delete']
+                role_screen = Role_Screen.objects.get(id=rs_id)
+                role_screen.role_id = rs_role_id
+                role_screen.screen_id = rs_screen_id
+                role_screen.permission_insert = rs_insert
+                role_screen.permission_update = rs_update
+                role_screen.permission_delete = rs_delete
+                role_screen.save()
+            else:
+                messages.info(request,'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
         elif 'Addrolescreen' in request.POST:
-            rs_role_id = request.POST['add_rs_role']
-            rs_screen_id = request.POST['add_rs_screen']
-            rs_insert = request.POST['add_rs_insert']
-            rs_update = request.POST['add_rs_update']
-            rs_delete = request.POST['add_rs_delete']
-            role_screen = Role_Screen.objects.create(
-                role_id=rs_role_id,
-                screen_id=rs_screen_id,
-                permission_insert=rs_insert,
-                permission_update=rs_update,
-                permission_delete=rs_delete
-            )
-            role_screen.save()
+            if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'], screen_id=request.POST['add_rs_screen']).exists():
+                rs_role_id = request.POST['add_rs_role']
+                rs_screen_id = request.POST['add_rs_screen']
+                rs_insert = request.POST['add_rs_insert']
+                rs_update = request.POST['add_rs_update']
+                rs_delete = request.POST['add_rs_delete']
+                role_screen = Role_Screen.objects.create(
+                    role_id=rs_role_id,
+                    screen_id=rs_screen_id,
+                    permission_insert=rs_insert,
+                    permission_update=rs_update,
+                    permission_delete=rs_delete
+                )
+                role_screen.save()
+            else:
+                messages.info(request,'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
@@ -416,6 +427,7 @@ def test(request):
     mch = Machine.objects.all()
     form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
+    print(Machine.objects.filter(subtype__mchtype__mtype_code='Mixer'))
     if form.is_valid():
         form.save()
         form = UserForm()
@@ -429,24 +441,27 @@ def menumanage(request):
         return redirect('/')
     if request.method == 'POST':
         if 'Addmenu' in request.POST:
-            add_menu_id = request.POST['add_menu_id']
-            add_menu_name = request.POST['add_menu_name']
-            add_menu_level = request.POST['add_menu_level']
-            select_screen = request.POST['select_screen']
-            select_parent = request.POST['select_parent']
-            add_menu_index = request.POST['add_menu_index']
-            add_menu_path = request.POST['add_menu_path']
-            screen = Screen.objects.get(screen_id=select_screen)
-            menu = Menu.objects.create(
-                menu_id=add_menu_id,
-                name=add_menu_name,
-                level=add_menu_level,
-                screen=screen,
-                parent_menu=select_parent,
-                index=add_menu_index,
-                path_url=add_menu_path
-            )
-            menu.save()
+            if not Menu.objects.filter(menu_id=request.POST['add_menu_id']).exists():
+                add_menu_id = request.POST['add_menu_id']
+                add_menu_name = request.POST['add_menu_name']
+                add_menu_level = request.POST['add_menu_level']
+                select_screen = request.POST['select_screen']
+                select_parent = request.POST['select_parent']
+                add_menu_index = request.POST['add_menu_index']
+                add_menu_path = request.POST['add_menu_path']
+                screen = Screen.objects.get(screen_id=select_screen)
+                menu = Menu.objects.create(
+                    menu_id=add_menu_id,
+                    name=add_menu_name,
+                    level=add_menu_level,
+                    screen=screen,
+                    parent_menu=select_parent,
+                    index=add_menu_index,
+                    path_url=add_menu_path
+                )
+                menu.save()
+            else:
+                messages.info(request,"มีการใช้ Menu ID นี้แล้ว กรุณาตั้งชื่อใหม่")
         elif 'Editmenu' in request.POST:
             old_menu_id = request.POST['Editmenu']
             set_menu_id = request.POST['set_menu_id']
@@ -499,13 +514,16 @@ def organizemanage(request):
         return redirect('/')
     if request.method == 'POST':
         if 'Addorg' in request.POST:
-            add_org_code = request.POST['add_org_code']
-            add_org_name = request.POST['add_org_name']
-            organize = Organization.objects.create(
-                org_code=add_org_code,
-                org_name=add_org_name
-            )
-            organize.save()
+            if not Organization.objects.filter(org_code=request.POST['add_org_code']).exists():
+                add_org_code = request.POST['add_org_code']
+                add_org_name = request.POST['add_org_name']
+                organize = Organization.objects.create(
+                    org_code=add_org_code,
+                    org_name=add_org_name
+                )
+                organize.save()
+            else:
+                messages.info(request,'มีชื่อ Organize Code นี้แล้ว ไม่สามารถเพิ่มได้ กรุณาทำรายการใหม่')
         elif 'delete_org' in request.POST:
             organize = Organization.objects.get(org_id=request.POST['delete_org'])
             organize.delete()
@@ -555,6 +573,7 @@ def machine_edit(request):
         return redirect('/')
     get_machine = None
     list_mtype = Machine_type.objects.all()
+    list_stype = Machine_subtype.objects.all()
     list_line = Production_line.objects.all()
     if request.method == "POST":
         if 'edit_mch_id' in request.POST:
@@ -565,8 +584,10 @@ def machine_edit(request):
             machine.serial_id = request.POST['edit_serial_id']
             machine.machine_code = request.POST['edit_machine_code']
             machine.machine_name = request.POST['edit_machine_name']
+            sub_type = Machine_type.objects.get(mtype_id=request.POST['select_mtype'])
+            machine.sub_type = sub_type
             machine_type = Machine_type.objects.get(mtype_id=request.POST['select_mtype'])
-            machine.machine_type = machine_type
+            machine.mch_type = machine_type
             machine.machine_brand = request.POST['edit_machine_brand']
             machine.machine_model = request.POST['edit_machine_model']
             machine.machine_supplier_code = request.POST['edit_machine_supplier_code']
@@ -583,7 +604,7 @@ def machine_edit(request):
     context = {
         'User_loinged': User_loinged, 'UserRole': UserRole,
         'dict_menu_level': dict_menu_level.items(), 'get_machine': get_machine, 'list_mtype': list_mtype,
-        'list_line': list_line
+        'list_line': list_line,'list_stype':list_stype
     }
     return render(request, 'machine_edit.html', context)
 

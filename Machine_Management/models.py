@@ -159,7 +159,7 @@ class Machine_subtype(models.Model):
     create_date = models.DateField()
     last_update_by = models.CharField(max_length=20, default=None, null=True)
     last_update_date = models.DateField(default=None, null=True)
-    mchtype = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
+    mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.subtype_code
@@ -184,7 +184,8 @@ class Machine(models.Model):
     machine_installed_datetime = models.DateField(default=None, null=True)
     machine_start_use_datetime = models.DateField(default=None, null=True)
     line = models.ForeignKey(Production_line, on_delete=models.CASCADE)
-    subtype = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
+    sub_type = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
+    mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "Machine_master"

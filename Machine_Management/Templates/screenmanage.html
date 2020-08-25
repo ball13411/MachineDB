@@ -246,7 +246,7 @@
         {% for message in messages %}
           <div class="alert">
             <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            การสร้าง Screen ล้มเหลว กรุณาทำรายการใหม่อีกครั้ง
+              {{message}}
           </div>
         {% endfor %}
         <div class="table-wrapper">
@@ -362,7 +362,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Screen ID</label>
-                                    <input type="text" id="set_screenid" class="form-control" value="{{screen.screen_id}}" name="set_screenid" maxlength="15" >
+                                    <input type="text" id="set_screenid" class="form-control" value="{{screen.screen_id}}" name="set_screenid" maxlength="15" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Screnn Name</label>
