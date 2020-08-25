@@ -41,6 +41,16 @@
         </div>
     </div>
     <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="machine_type">Machine Sub Type : </label>
+        <div class="col-sm-3">
+            <select class="form-control" id="select_stype" name="select_stype">
+                {% for stype in list_stype %}
+                <option value="{{stype.mtype_id}}" {% if stype.subtype_code == machine.mch_type.subtype_code %} selected {% endif %}>{{stype}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="machine_brand">Machine Brand : </label>
         <div class="col-sm-3">
             <input type="text" class="form-control" name="edit_machine_brand" id="edit_machine_brand" value="{{machine.machine_brand}}">
@@ -89,15 +99,15 @@
         </div>
     </div>
     <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="machine_installed_datetime">Machine Install : </label>
+        <label class="col-sm-2 col-form-label" for="machine_installed_datetime">Machine Install :</label>
         <div class="col-sm-3">
-            <input type="date" class="form-control" name="edit_machine_installed_datetime" id="edit_machine_installed_datetime" value="{{machine.machine_start_use_datetime}}">
+            <input type="date" class="form-control" name="edit_machine_installed_datetime" id="edit_machine_installed_datetime" value="{{machine.machine_start_use_datetime|date:"Y-m-d"}}">
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-2 col-form-label" for="machine_start_use_datetime">Machine Start : </label>
         <div class="col-sm-3">
-            <input type="date" class="form-control" name="edit_machine_start_use_datetime" id="edit_machine_start_use_datetime" value="{{machine.machine_start_use_datetime}}">
+            <input type="date" class="form-control" name="edit_machine_start_use_datetime" id="edit_machine_start_use_datetime" value="{{machine.machine_start_use_datetime|date:"Y-m-d"}}">
         </div>
     </div>
     <div class="form-group row">

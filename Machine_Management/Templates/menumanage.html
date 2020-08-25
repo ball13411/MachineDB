@@ -248,7 +248,7 @@
         {% for message in messages %}
           <div class="alert">
             <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            การสร้าง menu ล้มเหลว กรุณากด Add New menu ใหม่อีกครั้งเพื่อทราบปัญหาการสร้างผู้ใช้งาน
+              {{message}}
           </div>
         {% endfor %}
         <div class="table-wrapper">
@@ -308,7 +308,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Menu ID</label>
-                                    <input type="text" id="set_menu_id" class="form-control" value="{{menu.menu_id}}" name="set_menu_id">
+                                    <input type="text" id="set_menu_id" class="form-control" value="{{menu.menu_id}}" name="set_menu_id" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Name</label>

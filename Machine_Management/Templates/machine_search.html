@@ -1,7 +1,11 @@
 {% extends 'layout_home.html' %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item">machine</li>
+    <li class="breadcrumb-item active">search</li>
+{% endblock %}
 {% block content %}
 
-
+<br>
 <H1 style="color:#1E88E5"><center><strong>Searching </strong>Machine Data</center></H1><br>
 
 <form method="GET">
@@ -21,6 +25,7 @@
                 <th style="vertical-align:middle;">mCode</th>
                 <th style="vertical-align:middle;">mName</th>
                 <th style="vertical-align:middle;">mType</th>
+                <th style="vertical-align:middle;">subType</th>
                 <th style="vertical-align:middle;">mBrand</th>
                 <th style="vertical-align:middle;">mModel</th>
                 <th style="vertical-align:middle;">pLine</th>
@@ -32,9 +37,10 @@
                 <td>{{forloop.counter}}</td>
                 <td hidden>{{machine.machine_id}}</td>
                 <td>{{machine.serial_id}}</td>
-                <td>{{machine.machine_code}}</td>
-                <td width="100">{{machine.machine_name}}</td>
-                <td>{{machine.machine_type}}</td>
+                <td>{{machine.machine_production_line_code}}</td>
+                <td>{{machine.machine_name}}</td>
+                <td>{{machine.mch_type}}</td>
+                <td>{{machine.sub_type}}</td>
                 <td>{{machine.machine_brand}}</td>
                 <td>{{machine.machine_model}}</td>
                 <td>{{machine.line.production_line}}</td>

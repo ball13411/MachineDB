@@ -15,6 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
         $(document).ready(function(){
             $("#setting").on("show.bs.modal", function(event){
@@ -26,187 +27,300 @@
                 $(this).find(".modal-title").text(titleData);
             });
         });
+
+        function check_role(element) {
+            add_roleid= $(element).val();
+            if (add_roleid == "") {
+                $('#add_roleid').parent().removeClass();
+                $('#add_roleid').parent().addClass('form-group');
+            }
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_roleid" : add_roleid,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data.role_success) {
+                        $('#add_roleid').parent().removeClass();
+                        $('#add_roleid').parent().addClass('form-group success');
+                    } else {
+                        $('#add_roleid').parent().removeClass();
+                        $('#add_roleid').parent().addClass('form-group error');
+                    }
+                    if (data.role_empty) {
+                        $('#add_roleid').parent().removeClass();
+                        $('#add_roleid').parent().addClass('form-group');
+                    }
+                }
+            });
+        }
+        $(document).ready(function(){
+            $("input").keyup(function(){
+                var button = document.getElementById("Addrole");
+                var input = document.getElementsByTagName('input');
+                for (i = 0; i < input.length; i++) {
+                    // Check the input type
+                    if (input[i].type == 'text' && input[i].value == '') {
+                        button.disabled = true;    // Disable the button.
+                        return false;
+                    } else {
+                        button.disabled = false;   // Enable the button.
+                    }
+                }
+            });
+        });
     </script>
     <style>
-    body {
-        color: #566787;
-        background: #f5f5f5;
-        font-family: 'Pridi', serif;
-        font-size: 18px;
-    }
-    .table-responsive {
-        margin: 30px 0;
-        font-size: 16px;
-    }
-    .table-wrapper {
-        min-width: 1000px;
-        background: #fff;
-        padding: 20px 25px;
-        border-radius: 3px;
-        box-shadow: 0 1px 1px rgba(0,0,0,.05);
-    }
-    .table-title {
-        padding-bottom: 15px;
-        background: #cf152d;
-        color: #fff;
-        padding: 16px 30px;
-        margin: -20px -25px 10px;
-        border-radius: 3px 3px 0 0;
-    }
-    .table-title h2 {
-        margin: 5px 0 0;
-        font-size: 24px;
-    }
-    .table-title .btn {
-        color: #566787;
-        float: right;
-        font-size: 13px;
-        background: #fff;
-        border: none;
-        min-width: 50px;
-        border-radius: 2px;
-        border: none;
-        outline: none !important;
-        margin-left: 10px;
-    }
-    .table-title .btn:hover, .table-title .btn:focus {
-        color: #566787;
-        background: #f2f2f2;
-    }
-    .table-title .btn i {
-        float: left;
-        font-size: 21px;
-        margin-right: 5px;
-    }
-    .table-title .btn span {
-        float: left;
-        margin-top: 2px;
-    }
-    table.table tr th, table.table tr td {
-        border-color: #e9e9e9;
-        padding: 12px 15px;
-        vertical-align: middle;
-    }
-    table.table tr th:first-child {
-        width: 60px;
-    }
-    table.table tr th:last-child {
-        width: 100px;
-    }
-    table.table-striped tbody tr:nth-of-type(odd) {
-        background-color: #fcfcfc;
-    }
-    table.table-striped.table-hover tbody tr:hover {
-        background: #f5f5f5;
-    }
-    table.table th i {
-        font-size: 13px;
-        margin: 0 5px;
-        cursor: pointer;
-    }
-    table.table td:last-child i {
-        opacity: 0.9;
-        font-size: 22px;
-        margin: 0 5px;
-    }
-    table.table td a {
-        font-weight: bold;
-        color: #566787;
-        display: inline-block;
-        text-decoration: none;
-    }
-    table.table td a:hover {
-        color: #cf152d;
-    }
-    table.table td a.settings {
-        color: #2196F3;
-    }
-    table.table td a.delete {
-        color: #F44336;
-    }
-    table.table td i {
-        font-size: 19px;
-    }
-    table.table .avatar {
-        border-radius: 50%;
-        vertical-align: middle;
-        margin-right: 10px;
-    }
-    .status {
-        font-size: 30px;
-        margin: 2px 2px 0 0;
-        display: inline-block;
-        vertical-align: middle;
-        line-height: 10px;
-    }
-    .text-success {
-        color: #10c469;
-    }
-    .text-info {
-        color: #62c9e8;
-    }
-    .text-warning {
-        color: #FFC107;
-    }
-    .text-danger {
-        color: #ff5b5b;
-    }
-    .pagination {
-        float: right;
-        margin: 0 0 5px;
-    }
-    .pagination li a {
-        border: none;
-        font-size: 13px;
-        min-width: 30px;
-        min-height: 30px;
-        color: #999;
-        margin: 0 2px;
-        line-height: 30px;
-        border-radius: 2px !important;
-        text-align: center;
-        padding: 0 6px;
-    }
-    .pagination li a:hover {
-        color: #666;
-    }
-    .pagination li.active a, .pagination li.active a.page-link {
-        background: #837766;
-    }
-    .pagination li.active a:hover {
-        background: #cf152d;
-    }
-    .pagination li.disabled i {
-        color: #ccc;
-    }
-    .pagination li i {
-        font-size: 16px;
-        padding-top: 6px
-    }
-    .hint-text {
-        float: left;
-        margin-top: 10px;
-        font-size: 13px;
-    }
-    .alert {
-        padding: 20px;
-        background-color: #C0392B;
-        color: white;
-    }
-    .closebtn {
-        margin-left: 15px;
-        color: white;
-        font-weight: bold;
-        float: right;
-        font-size: 22px;
-        line-height: 20px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+        body {
+            color: #566787;
+            background: #f5f5f5;
+            font-family: 'Pridi', serif;
+            font-size: 18px;
+        }
+        .table-responsive {
+            margin: 30px 0;
+            font-size: 16px;
+        }
+        .table-wrapper {
+            min-width: 1000px;
+            background: #fff;
+            padding: 20px 25px;
+            border-radius: 3px;
+            box-shadow: 0 1px 1px rgba(0,0,0,.05);
+        }
+        .table-title {
+            padding-bottom: 15px;
+            background: #cf152d;
+            color: #fff;
+            padding: 16px 30px;
+            margin: -20px -25px 10px;
+            border-radius: 3px 3px 0 0;
+        }
+        .table-title h2 {
+            margin: 5px 0 0;
+            font-size: 24px;
+        }
+        .table-title .btn {
+            color: #566787;
+            float: right;
+            font-size: 13px;
+            background: #fff;
+            border: none;
+            min-width: 50px;
+            border-radius: 2px;
+            border: none;
+            outline: none !important;
+            margin-left: 10px;
+        }
+        .table-title .btn:hover, .table-title .btn:focus {
+            color: #566787;
+            background: #f2f2f2;
+        }
+        .table-title .btn i {
+            float: left;
+            font-size: 21px;
+            margin-right: 5px;
+        }
+        .table-title .btn span {
+            float: left;
+            margin-top: 2px;
+        }
+        table.table tr th, table.table tr td {
+            border-color: #e9e9e9;
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+        table.table tr th:first-child {
+            width: 60px;
+        }
+        table.table tr th:last-child {
+            width: 100px;
+        }
+        table.table-striped tbody tr:nth-of-type(odd) {
+            background-color: #fcfcfc;
+        }
+        table.table-striped.table-hover tbody tr:hover {
+            background: #f5f5f5;
+        }
+        table.table th i {
+            font-size: 13px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        table.table td:last-child i {
+            opacity: 0.9;
+            font-size: 22px;
+            margin: 0 5px;
+        }
+        table.table td a {
+            font-weight: bold;
+            color: #566787;
+            display: inline-block;
+            text-decoration: none;
+        }
+        table.table td a:hover {
+            color: #cf152d;
+        }
+        table.table td a.settings {
+            color: #2196F3;
+        }
+        table.table td a.delete {
+            color: #F44336;
+        }
+        table.table td i {
+            font-size: 19px;
+        }
+        table.table .avatar {
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .status {
+            font-size: 30px;
+            margin: 2px 2px 0 0;
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 10px;
+        }
+        .text-success {
+            color: #10c469;
+        }
+        .text-info {
+            color: #62c9e8;
+        }
+        .text-warning {
+            color: #FFC107;
+        }
+        .text-danger {
+            color: #ff5b5b;
+        }
+        .pagination {
+            float: right;
+            margin: 0 0 5px;
+        }
+        .pagination li a {
+            border: none;
+            font-size: 13px;
+            min-width: 30px;
+            min-height: 30px;
+            color: #999;
+            margin: 0 2px;
+            line-height: 30px;
+            border-radius: 2px !important;
+            text-align: center;
+            padding: 0 6px;
+        }
+        .pagination li a:hover {
+            color: #666;
+        }
+        .pagination li.active a, .pagination li.active a.page-link {
+            background: #837766;
+        }
+        .pagination li.active a:hover {
+            background: #cf152d;
+        }
+        .pagination li.disabled i {
+            color: #ccc;
+        }
+        .pagination li i {
+            font-size: 16px;
+            padding-top: 6px
+        }
+        .hint-text {
+            float: left;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .alert {
+            padding: 20px;
+            background-color: #C0392B;
+            color: white;
+        }
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-    .closebtn:hover {
-        color: black;
-    }
+        .closebtn:hover {
+            color: black;
+        }
+        .form {
+            padding: 30px 40px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            border: 2px solid #f0f0f0;
+            border-radius: 4px;
+            display: block;
+            font-family: inherit;
+            font-size: 14px;
+            padding: 10px;
+            width: 100%;
+        }
+
+        .form-group input:focus {
+            outline: 0;
+            border-color: #777;
+        }
+
+        .form-group.success input {
+            border-color: #2ecc71;
+        }
+
+        .form-group.error input {
+            border-color: #e74c3c;
+        }
+
+        .form-group i {
+            visibility: hidden;
+            position: absolute;
+            top: 40px;
+            right: 10px;
+        }
+
+        .form-group.success i.fa-check-circle {
+            color: #2ecc71;
+            visibility: visible;
+        }
+
+        .form-group.error i.fa-exclamation-circle {
+            color: #e74c3c;
+            visibility: visible;
+        }
+
+        .form-group small {
+            color: #e74c3c;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            visibility: hidden;
+        }
+
+        .form-group.error small {
+            visibility: visible;
+        }
     </style>
     <script>
     $(document).ready(function(){
@@ -228,13 +342,13 @@
                 <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Manage</a>
                 <a href="{% url 'rolemanage' %}" class="nav-item nav-link active"><b>Role Manage</b></a>
                 <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
-                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role&Screen</a>
+                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role-Screen</a>
                 <a href="{% url 'menumanage' %}" class="nav-item nav-link">Menu Manage</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>
@@ -333,26 +447,24 @@
                 </div>
             </div>
             {% endfor %}
-            <!-- Modal Addrole -->
+            <!-- Modal Add Role -->
             <div id="createrole" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST">
+                        <form id="AddroleForm" method="POST">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Add new role</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                            {% for message in messages %}
-                              <div class="alert">
-                                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                                {{message}}
-                              </div>
-                            {% endfor %}
+
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Role ID</label>
-                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="5">
+                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="5" onkeyup="check_role(this);return false;" data-url="{% url "check_role" %}"/>
+                                    <i class="fas fa-check-circle"></i>
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <small>Role ID already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role name</label>
@@ -360,7 +472,7 @@
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Addrole">Submit</button>
+                                <input type="submit" class="btn btn-primary" name="Addrole" id="Addrole" disabled />
                             </div>
                         </div>
                         </form>
@@ -369,10 +481,6 @@
             </div>
                 </tbody>
             </table>
-
-        </div>
-    </div>
-</div>
 <script>
     $(document).ready( function () {
     $('#myTable').DataTable();

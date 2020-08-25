@@ -1,4 +1,9 @@
 {% extends 'layout_home.html' %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item">machine</li>
+    <li class="breadcrumb-item active">register</li>
+{% endblock %}
+
 {% block content %}
 <style>
 .alert {
@@ -31,7 +36,7 @@
 }
 
 </style>
-
+<br>
 <h1 style="color:#1E88E5">Machine <strong>Register</strong></h1><br>
 <!--<form method="POST">-->
 <!--    {% csrf_token %}-->

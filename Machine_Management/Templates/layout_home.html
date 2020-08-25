@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>FarmHouse</title>
+    <title>Farm House</title>
     <!-- Bootstrap CSS CDN -->
 <!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -16,6 +16,7 @@
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
 <!--    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">-->
 <!--    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>-->
+
     <script>
     	$(document).ready(function () {
 
@@ -48,10 +49,15 @@
             @media (min-width: 1200px) {
                 .container {
                 max-width: 1140px; } }
-		#sidebar {
+
+		/* Side bar */
+        #sidebar {
 		    min-width: 270px;
 		    max-width: 270px;
 		    min-height: 100vh;
+            transition: all 0.3s;
+            -webkit-transition: all 0.3s;
+            -o-transition: all 0.3s;
             transition: all 0.3s;
             position: relative;
             font-size: 18px;
@@ -87,23 +93,30 @@
 		    color: #fff;
 		    background: #cf152d;
 		}
-		ul ul a {
-		    font-size: 0.9em !important;
-		    padding-left: 30px !important;
-		    background: #cf152d;
-		}
-        button {
-            -webkit-writing-mode: horizontal-tb !important;
-        }
-
+        /* Side bar button */
         #sidebar .custom-menu {
             display: inline-block;
             position: absolute;
             top: 20px;
             right: 0;
             margin-right: -20px;
+            -webkit-transition: 0.3s;
+            -o-transition: 0.3s;
             transition: 0.3s;
-            box-sizing: border-box;
+        }
+
+        #sidebar .custom-menu .btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        #sidebar .custom-menu .btn.btn-info {
+            background: #810000;
+            border-color: #810000; }
+
+        #sidebar .custom-menu .btn.btn-info:hover, #sidebar .custom-menu .btn.btn-info:focus {
+            background: #810000 !important;
+            border-color: #810000 !important;
         }
 
 		#sidebar.active {
@@ -116,6 +129,16 @@
 		a[data-toggle="collapse"] {
 		    position: relative;
 		}
+		ul ul a {
+		    font-size: 0.9em !important;
+		    padding-left: 30px !important;
+		    background: #cf152d;
+		}
+        button {
+            -webkit-writing-mode: horizontal-tb !important;
+        }
+
+
 
 		.dropdown-toggle::after {
 		    display: block;
@@ -134,7 +157,7 @@
         }
         @media (min-width: 992px){
             .col-lg {
-                flex-basis: 0; 
+                flex-basis: 0;
                 flex-grow: 1;
                 max-width: 100%;
             }
@@ -145,6 +168,7 @@
             }
             .pt-5 {
                 padding-top: 2rem !important;
+                padding-left: 4rem !important;
             }
             .col-md-6 {
                 flex: 0 0 50%;
@@ -176,9 +200,31 @@
 		    padding-left: 0;
 		    list-style: none;
 		}
+        /*.btn.btn-primary {*/
+        /*    background: #810000;*/
+        /*    border-color: #810000; }*/
+        /*.btn.btn-primary:hover, .btn.btn-primary:focus {*/
+        /*    background: #810000 !important;*/
+        /*    border-color: #810000 !important; }*/
 
-
-
+		/*.btn, .btn-dark, .btn:hover, .btn:focus, .btn-info{*/
+		/*	display: inline-block;*/
+		/*	font-weight: 400;*/
+        /*    text-align: center;*/
+        /*    vertical-align: middle;*/
+		/*	border: 1px solid transparent;*/
+    	/*	padding: 0.375rem 0.75rem;*/
+		/*	background: #810000;*/
+    	/*	border-color: #810000;*/
+        /*    width: 40px;*/
+        /*    height: 40px;*/
+		/*	border-radius: 50%;*/
+		/*	text-indent: 0px;*/
+    	/*	text-shadow: none;*/
+		/*	text-decoration: none !important;*/
+		/*	outline: none !important;*/
+   		/*	box-shadow: none !important;*/
+		/*}*/
         h1 {
             font-size: 2.5rem;
         }
@@ -241,7 +287,7 @@
             -ms-flex-wrap: wrap;
             flex-wrap: wrap;
             margin-right: -15px;
-            margin-left: -15px;
+
         }
         .p-0 {
             padding: 0!important;
@@ -250,7 +296,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" />
+
 <!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">-->
 <!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
 <!--    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
@@ -263,13 +309,14 @@
         <nav id="sidebar">
             <div class="custom-menu">
                 <button type="button" id="sidebarCollapse" class="btn btn-info" style="border-radius: 50%; background: #810000;
-    		border-color: #810000;">
+    		border-color: #810000; border-color: #810000; outline: none ; box-shadow: none !important;">
                     <i class="fa fa-bars"></i>
                     <span class="sr-only">Toggle Menu</span>
                 </button>
             </div>
             <div class="p-4">
-                <h1>Farm House</h1>
+                <h1><b><a href="{% url 'home' %}">Farm House</a></b></h1>
+
                 <ul class="list-unstyled components mb-5">
                     {% for root , list_child in dict_menu_level %}
                     <li class="active">
@@ -297,8 +344,15 @@
         </nav>
 
         <!-- Page Content  -->
-        <div id="content" class="p-4 p-md-5 pt-5">
+        <div id="content" class="p-5 p-md-5 pt-5">
               <!-- End Users By Device Stats -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb my-2">
+                    {% block breadcrumb %}
+                        <li class="breadcrumb-item">Home</li>
+                    {% endblock %}
+                </ol>
+            </nav>
             {% block content %}
 
             {% endblock %}
