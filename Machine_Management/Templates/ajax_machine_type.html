@@ -1,0 +1,5 @@
+
+<option value="0">-----------</option>
+{% for type in mch_type %}
+<option value="{{ type.pk }}">{{ type.mtype_code }}</option>
+{% endfor %}

@@ -408,11 +408,11 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Role ID</label>
-                                    <input type="text" id="set_roleid" class="form-control" value="{{role.role_id}}" name="set_roleid" maxlength="5" readonly >
+                                    <input type="text" id="set_roleid" class="form-control" value="{{role.role_id}}" name="set_roleid" maxlength="20" readonly >
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role Name</label>
-                                    <input type="text" class="form-control" id="set_rolename" value="{{role.role_name}}" maxlength="15" name="set_rolename" >
+                                    <input type="text" class="form-control" id="set_rolename" value="{{role.role_name}}" maxlength="20" name="set_rolename" >
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -461,14 +461,14 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Role ID</label>
-                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="5" onkeyup="check_role(this);return false;" data-url="{% url "check_role" %}"/>
+                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="20" onkeyup="check_role(this);return false;" data-url="{% url "check_role" %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Role ID already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role name</label>
-                                    <input type="text" class="form-control" id="add_rolename"  name="add_rolename" maxlength="15">
+                                    <input type="text" class="form-control" id="add_rolename"  name="add_rolename" maxlength="20">
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

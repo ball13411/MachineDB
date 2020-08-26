@@ -1,0 +1,149 @@
+{% extends 'layout_home.html' %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item">machine</li>
+    <li class="breadcrumb-item active">searching</li>
+{% endblock %}
+{% block content %}
+
+<br>
+<H1 style="color:#1E88E5"><center><strong>สืบค้นหา</strong>ข้อมูลเครื่องจักร</center></H1><br>
+
+<form method="POST" id="mch_searching" data-mch-type-url="{% url 'ajax_machine_type' %}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+    {% csrf_token %}
+    <div class="form-group row">
+        <div class="col-sm-3">
+            <label for="id_line">ไลน์ผลิต : </label>
+            <select class="custom-select" name="line_production" id="line_production" >
+                <option value="0">-----------</option>
+                {% for line in lines %}
+                <option value="{{ line.pk }}">{{ line }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label for="id_mch_type">ประเภทเครื่องจักร : </label>
+            <select class="custom-select" name="mch_type" id="mch_type">
+                <option value="0">-----------</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label for="id_sub_type">ชนิดเครื่องจักร : </label>
+            <select class="custom-select" name="sub_type" id="mch_subtype">
+                <option value="0">-----------</option>
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <label>ค้นหารายการ : </label>
+            <input type="submit" value="Searching" class="btn btn-primary col-sm" name="searching">
+        </div>
+    </div>
+</form>
+<br>
+<form method="POST" hidden>
+    {% csrf_token %}
+    <div class="form-group row">
+
+        <div class="col-sm-9">
+            <label for="id_machine_production_line_code" class="col-sm-0 col-form-label">รหัสเครื่องจักร : </label>
+            <input type="text" name="machine_line_code" id="machine_line_code" class="form-control">
+        </div>
+        <div class="col-sm-2">
+            <label>ค้นหารายการ : </label>
+            <input type="submit" value="Searching" class="btn btn-primary col-sm" name="searching_mch_code">
+        </div>
+
+    </div>
+</form>
+
+
+<table class="table table-striped table-hover" id="myTabe">
+        <thead>
+            <tr>
+                <th colspan="15" scope="colgroup"><center>เครื่องจักร</center></th>
+            </tr>
+            <tr style="text-align:center;">
+                <th style="vertical-align:middle;">ลำดับ</th>
+                <th hidden>Machine ID</th>
+                <th>หมายเลขซีเรียล</th>
+                <th style="vertical-align:middle;">รหัสเครื่องจักร</th>
+                <th style="vertical-align:middle;">ชื่อเครื่องจักร</th>
+                <th style="vertical-align:middle;">ประเภทเครื่องจักร</th>
+                <th style="vertical-align:middle;">ชนิดเครื่องจักร</th>
+                <th style="vertical-align:middle;">แบรนด์เครื่องจักร</th>
+                <th style="vertical-align:middle;">โมเดลเครื่องจักร</th>
+                <th style="vertical-align:middle;">ไลน์ผลิตเครื่องจักร</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for machine in machines %}
+            <tr align="center">
+                <td>{{forloop.counter}}</td>
+                <td hidden>{{machine.machine_id}}</td>
+                <td>{{machine.serial_id}}</td>
+                <td>{{machine.machine_production_line_code}}</td>
+                <td>{{machine.machine_name}}</td>
+                <td>{{machine.mch_type}}</td>
+                <td>{{machine.sub_type}}</td>
+                <td>{{machine.machine_brand}}</td>
+                <td>{{machine.machine_model}}</td>
+                <td>{{machine.line.production_line}}</td>
+            </tr>
+    {% endfor %}
+        </tbody>
+</table>
+
+<script>
+    $("#line_production").change(function () {
+        const url = $("#mch_searching").attr("data-mch-type-url");  // get the url of the `load_cities` view
+        const lineID = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'line_production': lineID       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#mch_type").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+    $("#line_production").change(function () {
+        const url = $("#mch_searching").attr("data-mch-subtype-url");
+        const lineID = $(this).val();
+        const mch_typeID = 0;
+        $.ajax({
+            url: url,
+            data: {
+                'line_production': lineID,
+                'mch_type': mch_typeID
+            },
+            success: function (data) {
+                $("#mch_subtype").html(data);
+            }
+        });
+    });
+    $("#mch_type").change(function () {
+        const url = $("#mch_searching").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
+        const lineID = $("#line_production").val();
+        const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'line_production':lineID,
+                'mch_type': mch_typeID       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#mch_subtype").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+
+</script>
+
+
+
+
+
+{% endblock %}
+
