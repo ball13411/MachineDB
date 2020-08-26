@@ -8,6 +8,7 @@ from .forms import *
 from .filters import MachineFilter
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 # Create your views here.
 
@@ -397,6 +398,7 @@ def machine_register(request):
     global User_loinged, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_register').exists():
         return redirect('/')
+    user_org = User_loinged.org.org_line.all()
     form = MachineForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -405,7 +407,7 @@ def machine_register(request):
     UserRole = str(User_loinged.role)
     context = {
         'form': form, 'User_loinged': User_loinged, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
-        'dict_menu_level': dict_menu_level.items()
+        'dict_menu_level': dict_menu_level.items(), 'lines':user_org
     }
     return render(request, 'machine_register.html', context)
 
@@ -581,13 +583,12 @@ def machine_edit(request):
             get_machine = Machine.objects.filter(machine_id=machine_id)
         elif 'mch_update' in request.POST:
             machine = Machine.objects.get(machine_id=request.POST['edit_machine_id'])
+            print(machine)
             machine.serial_id = request.POST['edit_serial_id']
-            machine.machine_code = request.POST['edit_machine_code']
+            machine.machine_production_line_code = request.POST['edit_machine_code']
             machine.machine_name = request.POST['edit_machine_name']
-            sub_type = Machine_type.objects.get(mtype_id=request.POST['select_mtype'])
-            machine.sub_type = sub_type
-            machine_type = Machine_type.objects.get(mtype_id=request.POST['select_mtype'])
-            machine.mch_type = machine_type
+            machine.sub_type_id = request.POST['select_stype']
+            machine.mch_type_id = request.POST['select_mtype']
             machine.machine_brand = request.POST['edit_machine_brand']
             machine.machine_model = request.POST['edit_machine_model']
             machine.machine_supplier_code = request.POST['edit_machine_supplier_code']
@@ -598,8 +599,7 @@ def machine_edit(request):
             machine.machine_power_use_watt_per_hour = request.POST['edit_machine_power_use_watt_per_hour']
             machine.machine_installed_datetime = request.POST['edit_machine_installed_datetime']
             machine.machine_start_use_datetime = request.POST['edit_machine_start_use_datetime']
-            machine_line = Production_line.objects.get(pid=request.POST['select_pline'])
-            machine.line = machine_line
+            machine.line_id = request.POST['select_pline']
             machine.save()
     context = {
         'User_loinged': User_loinged, 'UserRole': UserRole,
@@ -839,3 +839,47 @@ def productmanage(request):
 
 def machine_manage(request):
     return render(request, 'machine_manage.html')
+
+
+def machine_searching(request):
+    global User_loinged, UserRole, dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_searching').exists():
+        return redirect('/')
+    User_org = User_loinged.org.org_line.all()
+    user_org_machine_line = Machine.objects.filter(line__in=User_org)
+
+    if request.method == "POST":
+        if "searching" in request.POST:
+            line_production = request.POST["line_production"] or None
+            mch_type = request.POST["mch_type"] or None
+            sub_type = request.POST["sub_type"] or None
+            # user_org_machine_line = Machine.objects.filter(Q(line_id=line_production) & Q(mch_type_id=mch_type) & Q(sub_type_id=sub_type))
+            if line_production != "0" and mch_type == "0":
+                user_org_machine_line = Machine.objects.filter(line_id=line_production)
+            elif line_production != "0" and mch_type != "0" and sub_type == "0":
+                user_org_machine_line = Machine.objects.filter(line_id=line_production, mch_type_id=mch_type)
+            elif line_production != "0" and mch_type != "0" and sub_type != "0":
+                user_org_machine_line = Machine.objects.filter(
+                    line_id=line_production, mch_type_id=mch_type, sub_type_id=sub_type)
+        elif "searching_mch_code" in request.POST:
+            machine_line_code = request.POST["machine_line_code"] or None
+            if machine_line_code is not None:
+                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code)
+    context = {"User_loinged": User_loinged, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
+               "lines": User_org}
+    return render(request, 'machine_searching.html',context)
+
+
+def load_machine_type(request):
+    line = request.GET.get('line_production')
+    mch_type = Machine_type.objects.filter(line_id=line).all()
+    context = {'mch_type': mch_type}
+    return render(request, 'ajax_machine_type.html', context)
+
+
+def load_machine_subtype(request):
+    line = request.GET.get('line_production')
+    mch_type = request.GET.get('mch_type')
+    mch_subtype = Machine_subtype.objects.filter(mch_type__mtype_id=mch_type,mch_type__line_id=line).all()
+    context = {'mch_subtype': mch_subtype}
+    return render(request, 'ajax_machine_subtype.html', context)
