@@ -36,7 +36,7 @@ def signin(request):
                     messages.info(request,
                                   f'ชื่อผู้ใช้นี้ยังไม่สามารถเข้าสู่ระบบได้ สามารถเข้าได้ในวันที่ {user.start_date}')
                     return redirect('/')
-                elif datenow > user.expired_date:  # Check ExpirdDate if expird link to resetpassword
+                elif datenow > user.expired_date:  # Check Expired Date if expired link to resetpassword
                     messages.info(request, 'รหัสผ่านหมดอายุแล้ว กรุณาทำการ Reset Password')
                     return redirect('/')
                 if user is not None:  # Check login User                    # Set user login
@@ -420,7 +420,7 @@ def machine_data(request):
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {
         'User_loinged': User_loinged, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user' : user_org
+        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org
     }
     return render(request, 'machine_data.html', context)
 
@@ -863,7 +863,7 @@ def machine_searching(request):
         elif "searching_mch_code" in request.POST:
             machine_line_code = request.POST["machine_line_code"] or None
             if machine_line_code is not None:
-                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code)
+                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code, line__in=User_org)
     context = {"User_loinged": User_loinged, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
                "lines": User_org}
     return render(request, 'machine_searching.html',context)
@@ -1189,7 +1189,9 @@ def check_machine_subtype_code(request):
 
 
 def machine_data_machine(request, line):
+    global User_loinged, UserRole, dict_menu_level
     product_line = Production_line.objects.filter(pid=line)
     machine_line = Machine.objects.filter(line__in=product_line)
-    context = {'machine_line': machine_line}
+    context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
+               'machine_line': machine_line}
     return render(request, 'machine_data_machine.html', context)
