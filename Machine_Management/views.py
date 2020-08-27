@@ -420,7 +420,7 @@ def machine_data(request):
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {
         'User_loinged': User_loinged, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line
+        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user' : user_org
     }
     return render(request, 'machine_data.html', context)
 
@@ -768,7 +768,6 @@ def check_role(request):
     if request.method == 'POST':
         response_data = {}
         add_roleid = request.POST["add_roleid"]
-        # print(len(add_roleid))
         roleid = Role.objects.filter(role_id=add_roleid)
         role = None
         try:
@@ -1179,7 +1178,7 @@ def check_machine_subtype_code(request):
                 response_data["subtypecode_success"] = True
             else:
                 response_data["subtypecode_success"] = False
-            if subtypecode == None:
+            if subtypecode is None:
                 response_data["subtypecode_empty"] = True
 
         except Exception as e:
@@ -1187,3 +1186,10 @@ def check_machine_subtype_code(request):
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
         return JsonResponse(response_data)
+
+
+def machine_data_machine(request, line):
+    product_line = Production_line.objects.filter(pid=line)
+    machine_line = Machine.objects.filter(line__in=product_line)
+    context = {'machine_line': machine_line}
+    return render(request, 'machine_data_machine.html', context)
