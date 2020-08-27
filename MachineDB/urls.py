@@ -39,7 +39,9 @@ urlpatterns = [
     path('organziemanage/productmanage',views.productmanage,name='productmanage'),
 
     # Machine Management
-    path('machinemanage/machine', views.machine_manage, name='machine_manage'),
+    path('machinemanage/machine/',views.machine_manage,name='machine_manage'),
+    path('machinemanage/machinetype/',views.machine_type,name='machine_type'),
+    path('machinemanage/machinesubtype/',views.machine_subtype,name='machine_subtype'),
 
     # Home
     path('home/', views.home, name='home'),
@@ -51,13 +53,16 @@ urlpatterns = [
     path('machine/searching/', views.machine_searching, name='machine_searching'),
 
     # AJAX Script
-    path('check_username', views.check_username, name='check_username'),
-    path('check_email', views.check_email, name='check_email'),
-    path('ajax/load-building/', views.load_building, name='ajax_load_building'),
-    path('ajax/load-floor/', views.load_floor, name='ajax_load_floor'),
-    path('check_role', views.check_role, name='check_role'),
-    path('ajax/load-machine-type/', views.load_machine_type, name='ajax_machine_type'),
-    path('ajax/load-machine-subtype/', views.load_machine_subtype, name='ajax_machine_subtype'),
+    path('check_username', views.check_username, name='check_username'),                                        # check user exists
+    path('check_email', views.check_email, name='check_email'),                                                 # check email exists
+    path('ajax/load-building/', views.load_building, name='ajax_load_building'),                                # select building of site (Dropdown)
+    path('ajax/load-floor/', views.load_floor, name='ajax_load_floor'),                                         # select floor of building (Dropdown)
+    path('check_role', views.check_role, name='check_role'),                                                    # check role exists
+    path('ajax/load-machine-type/', views.load_machine_type, name='ajax_machine_type'),                         # select mch_type of line (Dropdown)
+    path('ajax/load-machine-subtype/', views.load_machine_subtype, name='ajax_machine_subtype'),                # select sub_type of mch_type (Dropdown)
+    path('check_serial', views.check_serial, name='check_serial'),                                              # machinemanage/machine/
+    path('check_machine_type_code', views.check_machine_type_code, name='check_machine_type_code'),             # machinemanage/machinetype/
+    path('check_machine_subtype_code', views.check_machine_subtype_code, name='check_machine_subtype_code'),    # machinemanage/machinesubtype/
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),

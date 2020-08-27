@@ -5,10 +5,10 @@ from django.db import models
 
 
 class Screen(models.Model):
-    screen_id = models.CharField(max_length=20, primary_key=True)
-    screen_name = models.CharField(max_length=20)
-    file_py = models.CharField(max_length=30)
-    file_html = models.CharField(max_length=20)
+    screen_id = models.CharField(max_length=30, primary_key=True)
+    screen_name = models.CharField(max_length=40)
+    file_py = models.CharField(max_length=40)
+    file_html = models.CharField(max_length=30)
 
     def __str__(self):
         return self.screen_id
@@ -19,7 +19,7 @@ class Screen(models.Model):
 
 class Menu(models.Model):
     menu_id = models.CharField(max_length=30, primary_key=True)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=40)
     level = models.IntegerField()
     parent_menu = models.CharField(max_length=30, default=None, null=True)
     index = models.IntegerField()
@@ -100,7 +100,7 @@ class Production_line(models.Model):
     location_floor = models.ForeignKey(Floor, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return str(self.location_site) + " Line:" + str(self.production_line)
+        return str(self.location_site) + " Line" + str(self.production_line)
 
     class Meta:
         db_table = "Production_line"
