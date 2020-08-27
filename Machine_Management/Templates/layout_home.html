@@ -307,7 +307,7 @@
                 </button>
             </div>
             <div class="p-4">
-                <h1><b><a href="{% url 'home' %}">FarmHouse</a></b></h1>
+                <h1><b><a href="{% url 'home' %}">ฟาร์มเฮ้าส์</a></b></h1>
 
                 <ul class="list-unstyled components mb-5">
                     {% for root , list_child in dict_menu_level %}
@@ -346,7 +346,7 @@
                             <h4><b>{{User_loinged.username}} ({{UserRole}})</b></h4>
                         </form>
                     </li>
-                    <li><a href="{% url 'signin' %}" name="signout">Sign out</a></li>
+                    <li><a href="{% url 'signin' %}" name="signout">ออกจากระบบ</a></li>
                 </ul>
             </div>
         </nav>

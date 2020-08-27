@@ -46,6 +46,7 @@ urlpatterns = [
     # Home
     path('home/', views.home, name='home'),
     path('machine/data/', views.machine_data, name='machinedata'),
+    path('machine/data/<int:line>', views.machine_data_machine, name='machine_data_machine'),
     path('machine/register/', views.machine_register, name='machineregister'),
     path('machine/search', views.machine_search, name='machinesearch'),
     path('machine/update', views.machine_update, name='machineupdate'),
