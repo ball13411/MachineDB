@@ -46,7 +46,8 @@ urlpatterns = [
     # Home
     path('home/', views.home, name='home'),
     path('machine/data/', views.machine_data, name='machinedata'),
-    path('machine/data/<int:line>', views.machine_data_machine, name='machine_data_machine'),
+    path('machine/data/line-<int:line>', views.machine_data_machine, name='machine_data_line'),
+    path('machine/data/line-<int:line>/machine-<int:machine>', views.machine_details, name='machine_data_machine'),
     path('machine/register/', views.machine_register, name='machineregister'),
     path('machine/search', views.machine_search, name='machinesearch'),
     path('machine/update', views.machine_update, name='machineupdate'),
@@ -64,6 +65,9 @@ urlpatterns = [
     path('check_serial', views.check_serial, name='check_serial'),                                              # machinemanage/machine/
     path('check_machine_type_code', views.check_machine_type_code, name='check_machine_type_code'),             # machinemanage/machinetype/
     path('check_machine_subtype_code', views.check_machine_subtype_code, name='check_machine_subtype_code'),    # machinemanage/machinesubtype/
+    path('check_screen_id', views.check_screen_id, name='check_screen_id'),
+    path('check_menu_id', views.check_menu_id, name='check_menu_id'),
+    path('check_org_code', views.check_org_code, name='check_org_code'),
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),

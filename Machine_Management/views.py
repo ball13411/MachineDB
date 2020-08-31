@@ -36,7 +36,7 @@ def signin(request):
                     messages.info(request,
                                   f'ชื่อผู้ใช้นี้ยังไม่สามารถเข้าสู่ระบบได้ สามารถเข้าได้ในวันที่ {user.start_date}')
                     return redirect('/')
-                elif datenow > user.expired_date:  # Check ExpirdDate if expird link to resetpassword
+                elif datenow > user.expired_date:  # Check Expired Date if expired link to resetpassword
                     messages.info(request, 'รหัสผ่านหมดอายุแล้ว กรุณาทำการ Reset Password')
                     return redirect('/')
                 if user is not None:  # Check login User                    # Set user login
@@ -151,7 +151,7 @@ def check_username(request):
                 pass
             except Exception as e:
                 raise e
-            print("status user:", user)
+
 
             if not user:
                 response_data["username_success"] = True
@@ -184,7 +184,6 @@ def check_email(request):
                 pass
             except Exception as e:
                 raise e
-            print("status email:", email)
 
             if not email:
                 response_data["email_success"] = True
@@ -420,7 +419,7 @@ def machine_data(request):
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {
         'User_loinged': User_loinged, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user' : user_org
+        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org
     }
     return render(request, 'machine_data.html', context)
 
@@ -429,7 +428,6 @@ def test(request):
     mch = Machine.objects.all()
     form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
-    print(Machine.objects.filter(subtype__mchtype__mtype_code='Mixer'))
     if form.is_valid():
         form.save()
         form = UserForm()
@@ -548,7 +546,6 @@ def machine_search(request):
     User_org = User_loinged.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
     filtered_machine = MachineFilter(request.GET, queryset=User_org_machine_line)
-    print(filtered_machine)
     context = {
         'User_loinged': User_loinged, 'dict_menu_level': dict_menu_level.items(), 'UserRole': UserRole,
         'filtered_machine': filtered_machine
@@ -583,7 +580,6 @@ def machine_edit(request):
             get_machine = Machine.objects.filter(machine_id=machine_id)
         elif 'mch_update' in request.POST:
             machine = Machine.objects.get(machine_id=request.POST['edit_machine_id'])
-            print(machine)
             machine.serial_id = request.POST['edit_serial_id']
             machine.machine_production_line_code = request.POST['edit_machine_code']
             machine.machine_name = request.POST['edit_machine_name']
@@ -785,7 +781,7 @@ def check_role(request):
                 pass
             except Exception as e:
                 raise e
-            print("status role:", role)
+
 
             if not role:
                 response_data["role_success"] = True
@@ -836,8 +832,6 @@ def productmanage(request):
     return render(request, 'productmanage.html', context)
 
 
-def machine_manage(request):
-    return render(request, 'machine_manage.html')
 
 
 def machine_searching(request):
@@ -846,6 +840,8 @@ def machine_searching(request):
         return redirect('/')
     User_org = User_loinged.org.org_line.all()
     user_org_machine_line = Machine.objects.filter(line__in=User_org)
+    filter_mch_type = Machine_type.objects.values('mtype_code').distinct()
+    filter_sub_type = Machine_subtype.objects.values('subtype_code').distinct()
 
     if request.method == "POST":
         if "searching" in request.POST:
@@ -853,7 +849,11 @@ def machine_searching(request):
             mch_type = request.POST["mch_type"] or None
             sub_type = request.POST["sub_type"] or None
             # user_org_machine_line = Machine.objects.filter(Q(line_id=line_production) & Q(mch_type_id=mch_type) & Q(sub_type_id=sub_type))
-            if line_production != "0" and mch_type == "0":
+            if line_production == "0" and mch_type != "0":
+                user_org_machine_line = Machine.objects.filter(mch_type__mtype_code=mch_type)
+            elif line_production == "0" and mch_type == "0" and sub_type != "0":
+                user_org_machine_line = Machine.objects.filter(sub_type__subtype_code=sub_type)
+            elif line_production != "0" and mch_type == "0":
                 user_org_machine_line = Machine.objects.filter(line_id=line_production)
             elif line_production != "0" and mch_type != "0" and sub_type == "0":
                 user_org_machine_line = Machine.objects.filter(line_id=line_production, mch_type_id=mch_type)
@@ -863,9 +863,10 @@ def machine_searching(request):
         elif "searching_mch_code" in request.POST:
             machine_line_code = request.POST["machine_line_code"] or None
             if machine_line_code is not None:
-                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code)
+                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code, line__in=User_org)
     context = {"User_loinged": User_loinged, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
-               "lines": User_org}
+               "lines": User_org, "filter_mch_type": filter_mch_type, "filter_sub_type": filter_sub_type}
+
     return render(request, 'machine_searching.html',context)
 
 
@@ -909,7 +910,8 @@ def machine_manage(request):
             add_installdate = request.POST['add_installdate']
             add_startdate = request.POST['add_startdate']
             add_location = request.POST['add_location']
-            if not Machine.objects.filter(serial_id=add_serial, machine_code=add_machine_production_line_code).exists():
+
+            if not Machine.objects.filter(serial_id=add_serial, machine_production_line_code=add_machine_production_line_code).exists():
                 add_new_machine = Machine.objects.create(
                     serial_id=add_serial,
                     machine_production_line_code=add_machine_production_line_code,
@@ -925,7 +927,8 @@ def machine_manage(request):
                     machine_installed_datetime=add_installdate,
                     machine_start_use_datetime=add_startdate,
                     line_id=add_production_line,
-                    subtype_id=add_subtype,
+                    sub_type_id=add_subtype,
+                    mch_type_id=Machine_subtype.objects.get(subtype_id=add_subtype).mch_type_id
                 )
                 add_new_machine.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
@@ -933,7 +936,7 @@ def machine_manage(request):
                 messages.error(request, 'การเพิ่มข้อมูล Machine ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
         elif 'EditMch' in request.POST:
             edit_mch = Machine.objects.get(machine_id=request.POST['EditMch'])
-            edit_mch.machine_code = request.POST['set_mch_code']
+            edit_mch.machine_production_line_code = request.POST['set_mch_code']
             edit_mch.machine_name = request.POST['set_mch_name']
             edit_mch.machine_brand = request.POST['set_machinebrand']
             edit_mch.machine_model = request.POST['set_machinemodel']
@@ -946,8 +949,8 @@ def machine_manage(request):
             edit_mch.machine_installed_datetime = request.POST['set_installdate']
             edit_mch.machine_start_use_datetime = request.POST['set_startdate']
             edit_mch.line_id = request.POST['select_line']
-            edit_mch.subtype_id = request.POST['select_subtype']
-
+            edit_mch.sub_type_id = request.POST['select_subtype']
+            edit_mch.mch_type_id = Machine_subtype.objects.get(subtype_id=request.POST['select_subtype']).mch_type_id
             edit_mch.save()
         elif 'deletemachine' in request.POST:
             del_machine = request.POST['deletemachine']
@@ -991,7 +994,7 @@ def check_serial(request):
                 response_data["serial_success"] = True
             else:
                 response_data["serial_success"] = False
-            if serial_status == None:
+            if serial_status is None:
                 response_data["serial_empty"] = True
 
         except Exception as e:
@@ -1078,7 +1081,7 @@ def check_machine_type_code(request):
                 pass
             except Exception as e:
                 raise e
-            # print("status user:",user)
+
 
             if not typecode:
                 response_data["typecode_success"] = True
@@ -1113,13 +1116,13 @@ def machine_subtype(request):
 
             add_type = request.POST['add_type']
             if not Machine_subtype.objects.filter(subtype_code=add_subtype_code, subtype_name=add_subtype_name,
-                                                  mchtype_id=add_type).exists():
+                                                  mch_type_id=add_type).exists():
                 add_new_subtype = Machine_subtype.objects.create(
                     subtype_code=add_subtype_code,
                     subtype_name=add_subtype_name,
                     create_by=added_by,
                     create_date=created_date,
-                    mchtype_id=add_type
+                    mch_type_id=add_type
                 )
                 add_new_subtype.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine Subtype เรียบร้อยแล้ว')
@@ -1129,14 +1132,11 @@ def machine_subtype(request):
 
         elif 'EditSubtype' in request.POST:
             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
-            edit_subtype.mtype_code = request.POST['set_subtype']
-            edit_subtype.mchtype_id = request.POST['select_type']
-
+            edit_subtype.subtype_code = request.POST['set_subtype']
+            edit_subtype.mch_type_id = request.POST['select_type']
             edit_subtype.last_update_by = User_loinged.username
-
             now = datetime.datetime.now()
             edit_subtype.last_update_date = now.date()
-
             edit_subtype.save()
         elif 'DeleteSubtype' in request.POST:
             del_subtype = request.POST['DeleteSubtype']
@@ -1150,11 +1150,120 @@ def machine_subtype(request):
 
 
 @csrf_exempt
+def check_screen_id(request):
+    if request.method == 'POST':
+        response_data = {}
+        screen_id = request.POST["screen_id"]
+        screen = Screen.objects.filter(screen_id=screen_id)
+        screen_status = None
+
+        try:
+            try:
+                # we are matching the input again hardcoded value to avoid use of DB.
+                # You can use DB and fetch value from table and proceed accordingly.
+                if screen.exists():
+                    screen_status = True  # already exist
+                elif len(screen_id) == 0:
+                    screen_status = None  # empty input
+                else:
+                    screen_status = False  # avialble
+
+            except ObjectDoesNotExist as e:
+                pass
+            except Exception as e:
+                raise e
+            if not screen_status:
+                response_data["screen_status_success"] = True
+            else:
+                response_data["screen_status_success"] = False
+            if screen_status is None:
+                response_data["screen_status_empty"] = True
+
+        except Exception as e:
+            response_data["screen_status_success"] = False
+            response_data["msg"] = "Some error occurred. Please let Admin know."
+        return JsonResponse(response_data)
+
+
+@csrf_exempt
+def check_menu_id(request):
+    if request.method == 'POST':
+        response_data = {}
+        menu_id = request.POST["menu_id"]
+        menu = Menu.objects.filter(menu_id=menu_id)
+        menu_status = None
+
+        try:
+            try:
+                # we are matching the input again hardcoded value to avoid use of DB.
+                # You can use DB and fetch value from table and proceed accordingly.
+                if menu.exists():
+                    menu_status = True  # already exist
+                elif len(menu_id) == 0:
+                    menu_status = None  # empty input
+                else:
+                    menu_status = False  # avialble
+
+            except ObjectDoesNotExist as e:
+                pass
+            except Exception as e:
+                raise e
+            if not menu_status:
+                response_data["menu_status_success"] = True
+            else:
+                response_data["menu_status_success"] = False
+            if menu_status is None:
+                response_data["menu_status_empty"] = True
+
+        except Exception as e:
+            response_data["menu_status_success"] = False
+            response_data["msg"] = "Some error occurred. Please let Admin know."
+        return JsonResponse(response_data)
+
+
+@csrf_exempt
+def check_org_code(request):
+
+    if request.method == 'POST':
+        response_data = {}
+        org_code = request.POST["org_code"]
+        organize = Organization.objects.filter(org_code=org_code)
+        org_status = None
+        print(org_code)
+        print(organize)
+        try:
+            try:
+                # we are matching the input again hardcoded value to avoid use of DB.
+                # You can use DB and fetch value from table and proceed accordingly.
+                if organize.exists():
+                    org_status = True  # already exist
+                elif len(org_code) == 0:
+                    org_status = None  # empty input
+                else:
+                    org_status = False  # avialble
+
+            except ObjectDoesNotExist as e:
+                pass
+            except Exception as e:
+                raise e
+            if not org_status:
+                response_data["org_status_success"] = True
+            else:
+                response_data["org_status_success"] = False
+            if org_status is None:
+                response_data["org_status_empty"] = True
+
+        except Exception as e:
+            response_data["org_status_success"] = False
+            response_data["msg"] = "Some error occurred. Please let Admin know."
+        return JsonResponse(response_data)
+
+
+@csrf_exempt
 def check_machine_subtype_code(request):
     if request.method == 'POST':
         response_data = {}
         add_subtype_code = request.POST["add_subtype_code"]
-        print("input code:", add_subtype_code)
         subtypeid = Machine_subtype.objects.filter(subtype_code=add_subtype_code)
         subtypecode = None
 
@@ -1173,7 +1282,6 @@ def check_machine_subtype_code(request):
                 pass
             except Exception as e:
                 raise e
-            print('check status', subtypecode)
             if not subtypecode:
                 response_data["subtypecode_success"] = True
             else:
@@ -1189,7 +1297,17 @@ def check_machine_subtype_code(request):
 
 
 def machine_data_machine(request, line):
+    global User_loinged, UserRole, dict_menu_level
     product_line = Production_line.objects.filter(pid=line)
     machine_line = Machine.objects.filter(line__in=product_line)
-    context = {'machine_line': machine_line}
+    context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
+               'machine_line': machine_line}
     return render(request, 'machine_data_machine.html', context)
+
+
+def machine_details(request, line, machine):
+    global User_loinged, UserRole, dict_menu_level
+    machine = Machine.objects.filter(machine_id=machine, line_id=line)
+    context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
+               'machine':machine}
+    return render(request, 'machine_details.html', context)
