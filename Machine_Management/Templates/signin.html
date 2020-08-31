@@ -103,7 +103,7 @@
       <label for="inputUser" class="sr-only">Username</label>
       <input type="text" id="inputUser" class="form-control" placeholder="Username" required autofocus name="inputUser">
       <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required name="inputPassword">
+      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required name="inputPassword" autocomplete="true">
       <a href="{% url 'resetpassword' %}" style="font-size:18px">reset password</a><br><br>
       <button class="btn btn-lg btn-primary btn-block" type="submit" name="signin">Sign in</button>
       <p class="mt-5 mb-3 text-muted">&copy; 2020</p>

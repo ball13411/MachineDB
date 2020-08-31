@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Pridi&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
     <script>
@@ -209,11 +209,105 @@
     .closebtn:hover {
         color: black;
     }
+
+    .form-group {
+        margin-bottom: 10px;
+        padding-bottom: 20px;
+        position: relative;
+    }
+
+    .form-group label {
+        display: inline-block;
+        margin-bottom: 5px;
+    }
+
+    .form-group input {
+        border: 2px solid #f0f0f0;
+        border-radius: 4px;
+        display: block;
+        font-family: inherit;
+        font-size: 14px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .form-group.success input {
+        border-color: #2ecc71;
+    }
+
+    .form-group.error input {
+        border-color: #e74c3c;
+    }
+
+    .form-group i {
+        visibility: hidden;
+        position: absolute;
+        top: 40px;
+        right: 10px;
+    }
+
+    .form-group.success i.fa-check-circle {
+        color: #2ecc71;
+        visibility: visible;
+    }
+
+    .form-group.error i.fa-exclamation-circle {
+        color: #e74c3c;
+        visibility: visible;
+    }
+
+    .form-group small {
+        color: #e74c3c;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        visibility: hidden;
+    }
+
+    .form-group.error small {
+        visibility: visible;
+    }
     </style>
     <script>
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
     });
+    </script>
+    <script>
+        function check_org_code(element) {
+            org_code = $(element).val();
+            var btn_submit = document.getElementById("add_org");
+            if (org_code == "") {
+                $('#add_org_code').parent().removeClass();
+                $('#add_org_code').parent().addClass('form-group');
+
+            }
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "org_code" : org_code,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data.org_status_success) {
+                        $('#add_org_code').parent().removeClass();
+                        $('#add_org_code').parent().addClass('form-group success');
+                        btn_submit.disabled = false;
+                    } else {
+                        $('#add_org_code').parent().removeClass();
+                        $('#add_org_code').parent().addClass('form-group error');
+                        btn_submit.disabled = true;
+                    }
+                    if (data.org_status_empty) {
+                        $('#add_org_code').parent().removeClass();
+                        $('#add_org_code').parent().addClass('form-group');
+                    }
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -360,7 +454,10 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Organize Code</label>
-                                    <input type="text" id="add_org_code" class="form-control" name="add_org_code" autocomplete="off" maxlength="25" >
+                                    <input type="text" id="add_org_code" class="form-control" name="add_org_code" autocomplete="off" maxlength="25" onkeyup="check_org_code(this);return false;" data-url="{% url 'check_org_code' %}" >
+                                    <i class="fas fa-check-circle"></i>
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <small>Organize Code already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label>Organize Name</label>
@@ -368,7 +465,7 @@
                                 </div
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="Addorg">Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="Addorg" id="add_org">Submit</button>
                                 </div>
                             </div>
                         </form>

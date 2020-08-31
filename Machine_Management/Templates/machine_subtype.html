@@ -31,7 +31,7 @@
     </script>
     <script>
         function check_machine_subtype_code(element) {
-            add_subtype_code= $(element).val();
+            add_subtype_code = $(element).val();
             if (add_subtype_code == "") {
                 $('#add_subtype_code').parent().removeClass();
                 $('#add_subtype_code').parent().addClass('form-group');
@@ -311,10 +311,6 @@
         .form-group.error small {
             visibility: visible;
         }
-        /* modal */
-        #createmch .modal-content {
-            width: 700px;
-        }
     </style>
     <script>
     $(document).ready(function(){
@@ -383,7 +379,7 @@
             {% for subtype in subtypes %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#"><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{subtype.subtype_name}}</td>
+                        <td><a href="#"><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{subtype.subtype_name}}</a></td>
                         <td>{{subtype.subtype_code}}</td>
                         <td>{{subtype.mch_type.mtype_name}}</td>
                         <td>
@@ -467,7 +463,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Subtype Code</label>
-                                    <input type="text" name="add_subtype_code" id="add_subtype_code" placeholder="Code" required="True" utocomplete="off" maxlength="50" onkeyup="check_machine_subtype_code(this);return false;" data-url="{% url "check_machine_subtype_code" %}"/>
+                                    <input type="text" name="add_subtype_code" id="add_subtype_code" placeholder="Code" required="True" utocomplete="off" maxlength="50" onkeyup="check_machine_subtype_code(this);return false;" data-url="{% url 'check_machine_subtype_code' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Subtype Code already exists</small>

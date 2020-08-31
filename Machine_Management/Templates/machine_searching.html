@@ -24,12 +24,22 @@
             <label for="id_mch_type">ประเภทเครื่องจักร : </label>
             <select class="custom-select" name="mch_type" id="mch_type">
                 <option value="0">-----------</option>
+                {% for mch_type in filter_mch_type %}
+                {% for k,v in mch_type.items %}
+                <option value="{{v}}">{{v}}</option>
+                {% endfor %}
+                {% endfor %}
             </select>
         </div>
         <div class="col-sm-3">
             <label for="id_sub_type">ชนิดเครื่องจักร : </label>
             <select class="custom-select" name="sub_type" id="mch_subtype">
                 <option value="0">-----------</option>
+                {% for sub_type in filter_sub_type %}
+                {% for k,v in sub_type.items %}
+                <option value="{{v}}">{{v}}</option>
+                {% endfor %}
+                {% endfor %}
             </select>
         </div>
         <div class="col-sm-2">
