@@ -189,6 +189,7 @@ class Machine(models.Model):
 
     class Meta:
         db_table = "Machine_master"
+        ordering = ["machine_production_line_code"]
 
 
 class User(models.Model):

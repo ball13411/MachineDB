@@ -35,6 +35,7 @@
         var check3 = true;
         function check_username(element) {
             add_username= $(element).val();
+            var btn_submit = document.getElementById("Adduser");
             if (add_username == "") {
                 return;
             }
@@ -52,10 +53,12 @@
                     if (data.username_success) {
                         $('#add_username').parent().removeClass();
                         $('#add_username').parent().addClass('form-group success');
+                        btn_submit.disabled = false;
                         check1 = true;
                     } else {
                         $('#add_username').parent().removeClass();
                         $('#add_username').parent().addClass('form-group error');
+                        btn_submit.disabled = true;
                         check1 = false;
                     }
                 }

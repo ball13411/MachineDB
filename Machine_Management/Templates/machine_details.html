@@ -72,7 +72,7 @@
                 <div class="col-md-6 mb-4 mb-md-0">
                     <div class="row machine-pic mx-1">
                         <div class="col-12 mb-0">
-                            <img src="{% static 'img/machine-example-pic.jpg' %}" class="img-fluid">
+                            <img src="{% static 'machine/img/machine-example-pic.jpg' %}" class="img-fluid">
                         </div>
 
                     </div>
@@ -93,10 +93,10 @@
         <div class="details-tabs">
             <ul class="nav tabs-primary nav-justified" id="advancedTab" role="tablist">
                 <li class="nav-item">
-                  <a class="nav-link active show" id="specification-tab" data-toggle="tab" href="#specification" role="tab" aria-controls="specification" aria-selected="true">Specification</a>
+                  <a class="nav-link active show" id="specification-tab" data-toggle="tab" href="#specification" role="tab" aria-controls="specification" aria-selected="true">DETAILS</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="supplier-tab" data-toggle="tab" href="#supplier" role="tab" aria-controls="supplier" aria-selected="false">Supplier</a>
+                  <a class="nav-link" id="supplier-tab" data-toggle="tab" href="#supplier" role="tab" aria-controls="supplier" aria-selected="false">SPECIFICATION</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="usage-tab" data-toggle="tab" href="#usage" role="tab" aria-controls="usage" aria-selected="false">Usage</a>
@@ -112,19 +112,69 @@
                     officia quis dolore quos sapiente tempore alias.</p>
                 </div>
                 <div class="tab-pane fade" id="supplier" role="tabpanel" aria-labelledby="supplier-tab">
-                  <h5>Supplier Information</h5>
+                  <h5>Specification Information</h5>
                   <table class="table table-striped table-bordered mt-3">
                     <thead>
                       <tr>
-                        <th scope="row" class="w-150 dark-grey-text h6">Weight</th>
-                        <td><em>0.3 kg</em></td>
+                        <th scope="row" class="w-150 dark-grey-text h6">Spec</th>
+                        <td><em></em></td>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th scope="row" class="w-150 dark-grey-text h6">Dimensions</th>
-                        <td><em>50 × 60 cm</em></td>
-                      </tr>
+                    {% for mch in machine %}
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Serial Number</th>
+                            <td><em>{{mch.serial_id}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Production Line Code</th>
+                            <td><em>{{mch.machine_production_line_code}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Name</th>
+                            <td><em>{{mch.machine_name}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Brand</th>
+                            <td><em>{{mch.machine_brand}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Model</th>
+                            <td><em>{{mch.machine_model}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier Code</th>
+                            <td><em>{{mch.machine_supplier_code}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Location ID</th>
+                            <td><em>{{mch.machine_location_id}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine EMP ID</th>
+                            <td><em>{{mch.machine_emp_id_response}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Capacity/Min</th>
+                            <td><em>{{mch.machine_capacity_per_minute}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Capacity Unit</th>
+                            <td><em>{{mch.machine_capacity_measure_unit}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Power (Watt/Hour)</th>
+                            <td><em>{{mch.machine_power_use_watt_per_hour}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Install Date</th>
+                            <td><em>{{mch.machine_installed_datetime}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Start Date</th>
+                            <td><em>{{mch.machine_start_use_datetime}}</em></td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                   </table>
                 </div>
