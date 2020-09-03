@@ -885,6 +885,86 @@ def load_machine_subtype(request):
     return render(request, 'ajax_machine_subtype.html', context)
 
 
+# def machine_manage(request):
+#     global User_loinged, UserRole, dict_menu_level
+#     machine = Machine.objects.all()
+#     mch_subtype = Machine_subtype.objects.all()
+#     pd_line = Production_line.objects.all()
+#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_management').exists():
+#         return redirect('/')
+#
+#     if request.method == "POST":
+#         if 'Addmachine' in request.POST:
+#             add_production_line = request.POST['add_production_line']
+#             add_subtype = request.POST['add_subtype']
+#             add_serial = request.POST['add_serial']
+#             add_machine_production_line_code = request.POST['add_mpc']
+#             add_machinename = request.POST['add_machinename']
+#             add_machinemodel = request.POST['add_machinemodel']
+#             add_machinebrand = request.POST['add_machinebrand']
+#             add_supplier = request.POST['add_supplier']
+#             add_person_in_change = request.POST['add_pic']
+#             add_capacity_per_min = request.POST['add_cpm']
+#             add_capacity = request.POST['add_capacity']
+#             add_power = request.POST['add_power']
+#             add_installdate = request.POST['add_installdate']
+#             add_startdate = request.POST['add_startdate']
+#             add_location = request.POST['add_location']
+#
+#             if not Machine.objects.filter(serial_id=add_serial, machine_production_line_code=add_machine_production_line_code).exists():
+#                 add_new_machine = Machine.objects.create(
+#                     serial_id=add_serial,
+#                     machine_production_line_code=add_machine_production_line_code,
+#                     machine_name=add_machinename,
+#                     machine_brand=add_machinebrand,
+#                     machine_model=add_machinemodel,
+#                     machine_supplier_code=add_supplier,
+#                     machine_location_id=add_location,
+#                     machine_emp_id_response=add_person_in_change,
+#                     machine_capacity_per_minute=add_capacity_per_min,
+#                     machine_capacity_measure_unit=add_capacity,
+#                     machine_power_use_watt_per_hour=add_power,
+#                     machine_installed_datetime=add_installdate,
+#                     machine_start_use_datetime=add_startdate,
+#                     line_id=add_production_line,
+#                     sub_type_id=add_subtype,
+#                     mch_type_id=Machine_subtype.objects.get(subtype_id=add_subtype).mch_type_id
+#                 )
+#                 add_new_machine.save()
+#                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
+#             else:
+#                 messages.error(request, 'การเพิ่มข้อมูล Machine ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
+#         elif 'EditMch' in request.POST:
+#             edit_mch = Machine.objects.get(machine_id=request.POST['EditMch'])
+#             edit_mch.machine_production_line_code = request.POST['set_mch_code']
+#             edit_mch.machine_name = request.POST['set_mch_name']
+#             edit_mch.machine_brand = request.POST['set_machinebrand']
+#             edit_mch.machine_model = request.POST['set_machinemodel']
+#             edit_mch.machine_supplier_code = request.POST['set_supplier']
+#             edit_mch.machine_location_id = request.POST['set_location']
+#             edit_mch.machine_emp_id_response = request.POST['set_pic']
+#             edit_mch.machine_capacity_per_minute = request.POST['set_cpm']
+#             edit_mch.machine_capacity_measure_unit = request.POST['set_capacity']
+#             edit_mch.machine_power_use_watt_per_hour = request.POST['set_power']
+#             edit_mch.machine_installed_datetime = request.POST['set_installdate']
+#             edit_mch.machine_start_use_datetime = request.POST['set_startdate']
+#             edit_mch.line_id = request.POST['select_line']
+#             edit_mch.sub_type_id = request.POST['select_subtype']
+#             edit_mch.mch_type_id = Machine_subtype.objects.get(subtype_id=request.POST['select_subtype']).mch_type_id
+#             edit_mch.save()
+#         elif 'deletemachine' in request.POST:
+#             del_machine = request.POST['deletemachine']
+#             machineid = Machine.objects.get(machine_id=del_machine)
+#             machineid.delete()
+#     context = {
+#         'User_loinged': User_loinged, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
+#         'dict_menu_level': dict_menu_level.items(),
+#         'machine': machine, 'subtypes': mch_subtype,
+#         'production_line': pd_line,
+#     }
+#     return render(request, 'machine_manage.html', context)
+
+
 def machine_manage(request):
     global User_loinged, UserRole, dict_menu_level
     machine = Machine.objects.all()
@@ -896,6 +976,7 @@ def machine_manage(request):
     if request.method == "POST":
         if 'Addmachine' in request.POST:
             add_production_line = request.POST['add_production_line']
+            add_type = request.POST['add_type']
             add_subtype = request.POST['add_subtype']
             add_serial = request.POST['add_serial']
             add_machine_production_line_code = request.POST['add_mpc']
@@ -910,8 +991,8 @@ def machine_manage(request):
             add_installdate = request.POST['add_installdate']
             add_startdate = request.POST['add_startdate']
             add_location = request.POST['add_location']
-
-            if not Machine.objects.filter(serial_id=add_serial, machine_production_line_code=add_machine_production_line_code).exists():
+            if not Machine.objects.filter(serial_id=add_serial,
+                                          machine_production_line_code=add_machine_production_line_code).exists():
                 add_new_machine = Machine.objects.create(
                     serial_id=add_serial,
                     machine_production_line_code=add_machine_production_line_code,
@@ -927,8 +1008,8 @@ def machine_manage(request):
                     machine_installed_datetime=add_installdate,
                     machine_start_use_datetime=add_startdate,
                     line_id=add_production_line,
+                    mch_type_id=add_type,
                     sub_type_id=add_subtype,
-                    mch_type_id=Machine_subtype.objects.get(subtype_id=add_subtype).mch_type_id
                 )
                 add_new_machine.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
@@ -936,7 +1017,7 @@ def machine_manage(request):
                 messages.error(request, 'การเพิ่มข้อมูล Machine ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
         elif 'EditMch' in request.POST:
             edit_mch = Machine.objects.get(machine_id=request.POST['EditMch'])
-            edit_mch.machine_production_line_code = request.POST['set_mch_code']
+            edit_mch.machine_code = request.POST['set_mch_code']
             edit_mch.machine_name = request.POST['set_mch_name']
             edit_mch.machine_brand = request.POST['set_machinebrand']
             edit_mch.machine_model = request.POST['set_machinemodel']
@@ -949,9 +1030,11 @@ def machine_manage(request):
             edit_mch.machine_installed_datetime = request.POST['set_installdate']
             edit_mch.machine_start_use_datetime = request.POST['set_startdate']
             edit_mch.line_id = request.POST['select_line']
+            edit_mch.mch_type_id = request.POST['select_type']
             edit_mch.sub_type_id = request.POST['select_subtype']
-            edit_mch.mch_type_id = Machine_subtype.objects.get(subtype_id=request.POST['select_subtype']).mch_type_id
             edit_mch.save()
+            messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
+
         elif 'deletemachine' in request.POST:
             del_machine = request.POST['deletemachine']
             machineid = Machine.objects.get(machine_id=del_machine)
@@ -963,7 +1046,6 @@ def machine_manage(request):
         'production_line': pd_line,
     }
     return render(request, 'machine_manage.html', context)
-
 
 @csrf_exempt
 def check_serial(request):
@@ -1003,6 +1085,58 @@ def check_serial(request):
 
         return JsonResponse(response_data)
 
+
+# def machine_type(request):
+#     global User_loinged
+#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_type').exists():
+#         return redirect('/')
+#     mch_type = Machine_type.objects.all()
+#     lines = Production_line.objects.all()
+#     roles = Role.objects.all()
+#     if request.method == "POST":
+#         if 'Addtype' in request.POST:
+#             add_type_name = request.POST['add_type']
+#             add_type_code = request.POST['add_type_code']
+#             added_by = User_loinged.username
+#
+#             now = datetime.datetime.now()
+#             created_date = now.date()
+#
+#             add_type_line = request.POST['add_production_line']
+#             if not Machine_type.objects.filter(mtype_code=add_type_code, mtype_name=add_type_name,
+#                                                line_id=add_type_line).exists():
+#                 add_new_type = Machine_type.objects.create(
+#                     mtype_code=add_type_code,
+#                     mtype_name=add_type_name,
+#                     create_by=added_by,
+#                     create_date=created_date,
+#                     line_id=add_type_line
+#                 )
+#                 add_new_type.save()
+#                 messages.success(request, 'เพิ่มข้อมูล Machine Type เรียบร้อยแล้ว')
+#             else:
+#                 messages.error(request, 'การเพิ่มข้อมูล Machine Type ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
+#
+#         elif 'Edittype' in request.POST:
+#             edit_type = Machine_type.objects.get(mtype_id=request.POST['Edittype'])
+#             edit_type.mtype_code = request.POST['set_type_code']
+#             edit_type.mtype_name = request.POST['set_mch_type']
+#             edit_type.line_id = request.POST['select_line']
+#             edit_type.last_update_by = User_loinged.username
+#
+#             now = datetime.datetime.now()
+#             edit_type.last_update_date = now.date()
+#
+#             edit_type.save()
+#         elif 'Deletetype' in request.POST:
+#             del_type = request.POST['Deletetype']
+#             typeid = Machine_type.objects.get(mtype_id=del_type)
+#             typeid.delete()
+#     context = {'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
+#                'List_user_Screen': List_user_Screen,
+#                'lines': lines,
+#                'roles': roles}
+#     return render(request, 'machine_type.html', context)
 
 def machine_type(request):
     global User_loinged
@@ -1044,8 +1178,12 @@ def machine_type(request):
 
             now = datetime.datetime.now()
             edit_type.last_update_date = now.date()
-
-            edit_type.save()
+            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code, mtype_name=edit_type.mtype_name,
+                                               line_id=edit_type.line_id).exists():
+                edit_type.save()
+                messages.success(request, 'แก้ไขข้อมูล Machine Type สำเร็จ')
+            else:
+                messages.error(request, 'การแก้ข้อมูล Machine Type ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
         elif 'Deletetype' in request.POST:
             del_type = request.POST['Deletetype']
             typeid = Machine_type.objects.get(mtype_id=del_type)
@@ -1055,7 +1193,6 @@ def machine_type(request):
                'lines': lines,
                'roles': roles}
     return render(request, 'machine_type.html', context)
-
 
 @csrf_exempt
 def check_machine_type_code(request):
@@ -1097,7 +1234,59 @@ def check_machine_type_code(request):
         return JsonResponse(response_data)
 
 
+# def machine_subtype(request):
+#     global User_loinged
+#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_sub_type').exists():
+#         return redirect('/')
+#     mch_subtype = Machine_subtype.objects.all()
+#     mch_type = Machine_type.objects.all()
+#     lines = Production_line.objects.all()
+#     roles = Role.objects.all()
+#     if request.method == "POST":
+#         if 'AddSubtype' in request.POST:
+#             add_subtype_name = request.POST['add_subtype']
+#             add_subtype_code = request.POST['add_subtype_code']
+#             added_by = User_loinged.username
+#
+#             now = datetime.datetime.now()
+#             created_date = now.date()
+#
+#             add_type = request.POST['add_type']
+#             if not Machine_subtype.objects.filter(subtype_code=add_subtype_code, subtype_name=add_subtype_name,
+#                                                   mch_type_id=add_type).exists():
+#                 add_new_subtype = Machine_subtype.objects.create(
+#                     subtype_code=add_subtype_code,
+#                     subtype_name=add_subtype_name,
+#                     create_by=added_by,
+#                     create_date=created_date,
+#                     mch_type_id=add_type
+#                 )
+#                 add_new_subtype.save()
+#                 messages.success(request, 'เพิ่มข้อมูล Machine Subtype เรียบร้อยแล้ว')
+#             else:
+#                 messages.error(request,
+#                                'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
+#
+#         elif 'EditSubtype' in request.POST:
+#             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
+#             edit_subtype.subtype_code = request.POST['set_subtype']
+#             edit_subtype.mch_type_id = request.POST['select_type']
+#             edit_subtype.last_update_by = User_loinged.username
+#             now = datetime.datetime.now()
+#             edit_subtype.last_update_date = now.date()
+#             edit_subtype.save()
+#         elif 'DeleteSubtype' in request.POST:
+#             del_subtype = request.POST['DeleteSubtype']
+#             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
+#             subtypeid.delete()
+#     context = {'subtypes': mch_subtype, 'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
+#                'List_user_Screen': List_user_Screen,
+#                'lines': lines,
+#                'roles': roles}
+#     return render(request, 'machine_subtype.html', context)
+
 def machine_subtype(request):
+
     global User_loinged
     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_sub_type').exists():
         return redirect('/')
@@ -1132,12 +1321,18 @@ def machine_subtype(request):
 
         elif 'EditSubtype' in request.POST:
             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
-            edit_subtype.subtype_code = request.POST['set_subtype']
-            edit_subtype.mch_type_id = request.POST['select_type']
+            edit_subtype.subtype_name = request.POST['set_subtype']
+            edit_subtype.mch_type_id = Machine_type.objects.get(mtype_id=request.POST['select_type'])
             edit_subtype.last_update_by = User_loinged.username
+
             now = datetime.datetime.now()
             edit_subtype.last_update_date = now.date()
-            edit_subtype.save()
+            if not Machine_subtype.objects.filter(subtype_name=request.POST['set_subtype'],
+                                                  mch_type_id=Machine_type.objects.get(mtype_id=request.POST['select_type'])).exists():
+                edit_subtype.save()
+                messages.success(request, 'แก้ไขข้อมูล Machine Subtype สำเร็จ')
+            else:
+                messages.error(request, 'การแก้ข้อมูล Machine Subtype ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
         elif 'DeleteSubtype' in request.POST:
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
