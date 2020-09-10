@@ -143,10 +143,16 @@
     <div class="machine-data-header">
 
         <div class="page-header row no-gutters py-4">
+            {% for line in product_line %}
             <div class="col-12 col-sm-4 text-sm-left mb-0">
-            <span class="text-uppercase page-subtitle">Overview</span>
-            <h3 class="page-title">Machine Data</h3>
+<!--                <span class="text-uppercase page-subtitle">Overview</span>-->
+                <h2 class="page-title">{{line.location_site}} Production Line : {{line.production_line}}</h2>
+                <h5 class="page-title">ผลิตภัณฑ์</h5>
+                {% for pd in products %}
+                &nbsp;&nbsp;<span class="text-uppercase page-subtitle"> - {{pd.product_name}} ({{pd.product_code}})</span><br>
+                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
     <div class="machine-overview-content">

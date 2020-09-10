@@ -82,6 +82,7 @@
                 <th style="vertical-align:middle;">แบรนด์เครื่องจักร</th>
                 <th style="vertical-align:middle;">โมเดลเครื่องจักร</th>
                 <th style="vertical-align:middle;">ไลน์ผลิตเครื่องจักร</th>
+                <th style="vertical-align:middle;">ข้อมูล</th>
             </tr>
         </thead>
         <tbody>
@@ -97,6 +98,7 @@
                 <td>{{machine.machine_brand}}</td>
                 <td>{{machine.machine_model}}</td>
                 <td>{{machine.line.production_line}}</td>
+                <td><a class="btn btn-outline-primary btn-sm" href="{% url 'machine_data_machine' machine.line_id machine.pk %}">DATA</a></td>
             </tr>
     {% endfor %}
         </tbody>

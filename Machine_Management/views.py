@@ -1086,58 +1086,6 @@ def check_serial(request):
         return JsonResponse(response_data)
 
 
-# def machine_type(request):
-#     global User_loinged
-#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_type').exists():
-#         return redirect('/')
-#     mch_type = Machine_type.objects.all()
-#     lines = Production_line.objects.all()
-#     roles = Role.objects.all()
-#     if request.method == "POST":
-#         if 'Addtype' in request.POST:
-#             add_type_name = request.POST['add_type']
-#             add_type_code = request.POST['add_type_code']
-#             added_by = User_loinged.username
-#
-#             now = datetime.datetime.now()
-#             created_date = now.date()
-#
-#             add_type_line = request.POST['add_production_line']
-#             if not Machine_type.objects.filter(mtype_code=add_type_code, mtype_name=add_type_name,
-#                                                line_id=add_type_line).exists():
-#                 add_new_type = Machine_type.objects.create(
-#                     mtype_code=add_type_code,
-#                     mtype_name=add_type_name,
-#                     create_by=added_by,
-#                     create_date=created_date,
-#                     line_id=add_type_line
-#                 )
-#                 add_new_type.save()
-#                 messages.success(request, 'เพิ่มข้อมูล Machine Type เรียบร้อยแล้ว')
-#             else:
-#                 messages.error(request, 'การเพิ่มข้อมูล Machine Type ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
-#
-#         elif 'Edittype' in request.POST:
-#             edit_type = Machine_type.objects.get(mtype_id=request.POST['Edittype'])
-#             edit_type.mtype_code = request.POST['set_type_code']
-#             edit_type.mtype_name = request.POST['set_mch_type']
-#             edit_type.line_id = request.POST['select_line']
-#             edit_type.last_update_by = User_loinged.username
-#
-#             now = datetime.datetime.now()
-#             edit_type.last_update_date = now.date()
-#
-#             edit_type.save()
-#         elif 'Deletetype' in request.POST:
-#             del_type = request.POST['Deletetype']
-#             typeid = Machine_type.objects.get(mtype_id=del_type)
-#             typeid.delete()
-#     context = {'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
-#                'List_user_Screen': List_user_Screen,
-#                'lines': lines,
-#                'roles': roles}
-#     return render(request, 'machine_type.html', context)
-
 def machine_type(request):
     global User_loinged
     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_type').exists():
@@ -1233,57 +1181,6 @@ def check_machine_type_code(request):
 
         return JsonResponse(response_data)
 
-
-# def machine_subtype(request):
-#     global User_loinged
-#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_sub_type').exists():
-#         return redirect('/')
-#     mch_subtype = Machine_subtype.objects.all()
-#     mch_type = Machine_type.objects.all()
-#     lines = Production_line.objects.all()
-#     roles = Role.objects.all()
-#     if request.method == "POST":
-#         if 'AddSubtype' in request.POST:
-#             add_subtype_name = request.POST['add_subtype']
-#             add_subtype_code = request.POST['add_subtype_code']
-#             added_by = User_loinged.username
-#
-#             now = datetime.datetime.now()
-#             created_date = now.date()
-#
-#             add_type = request.POST['add_type']
-#             if not Machine_subtype.objects.filter(subtype_code=add_subtype_code, subtype_name=add_subtype_name,
-#                                                   mch_type_id=add_type).exists():
-#                 add_new_subtype = Machine_subtype.objects.create(
-#                     subtype_code=add_subtype_code,
-#                     subtype_name=add_subtype_name,
-#                     create_by=added_by,
-#                     create_date=created_date,
-#                     mch_type_id=add_type
-#                 )
-#                 add_new_subtype.save()
-#                 messages.success(request, 'เพิ่มข้อมูล Machine Subtype เรียบร้อยแล้ว')
-#             else:
-#                 messages.error(request,
-#                                'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
-#
-#         elif 'EditSubtype' in request.POST:
-#             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
-#             edit_subtype.subtype_code = request.POST['set_subtype']
-#             edit_subtype.mch_type_id = request.POST['select_type']
-#             edit_subtype.last_update_by = User_loinged.username
-#             now = datetime.datetime.now()
-#             edit_subtype.last_update_date = now.date()
-#             edit_subtype.save()
-#         elif 'DeleteSubtype' in request.POST:
-#             del_subtype = request.POST['DeleteSubtype']
-#             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
-#             subtypeid.delete()
-#     context = {'subtypes': mch_subtype, 'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
-#                'List_user_Screen': List_user_Screen,
-#                'lines': lines,
-#                'roles': roles}
-#     return render(request, 'machine_subtype.html', context)
 
 def machine_subtype(request):
 
@@ -1424,8 +1321,6 @@ def check_org_code(request):
         org_code = request.POST["org_code"]
         organize = Organization.objects.filter(org_code=org_code)
         org_status = None
-        print(org_code)
-        print(organize)
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
@@ -1456,6 +1351,7 @@ def check_org_code(request):
 
 @csrf_exempt
 def check_machine_subtype_code(request):
+
     if request.method == 'POST':
         response_data = {}
         add_subtype_code = request.POST["add_subtype_code"]
@@ -1493,16 +1389,181 @@ def check_machine_subtype_code(request):
 
 def machine_data_machine(request, line):
     global User_loinged, UserRole, dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole).exists():
+        return redirect('/')
     product_line = Production_line.objects.filter(pid=line)
+    products = Product.objects.filter(line__in=product_line)
     machine_line = Machine.objects.filter(line__in=product_line)
     context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
-               'machine_line': machine_line}
+               'machine_line': machine_line, 'product_line': product_line, 'products': products}
     return render(request, 'machine_data_machine.html', context)
 
 
 def machine_details(request, line, machine):
     global User_loinged, UserRole, dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole).exists():
+        return redirect('/')
     machine = Machine.objects.filter(machine_id=machine, line_id=line)
     context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
                'machine':machine}
     return render(request, 'machine_details.html', context)
+
+
+def spare_part_manage(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage').exists():
+        return redirect('/')
+    spare_part_all = Spare_part.objects.all()
+    spare_part_type_all = Spare_part_type.objects.all()
+    if request.method == 'POST':
+        if 'add_spare_part' in request.POST:
+            spare_part = Spare_part.objects.create(spare_part_name=request.POST['add_sp_name'],
+                                                   spare_part_code=request.POST['add_sp_code'],
+                                                   spare_part_model=request.POST['add_sp_model'],
+                                                   service_life=request.POST['add_service_life'],
+                                                   service_plan_life=request.POST['add_service_plan_life'],
+                                                   spare_part_type_id=request.POST['id_sp_type'],
+                                                   spare_part_sub_type_id=request.POST['id_sp_subtype'])
+            spare_part.save()
+        elif 'edit_spare_part' in request.POST:
+            spare_part = Spare_part.objects.get(pk=request.POST['edit_spare_part'])
+            spare_part.spare_part_name = request.POST['set_sp_name']
+            spare_part.spare_part_model = request.POST['set_sp_model']
+            spare_part.service_life = request.POST['set_service_life']
+            spare_part.service_plan_life = request.POST['set_service_plan_life']
+            spare_part.save()
+        elif 'delete_spare_part' in request.POST:
+            spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
+            spare_part.delete()
+    context = {'User_loinged': User_loinged, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
+    return render(request, 'spare_part_manage.html', context)
+
+
+def load_spare_part_subtype(request):
+    sp_type_id = request.GET.get('sp_type_id')
+    spare_part_sub_type = Spare_part_sub_type.objects.filter(spare_part_type_id=sp_type_id).all()
+    context = {'spare_part_subtype': spare_part_sub_type}
+    return render(request, 'ajax_spare_part_subtype.html', context)
+
+
+def spare_part_subtype(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype').exists():
+        return redirect('/')
+    spare_part_subtype_all = Spare_part_sub_type.objects.all()
+    spare_part_type_all = Spare_part_type.objects.all()
+    if request.method == 'POST':
+        if 'add_spare_part_subtype' in request.POST:
+            sp_subtype = Spare_part_sub_type.objects.create(spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
+                                                            spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
+                                                            spare_part_type_id=request.POST['select_sp_type'])
+            sp_subtype.save()
+        elif 'edit_spare_part_subtype' in request.POST:
+            sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['edit_spare_part_subtype'])
+            sp_subtype.spare_part_sub_type_name = request.POST['set_sp_suptype_name']
+            sp_subtype.save()
+        elif 'delete_spare_part_subtype' in request.POST:
+            sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
+            sp_subtype.delete()
+    context = {'User_loinged': User_loinged, 'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_type_all': spare_part_type_all}
+    return render(request, 'spare_part_subtype.html',context)
+
+
+def spare_part_type(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type').exists():
+        return redirect('/')
+    sp_type_all = Spare_part_type.objects.all()
+    if request.method == "POST":
+        if 'add_spare_part_type' in request.POST:
+            spare_type = Spare_part_type.objects.create(spare_part_type_code=request.POST['add_sp_type_code'], spare_part_type_name=request.POST['add_sp_type_name'])
+            spare_type.save()
+        elif 'edit_spare_part_type' in request.POST:
+            spare_type = Spare_part_type.objects.get(pk=request.POST['edit_spare_part_type'])
+            spare_type.spare_part_type_name = request.POST['set_sp_name']
+            spare_type.save()
+        elif 'delete_spare_part' in request.POST:
+            spare_type = Spare_part_type.objects.get(pk=request.POST['delete_spare_part'])
+            spare_type.delete()
+    context = {'User_loinged': User_loinged, 'sp_type_all': sp_type_all}
+    return render(request, 'spare_part_type.html', context)
+
+@csrf_exempt
+def check_spare_part_type_code(request):
+    if request.method == 'POST':
+        response_data = {}
+        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'])
+        spare_type_code = None
+        try:
+            if spare_type.count():
+                spare_type_code = True  # alredy exist
+            elif len(request.POST['add_code']) == 0:
+                spare_type_code = None  # empty input
+            else:
+                spare_type_code = False  # avialble
+
+        except ObjectDoesNotExist as e:
+            pass
+        except Exception as e:
+            raise e
+        if not spare_type_code:
+            response_data["spare_type_code_success"] = True
+        else:
+            response_data["spare_type_code_success"] = False
+        if spare_type_code is None:
+            response_data["spare_type_code_empty"] = True
+        return JsonResponse(response_data)
+
+
+@csrf_exempt
+def check_spare_part_subtype_code(request):
+    if request.method == 'POST':
+        response_data = {}
+        spare_subtype = Spare_part_sub_type.objects.filter(spare_part_sub_type_code=request.POST['add_subtype_code'])
+        spare_subtype_code = None
+        try:
+            if spare_subtype.count():
+                spare_subtype_code = True  # alredy exist
+            elif len(request.POST['add_subtype_code']) == 0:
+                spare_subtype_code = None  # empty input
+            else:
+                spare_subtype_code = False  # avialble
+
+        except ObjectDoesNotExist as e:
+            pass
+        except Exception as e:
+            raise e
+        if not spare_subtype_code:
+            response_data["spare_subtype_code_success"] = True
+        else:
+            response_data["spare_subtype_code_success"] = False
+        if spare_subtype_code is None:
+            response_data["spare_subtype_code_empty"] = True
+        return JsonResponse(response_data)
+
+
+@csrf_exempt
+def check_spare_part_code(request):
+    if request.method == 'POST':
+        response_data = {}
+        spare_part = Spare_part.objects.filter(spare_part_code=request.POST['add_sp_code'])
+        spare_part_code = None
+        try:
+            if spare_part.count():
+                spare_part_code = True  # alredy exist
+            elif len(request.POST['add_sp_code']) == 0:
+                spare_part_code = None  # empty input
+            else:
+                spare_part_code = False  # avialble
+
+        except ObjectDoesNotExist as e:
+            pass
+        except Exception as e:
+            raise e
+        if not spare_part_code:
+            response_data["spare_part_code_success"] = True
+        else:
+            response_data["spare_part_code_success"] = False
+        if spare_part_code is None:
+            response_data["spare_part_code_empty"] = True
+        return JsonResponse(response_data)
