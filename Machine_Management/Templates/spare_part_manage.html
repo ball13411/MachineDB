@@ -30,36 +30,36 @@
         });
     </script>
     <script>
-        function check_serial(element) {
-            add_serial= $(element).val();
-            var button = document.getElementById("AddmachineButton");
-            if (add_serial == "") {
-                $('#add_serial').parent().removeClass();
-                $('#add_serial').parent().addClass('form-group');
+        function check_spare_part_code(element) {
+            add_sp_code= $(element).val();
+            var button = document.getElementById("add_spare_part");
+            if (add_sp_code == "") {
+                $('#add_sp_code').parent().removeClass();
+                $('#add_sp_code').parent().addClass('form-group');
             }
             $.ajax({
                 url : $(element).attr("data-url"),
                 data : {
                     "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_serial" : add_serial,
+                    "add_sp_code" : add_sp_code,
 
                 },
                 method: "POST",
                 dataType : "json",
                 success : function (data) {
                     //console.log(data);
-                    if (data.serial_success) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group success');
+                    if (data.spare_part_code_success) {
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group success');
                         button.disabled = false;
                     } else {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group error');
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group error');
                         button.disabled = true;
                     }
-                    if (data.serial_empty) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group');
+                    if (data.spare_part_code_empty) {
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group');
                         button.disabled = true;
                     }
                 }
@@ -265,20 +265,6 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
-
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
 
         .form-group.success input {
             border-color: #2ecc71;
@@ -340,8 +326,8 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'spare_part_manage' %}" class="nav-item nav-link active"><b>Spare Part</b></a>
-                <a href="{% url 'machine_type' %}" class="nav-item nav-link">Machine Type</a>
-                <a href="{% url 'machine_subtype' %}" class="nav-item nav-link">Machine Subtype</a>
+                <a href="{% url 'spare_part_type' %}" class="nav-item nav-link">Spare Part Type</a>
+                <a href="{% url 'spare_part_subtype' %}" class="nav-item nav-link">Spare Part Subtype</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -368,7 +354,7 @@
                         <h2>Spare Part <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7">
-                        <a href="#createmch" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
+                        <a href="#create_spare_part" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
                     </div>
                 </div>
             </div>
@@ -378,6 +364,8 @@
                         <th>#</th>
                         <th>Name</th>
                         <th>Code</th>
+                        <th>Type</th>
+                        <th>Subtype</th>
                         <th>Model</th>
                         <th>Service Life</th>
                         <th>Service Plan Life</th>
@@ -390,20 +378,22 @@
                         <td>{{forloop.counter}}</td>
                         <td>{{spare_part.spare_part_name}}</td>
                         <td>{{spare_part.spare_part_code}}</td>
+                        <td>{{spare_part.spare_part_type}}</td>
+                        <td>{{spare_part.spare_part_sub_type}}</td>
                         <td>{{spare_part.spare_part_model}}</td>
                         <td>{{spare_part.service_life}}</td>
                         <td>{{spare_part.service_plan_life}}</td>
                         <td>
-                            <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{mch.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
 
             <!-- Modal Setting -->
-            <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
+            <div id="setting{{spare_part.pk}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-type-url="{% url 'ajax_machine_type' %}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+                        <form method="POST" id="spare_part_edit{{forloop.counter}}" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Setting</h5>
@@ -411,88 +401,41 @@
                             </div>
 
                             <div class="modal-body">
-
                                 <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
+                                    <label>Spare Part Type</label>
+                                    <input type="text" class="form-control" name="set_sp_type" id="set_sp_type{{forloop.counter}}" value="{{spare_part.spare_part_type}}" readonly/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
+                                    <label>Spare Part Subtype</label>
+                                    <input type="text" class="form-control" name="set_sp_subtype" id="set_sp_subtype{{forloop.counter}}" value="{{spare_part.spare_part_sub_type}}" readonly/>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
-                                        {% for line in production_line %}
-                                        <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <label>Spare Part Code</label>
+                                    <input type="text" class="form-control" name="set_sp_code" id="set_sp_code{{forloop.counter}}" value="{{spare_part.spare_part_code}}" readonly/>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
-                                        <option value="{{mch.mch_type_id}}">{{mch.mch_type.mtype_name}}</option>
-                                    </select>
+                                    <label>Spare Part Name</label>
+                                    <input type="text" class="form-control" name="set_sp_name" id="set_sp_name{{forloop.counter}}" placeholder="ชื่ออะไหล่" required="True" value="{{spare_part.spare_part_name}}" maxlength="40" />
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
-                                        <option value="{{mch.sub_type_id}}" >{{mch.sub_type.subtype_name}}</option>
-                                    </select>
+                                    <label>Spare Part Model</label>
+                                    <input type="text"  class="form-control" name="set_sp_model" id="set_sp_model{{forloop.counter}}" placeholder="โมเดลอะไหล่" required="True" value="{{spare_part.spare_part_model}}" maxlength="40" />
                                 </div>
                                 <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
-                                </div>
                                 <div class="form-row">
                                     <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
+                                        <label class="control-label">Service life (Hours)</label>
+                                        <input type="number" class="form-control" id="set_service_life{{forloop.counter}}" placeholder="อายุการใช้งาน (ชั่วโมง)" name="set_service_life" value="{{spare_part.service_life}}">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                        <label class="control-label">Service plan life (Hours)</label>
+                                        <input type="number" class="form-control" id="set_service_plan_life{{forloop.counter}}" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="set_service_plan_life" value="{{spare_part.service_plan_life}}">
                                     </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
-                                </div>
-                                <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Location</label>
-                                    <input type="text" id="set_location{{forloop.counter}}" class="form-control" value="{{mch.machine_location_id}}" name="set_location">
-                                    </select>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="EditMch" value="{{mch.machine_id}}">Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="edit_spare_part" value="{{spare_part.pk}}">Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -500,7 +443,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{mch.machine_id}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{spare_part.pk}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -508,14 +451,14 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Machine : {{mch.machine_name}}" name="del_machine" readonly>
+                            <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Spare part : {{spare_part.spare_part_name}}" name="del_machine" readonly>
                             <br><p>Do you want to delete this machine?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
                         <div class="modal-footer">
                             <form method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger" value="{{mch.machine_id}}" name="deletemachine">Delete</button>
+                                <button type="submit" class="btn btn-danger" value="{{spare_part.pk}}" name="delete_spare_part">Delete</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </form>
                         </div>
@@ -524,93 +467,61 @@
             </div>
             {% endfor %}
             <!-- Modal Add Machine -->
-            <div id="createmch" class="modal fade" tabindex="-1">
+            <div id="create_spare_part" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="add_machine" data-mch-type-url="{% url 'ajax_machine_type' %}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+                        <form method="POST" id="add_sp" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}" >
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Machine</h5>
+                                <h5 class="modal-title">Add New Spare Part</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="production_line">Select Spare Part Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type">
+                                    <label>Select Spare Part Type</label>
+                                    <select class="form-control" id="id_sp_type" name="id_sp_type">
                                         <option value="0" selected>กรุณาเลือกประเภทอะไหล่</option>
+                                        {% for sp_type in spare_part_type_all %}
+                                        <option value="{{sp_type.pk}}">{{sp_type.spare_part_type_name}}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="production_line">Select Spare Part Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype">
+                                    <label>Select Spare Part Subtype</label>
+                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype">
                                         <option value="0" selected>กรุณาเลือกชนิดอะไหล่</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input type="text" name="add_serial" id="add_serial" placeholder="Serial No." required="True" utocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
+                                    <label>Spare Part Code</label>
+                                    <input type="text" class="form-control" name="add_sp_code" id="add_sp_code" placeholder="รหัสอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_code(this);return false;" data-url="{% url 'check_spare_part_code' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
-                                    <small>Serial No. already exists</small>
+                                    <small>Spare part code is already exists</small>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" name="add_mpc" id="add_mpc" placeholder="Machine-Production line Code" required="True" utocomplete="off" maxlength="20" />
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" name="add_machinename" id="add_machinename" placeholder="Machine Name" required="True" utocomplete="off" maxlength="50" />
+                                    <label>Spare Part Name</label>
+                                    <input type="text" class="form-control" name="add_sp_name" id="add_sp_name" placeholder="ชื่ออะไหล่" required="True" autocomplete="off" maxlength="40" />
                                 </div>
                                 <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" name="add_machinemodel" id="add_machinemodel" placeholder="Model" required="True" utocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" name="add_machinebrand" id="add_machinebrand" placeholder="Brand" required="True" utocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" name="add_supplier" id="add_supplier" placeholder="Supplier" required="True" utocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" name="add_pic" id="add_pic" placeholder="Person In Charge" required="True" utocomplete="off" maxlength="50" />
+                                    <label>Spare Part Model</label>
+                                    <input type="text"  class="form-control" name="add_sp_model" id="add_sp_model" placeholder="โมเดลอะไหล่" autocomplete="off" maxlength="40" />
                                 </div>
                                 <div class="form-row">
                                     <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10">
+                                        <label class="control-label">Service life (Hours)</label>
+                                        <input type="number" class="form-control" id="add_service_life" placeholder="อายุการใช้งาน (ชั่วโมง)" name="add_service_life" autocomplete="off">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" class="form-control" id="add_capacity" placeholder="unit" name="add_capacity" maxlength="10">
+                                        <label class="control-label">Service plan life (Hours)</label>
+                                        <input type="number" class="form-control" id="add_service_plan_life" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="add_service_plan_life" autocomplete="off">
                                     </div>
                                 </div>
                                 <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" name="add_power" id="add_power" placeholder="" required="True" utocomplete="off" maxlength="50">
-                                </div>
-                                <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
-                                </div>
-                                <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Location</label>
-                                    <input type="text" class="form-control" id="add_location" placeholder="" name="add_location" maxlength="20">
-                                    </select>
-                                </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="Addmachine" id="AddmachineButton" disabled>Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="add_spare_part" id="add_spare_part" disabled>Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -629,48 +540,17 @@
 } );
 </script>
 <script>
-    $("#id_line").change(function () {
-        const url = $("#add_machine").attr("data-mch-type-url");  // get the url of the `load_cities` view
-        const lineID = $(this).val();  // get the selected country ID from the HTML input
+    $("#id_sp_type").change(function () {
+        const url = $("#add_sp").attr("data-sp-type-url");  // get the url of the `load_cities` view
+        const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
 
         $.ajax({                       // initialize an AJAX request
             url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
             data: {
-                'line_production': lineID       // add the country id to the GET parameters
+                'sp_type_id': sp_typeID       // add the country id to the GET parameters
             },
             success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_mch_type").html(data);  // replace the contents of the city input with the data that came from the server
-            }
-        });
-    });
-    $("#id_line").change(function () {
-        const url = $("#add_machine").attr("data-mch-subtype-url");
-        const lineID = $(this).val();
-        const mch_typeID = 0;
-        $.ajax({
-            url: url,
-            data: {
-                'line_production': lineID,
-                'mch_type': mch_typeID
-            },
-            success: function (data) {
-                $("#id_sub_type").html(data);
-            }
-        });
-    });
-    $("#id_mch_type").change(function () {
-        const url = $("#add_machine").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
-        const lineID = $("#id_line").val();
-        const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
-
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-            data: {
-                'line_production':lineID,
-                'mch_type': mch_typeID       // add the country id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_sub_type").html(data);  // replace the contents of the city input with the data that came from the server
+                $("#id_sp_subtype").html(data);  // replace the contents of the city input with the data that came from the server
             }
         });
     });
@@ -678,59 +558,19 @@
 </script>
 <script>
     var i;
-    for (i = 0; i <= {{machine|length}}; i++) {
-        $("#select_pline"+i).change(function () {
-            var numID = this.id.substring(12,);
-            console.log(numID);
-            const url = $("#mch_edit"+numID).attr("data-mch-type-url");  // get the url of the `load_cities` view
-            const lineID = $(this).val();  // get the selected country ID from the HTML input
+    for (i = 0; i <= {{spare_part_all|length}}; i++) {
+        $("#set_sp_type"+i).change(function () {
+            var numID = this.id.substring(11,);
+            const url = $("#spare_part_edit"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
+            const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
 
             $.ajax({                       // initialize an AJAX request
                 url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
                 data: {
-                    'line_production': lineID       // add the country id to the GET parameters
+                    'sp_type_id': sp_typeID       // add the country id to the GET parameters
                 },
                 success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#select_mtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
-                }
-            });
-        });
-    }
-    var i;
-    for (i = 0; i <= {{machine|length}}; i++) {
-        $("#select_pline"+i).change(function () {
-            var numID = this.id.substring(12,);
-            const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");
-            const lineID = $(this).val();
-            const mch_typeID = 0;
-            $.ajax({
-                url: url,
-                data: {
-                    'line_production': lineID,
-                    'mch_type': mch_typeID
-                },
-                success: function (data) {
-                    $("#select_stype"+numID).html(data);
-                }
-            });
-        });
-    }
-    var i;
-    for (i = 0; i <= {{machine|length}}; i++) {
-        $("#select_mtype"+i).change(function () {
-            var numID = this.id.substring(12,);
-            const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");  // get the url of the `load_cities` view
-            const lineID = $("#select_pline"+numID).val();
-            const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
-
-            $.ajax({                       // initialize an AJAX request
-                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-                data: {
-                    'line_production':lineID,
-                    'mch_type': mch_typeID       // add the country id to the GET parameters
-                },
-                success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#select_stype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    $("#set_sp_subtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
                 }
             });
         });

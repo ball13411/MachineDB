@@ -215,7 +215,7 @@ class Spare_part_sub_type(models.Model):
 
     class Meta:
         db_table = "Spare_part_sub_type"
-
+        ordering = ["spare_part_type"]
 
 class Spare_part(models.Model):
     spare_part_id = models.AutoField(primary_key=True)

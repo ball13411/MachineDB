@@ -696,7 +696,6 @@
     for (i = 0; i <= {{machine|length}}; i++) {
         $("#select_pline"+i).change(function () {
             var numID = this.id.substring(12,);
-            console.log(numID);
             const url = $("#mch_edit"+numID).attr("data-mch-type-url");  // get the url of the `load_cities` view
             const lineID = $(this).val();  // get the selected country ID from the HTML input
 

@@ -45,6 +45,8 @@ urlpatterns = [
 
     # Spare part Management
     path('sparepartmanage/sparepart/',views.spare_part_manage, name='spare_part_manage'),
+    path('sparepartmanage/subtype/', views.spare_part_subtype, name='spare_part_subtype'),
+    path('sparepartmanage/type/', views.spare_part_type, name='spare_part_type'),
 
     # Home
     path('home/', views.home, name='home'),
@@ -71,6 +73,10 @@ urlpatterns = [
     path('check_screen_id', views.check_screen_id, name='check_screen_id'),
     path('check_menu_id', views.check_menu_id, name='check_menu_id'),
     path('check_org_code', views.check_org_code, name='check_org_code'),
+    path('ajax/load-spare-part-subtype/', views.load_spare_part_subtype, name='ajax_spare_part_subtype'),
+    path('check_spare_part_type_code', views.check_spare_part_type_code, name='check_spare_part_type_code'),
+    path('check_spare_part_subtype_code', views.check_spare_part_subtype_code, name='check_spare_part_subtype_code'),
+    path('check_spare_part_code', views.check_spare_part_code, name='check_spare_part_code'),
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),
