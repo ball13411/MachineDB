@@ -1,0 +1,4 @@
+<option value="0">-----------</option>
+{% for sp_subtype in spare_part_subtype %}
+<option value="{{sp_subtype.pk}}">{{sp_subtype.spare_part_sub_type_name}}</option>
+{% endfor %}
