@@ -192,6 +192,48 @@ class Machine(models.Model):
         ordering = ["machine_production_line_code"]
 
 
+class Spare_part_type(models.Model):
+    spare_part_type_id = models.AutoField(primary_key=True)
+    spare_part_type_code = models.CharField(max_length=30)
+    spare_part_type_name = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.spare_part_type_name
+
+    class Meta:
+        db_table = "Spare_part_type"
+
+
+class Spare_part_sub_type(models.Model):
+    spare_part_sub_type_id = models.AutoField(primary_key=True)
+    spare_part_sub_type_code = models.CharField(max_length=30)
+    spare_part_sub_type_name = models.CharField(max_length=40)
+    spare_part_type = models.ForeignKey(Spare_part_type, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.spare_part_sub_type_name
+
+    class Meta:
+        db_table = "Spare_part_sub_type"
+
+
+class Spare_part(models.Model):
+    spare_part_id = models.AutoField(primary_key=True)
+    spare_part_name = models.CharField(max_length=40, blank=True)
+    spare_part_code = models.CharField(max_length=40, blank=True)
+    spare_part_model = models.CharField(max_length=40, blank=True)
+    service_life = models.IntegerField()
+    service_plan_life = models.IntegerField()
+    spare_part_type = models.ForeignKey(Spare_part_type, on_delete=models.CASCADE)
+    spare_part_sub_type = models.ForeignKey(Spare_part_sub_type, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.spare_part_name
+
+    class Meta:
+        db_table = "Spare_part"
+
+
 class User(models.Model):
     username = models.CharField(max_length=10, primary_key=True)
     firstname = models.CharField(max_length=20)
@@ -211,6 +253,3 @@ class User(models.Model):
 
     class Meta:
         db_table = "User_management"
-
-
-

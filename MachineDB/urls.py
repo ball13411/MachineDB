@@ -43,6 +43,9 @@ urlpatterns = [
     path('machinemanage/machinetype/',views.machine_type,name='machine_type'),
     path('machinemanage/machinesubtype/',views.machine_subtype,name='machine_subtype'),
 
+    # Spare part Management
+    path('sparepartmanage/sparepart/',views.spare_part_manage, name='spare_part_manage'),
+
     # Home
     path('home/', views.home, name='home'),
     path('machine/data/', views.machine_data, name='machinedata'),

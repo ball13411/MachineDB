@@ -1424,8 +1424,6 @@ def check_org_code(request):
         org_code = request.POST["org_code"]
         organize = Organization.objects.filter(org_code=org_code)
         org_status = None
-        print(org_code)
-        print(organize)
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
@@ -1493,16 +1491,30 @@ def check_machine_subtype_code(request):
 
 def machine_data_machine(request, line):
     global User_loinged, UserRole, dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole).exists():
+        return redirect('/')
     product_line = Production_line.objects.filter(pid=line)
+    products = Product.objects.filter(line__in=product_line)
     machine_line = Machine.objects.filter(line__in=product_line)
     context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
-               'machine_line': machine_line}
+               'machine_line': machine_line, 'product_line': product_line, 'products': products}
     return render(request, 'machine_data_machine.html', context)
 
 
 def machine_details(request, line, machine):
     global User_loinged, UserRole, dict_menu_level
+    if not Role_Screen.objects.filter(role=UserRole).exists():
+        return redirect('/')
     machine = Machine.objects.filter(machine_id=machine, line_id=line)
     context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
                'machine':machine}
     return render(request, 'machine_details.html', context)
+
+
+def spare_part_manage(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage').exists():
+        return redirect('/')
+    spare_part_all = Spare_part.objects.all()
+    context = {'User_loinged': User_loinged, 'spare_part_all': spare_part_all}
+    return render(request, 'spare_part_manage.html', context)
