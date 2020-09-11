@@ -265,20 +265,20 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+        /*.form-group input {*/
+        /*    border: 2px solid #f0f0f0;*/
+        /*    border-radius: 4px;*/
+        /*    display: block;*/
+        /*    font-family: inherit;*/
+        /*    font-size: 14px;*/
+        /*    padding: 10px;*/
+        /*    width: 100%;*/
+        /*}*/
 
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
+        /*.form-group input:focus {*/
+        /*    outline: 0;*/
+        /*    border-color: #777;*/
+        /*}*/
 
         .form-group.success input {
             border-color: #2ecc71;
@@ -342,6 +342,7 @@
                 <a href="{% url 'machine_manage' %}" class="nav-item nav-link active"><b>Machine Manage</b></a>
                 <a href="{% url 'machine_type' %}" class="nav-item nav-link">Machine Type</a>
                 <a href="{% url 'machine_subtype' %}" class="nav-item nav-link">Machine Subtype</a>
+                <a href="{% url 'machine_and_spare_part' %}" class="nav-item nav-link">Machine & Spare part</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -543,8 +544,8 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="production_line">Select Production Line</label>
-                                    <select class="form-control" id="id_line" name="add_production_line">
-                                        <option value="0">กรุณาเลือกสายการผลิต</option>
+                                    <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                        <option value="">กรุณาเลือกสายการผลิต</option>
                                         {% for line in production_line %}
                                         <option value="{{line.pid}}">{{line}}</option>
                                         {% endfor %}
@@ -552,47 +553,47 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="production_line">Select Machine Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type">
-                                        <option value="0" selected>กรุณาเลือกประเภทเครื่องจักร</option>
+                                    <select class="form-control" id="id_mch_type" name="add_type" required="True">
+                                        <option value="" selected>กรุณาเลือกประเภทเครื่องจักร</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="production_line">Select Machine Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype">
-                                        <option value="0" selected>กรุณาเลือกชนิดเครื่องจักร</option>
+                                    <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
+                                        <option value="" selected>กรุณาเลือกชนิดเครื่องจักร</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="serial">Serial No.</label>
-                                    <input type="text" name="add_serial" id="add_serial" placeholder="Serial No." required="True" utocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
+                                    <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="Serial No." required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Serial No. already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" name="add_mpc" id="add_mpc" placeholder="Machine-Production line Code" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="Machine-Production line Code" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="machine_name">Machine Name</label>
-                                    <input type="text" name="add_machinename" id="add_machinename" placeholder="Machine Name" required="True" utocomplete="off" maxlength="50" />
+                                    <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="Machine Name" required="True" autocomplete="off" maxlength="50" />
                                 </div>
                                 <div class="form-group">
                                     <label for="model">Model</label>
-                                    <input type="text" name="add_machinemodel" id="add_machinemodel" placeholder="Model" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="Model" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="brand">Brand</label>
-                                    <input type="text" name="add_machinebrand" id="add_machinebrand" placeholder="Brand" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="Brand" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="supplier">Supplier</label>
-                                    <input type="text" name="add_supplier" id="add_supplier" placeholder="Supplier" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="Supplier" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="pic">Person In Charge</label>
-                                    <input type="text" name="add_pic" id="add_pic" placeholder="Person In Charge" required="True" utocomplete="off" maxlength="50" />
+                                    <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="Person In Charge" required="True" autocomplete="off" maxlength="50" />
                                 </div>
                                 <div class="form-row">
                                     <div class="col-md-6">
@@ -607,20 +608,20 @@
                                 <br>
                                 <div class="form-group">
                                     <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" name="add_power" id="add_power" placeholder="" required="True" utocomplete="off" maxlength="50">
+                                    <input type="text" class="form-control" name="add_power" id="add_power" placeholder="" required="True" autocomplete="off" maxlength="50">
                                 </div>
                                 <div class="form-group">
                                     <label>Installation Date</label>
-                                    <input type="date" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                    <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
                                 </div>
                                 <div class="form-group">
                                     <label>Start Date</label>
-                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                    <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
                                 </div>
 
                                 <div class="form-group">
                                     <label>Location</label>
-                                    <input type="text" class="form-control" id="add_location" placeholder="" name="add_location" maxlength="20"> 
+                                    <input type="text" class="form-control" class="form-control" id="add_location" placeholder="" name="add_location" maxlength="20">
                                     </select>
                                 </div>
                                 <div class="modal-footer">

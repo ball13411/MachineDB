@@ -636,21 +636,25 @@ def production_line(request):
         return redirect('/')
     if request.method == "POST":
         if 'Addprodline' in request.POST:
-            if not Production_line.objects.filter(production_line=request.POST['add_prodline'],
-                                                  location_site=Site.objects.get(id=request.POST['add_select_site']),
-                                                  location_building=Building.objects.get(
-                                                      id=request.POST['add_select_building']),
-                                                  location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
-                                                  ).exists():
-                pline = Production_line.objects.create(
-                    production_line=request.POST['add_prodline'],
-                    location_site=Site.objects.get(id=request.POST['add_select_site']),
-                    location_building=Building.objects.get(id=request.POST['add_select_building']),
-                    location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
-                )
-                pline.save()
-            else:
-                messages.info(request, "มี Production Line นี้แล้วอยู่ในระบบ")
+            try:
+                if not Production_line.objects.filter(production_line=request.POST['add_prodline'],
+                                                      location_site=Site.objects.get(id=request.POST['add_select_site']),
+                                                      location_building=Building.objects.get(
+                                                          id=request.POST['add_select_building']),
+                                                      location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
+                                                      ).exists():
+                    pline = Production_line.objects.create(
+                        production_line=request.POST['add_prodline'],
+                        location_site=Site.objects.get(id=request.POST['add_select_site']),
+                        location_building=Building.objects.get(id=request.POST['add_select_building']),
+                        location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
+                    )
+                    pline.save()
+                else:
+                    messages.info(request, "มี Production Line นี้แล้วอยู่ในระบบ")
+            except Machine_Management.models.Floor.DoesNotExist:
+                messages.info(request, "คุณกรอกข้อมูลบางส่วนไม่สมบูรณ์ กรุณากรอกข้อมูลให้สมบูรณ์")
+
         elif 'Editprodline' in request.POST:
             if not Production_line.objects.filter(production_line=request.POST['set_production_line'],
                                                   location_site=Site.objects.get(id=request.POST['select_site']),
@@ -726,6 +730,9 @@ def location(request):
                 else:
                     floor.floor = request.POST['set_floor']
                     floor.save()
+        elif 'delete_location' in request.POST:
+            locations = Floor.objects.get(pk=request.POST['delete_location'])
+            locations.delete()
 
     sites = Site.objects.all()
     buildings = Building.objects.all()
@@ -880,7 +887,7 @@ def load_machine_type(request):
 def load_machine_subtype(request):
     line = request.GET.get('line_production')
     mch_type = request.GET.get('mch_type')
-    mch_subtype = Machine_subtype.objects.filter(mch_type__mtype_id=mch_type,mch_type__line_id=line).all()
+    mch_subtype = Machine_subtype.objects.filter(mch_type__mtype_id=mch_type, mch_type__line_id=line).all()
     context = {'mch_subtype': mch_subtype}
     return render(request, 'ajax_machine_subtype.html', context)
 
@@ -1321,13 +1328,14 @@ def check_org_code(request):
         org_code = request.POST["org_code"]
         organize = Organization.objects.filter(org_code=org_code)
         org_status = None
+        print(request.POST["org_code"])
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
                 # You can use DB and fetch value from table and proceed accordingly.
                 if organize.exists():
                     org_status = True  # already exist
-                elif len(org_code) == 0:
+                elif len(request.POST["org_code"]) == 0:
                     org_status = None  # empty input
                 else:
                     org_status = False  # avialble
@@ -1444,6 +1452,13 @@ def load_spare_part_subtype(request):
     spare_part_sub_type = Spare_part_sub_type.objects.filter(spare_part_type_id=sp_type_id).all()
     context = {'spare_part_subtype': spare_part_sub_type}
     return render(request, 'ajax_spare_part_subtype.html', context)
+
+
+def load_spare_part(request):
+    sp_subtype_id = request.GET.get('sp_subtype_id')
+    spare_part = Spare_part.objects.filter(spare_part_sub_type=sp_subtype_id).all()
+    context = {'spare_part': spare_part}
+    return render(request, 'ajax_spare_part.html', context)
 
 
 def spare_part_subtype(request):
@@ -1567,3 +1582,27 @@ def check_spare_part_code(request):
         if spare_part_code is None:
             response_data["spare_part_code_empty"] = True
         return JsonResponse(response_data)
+
+
+def machine_and_spare_part(request):
+    global User_loinged
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_spare_part').exists():
+        return redirect('/')
+    machine_all = Machine.objects.all()
+    spare_part_all = Spare_part.objects.all()
+    spare_part_type_all = Spare_part_type.objects.all()
+
+    if request.method == "POST":
+        if "add_spare_part" in request.POST:
+            mch = Machine.objects.get(machine_id=request.POST["add_spare_part"])
+            spare_part = Spare_part.objects.get(spare_part_id=request.POST["select_sp_name"])
+            mch.spare_parts.add(spare_part)
+            mch.save()
+        elif "delete_spare_part" in request.POST:
+            mch = Machine.objects.get(pk=request.POST['delete_spare_part'])
+            spare_part = Spare_part.objects.get(pk=request.POST['select_delete_spare_part'])
+            mch.spare_parts.remove(spare_part)
+            mch.save()
+
+    context = {'User_loinged': User_loinged, 'machine_all': machine_all, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
+    return render(request, 'machine&spare_part.html', context)

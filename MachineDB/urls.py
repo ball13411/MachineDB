@@ -22,26 +22,27 @@ urlpatterns = [
     # General Path
     path('admin/', admin.site.urls),
     path('', views.signin, name='signin'),
-    path('resetpassword/', views.resetpassword,name='resetpassword'),
+    path('resetpassword/', views.resetpassword, name='resetpassword'),
 
     # User Management
-    path('usermanage/user', views.usermanage,name='usermanage'),
-    path('usermanage/role/', views.rolemanage,name='rolemanage'),
-    path('usermanage/screen/', views.screenmanage,name='screenmanage'),
-    path('usermanage/rolescreen/', views.role_screen,name='role_screen_manage'),
+    path('usermanage/user', views.usermanage, name='usermanage'),
+    path('usermanage/role/', views.rolemanage, name='rolemanage'),
+    path('usermanage/screen/', views.screenmanage, name='screenmanage'),
+    path('usermanage/rolescreen/', views.role_screen, name='role_screen_manage'),
     path('usermanage/menu/', views.menumanage, name='menumanage'),
 
     # Organization Management
-    path('organizemanage/organization', views.organizemanage,name='organization'),
-    path('organizemanage/line', views.production_line,name='productionline'),
-    path('organizemanage/location', views.location,name='location'),
-    path('organziemanage/orgline', views.org_productline,name='org_prodline'),
-    path('organziemanage/productmanage',views.productmanage,name='productmanage'),
+    path('organizemanage/organization', views.organizemanage, name='organization'),
+    path('organizemanage/line', views.production_line, name='productionline'),
+    path('organizemanage/location', views.location, name='location'),
+    path('organziemanage/orgline', views.org_productline, name='org_prodline'),
+    path('organziemanage/productmanage', views.productmanage, name='productmanage'),
 
     # Machine Management
-    path('machinemanage/machine/',views.machine_manage,name='machine_manage'),
-    path('machinemanage/machinetype/',views.machine_type,name='machine_type'),
-    path('machinemanage/machinesubtype/',views.machine_subtype,name='machine_subtype'),
+    path('machinemanage/machine/', views.machine_manage, name='machine_manage'),
+    path('machinemanage/machinetype/', views.machine_type, name='machine_type'),
+    path('machinemanage/machinesubtype/', views.machine_subtype, name='machine_subtype'),
+    path('machinemanage/machine_spare_part/', views.machine_and_spare_part, name='machine_and_spare_part'),
 
     # Spare part Management
     path('sparepartmanage/sparepart/',views.spare_part_manage, name='spare_part_manage'),
@@ -77,6 +78,7 @@ urlpatterns = [
     path('check_spare_part_type_code', views.check_spare_part_type_code, name='check_spare_part_type_code'),
     path('check_spare_part_subtype_code', views.check_spare_part_subtype_code, name='check_spare_part_subtype_code'),
     path('check_spare_part_code', views.check_spare_part_code, name='check_spare_part_code'),
+    path('ajax/load_spare_part/', views.load_spare_part, name='load_spare_part'),
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),

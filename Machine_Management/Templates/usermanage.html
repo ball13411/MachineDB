@@ -326,20 +326,6 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
-
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
 
         .form-group.success input {
             border-color: #2ecc71;
@@ -544,7 +530,7 @@
 
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" name="add_username" id="add_username" placeholder="Username" required="True" utocomplete="off" maxlength="10" onkeyup="check_username(this);return false;" data-url="{% url "check_username" %}"/>
+                                    <input type="text" class="form-control" name="add_username" id="add_username" placeholder="Username" required="True" autocomplete="off" maxlength="10" onkeyup="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Username already exists</small>
@@ -553,28 +539,28 @@
                                 <div class="form-row">
                                     <div class="col-md-6">
                                         <label class="control-label">First name</label>
-                                        <input type="text" class="form-control" id="add_fname" placeholder="" name="add_fname" maxlength="20">
+                                        <input type="text" class="form-control" id="add_fname" placeholder="" name="add_fname" maxlength="20" required="True" autocomplete="off">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="control-label">Last name</label>
-                                        <input type="text" class="form-control" id="add_lname" placeholder="" name="add_lname" maxlength="20">
+                                        <input type="text" class="form-control" id="add_lname" placeholder="" name="add_lname" maxlength="20" required="True" autocomplete="off">
                                     </div>
                                 </div>
                                 <br>
                                 <div class="form-group">
                                     <label for="username">Email</label>
-                                    <input type="email"  maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" onkeyup="check_email(this);return false;" data-url="{% url "check_email" %}"/>
+                                    <input type="email" class="form-control" maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" required="True" onkeyup="check_email(this);return false;" data-url="{% url 'check_email' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Email already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label>Start date</label>
-                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" >
+                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" required="True" >
                                 </div>
                                 <div class="form-group">
                                     <label for="exampleFormControlSelect1">Select role</label>
-                                    <select class="form-control" id="exampleFormControlSelect1" name="select_role">
+                                    <select class="form-control" id="exampleFormControlSelect1" name="select_role" required="True">
                                     {% for role in roles %}
                                     <option value="{{role.role_id}}">{{role}}</option>
                                     {% endfor %}
@@ -582,7 +568,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Organize</label>
-                                    <select class="form-control" id="add_select_org" name="add_select_org">
+                                    <select class="form-control" id="add_select_org" name="add_select_org" required="True">
                                     {% for org in orgs %}
                                         <option value="{{org.org_id}}">{{org.org_code}}</option>
                                     {% endfor %}
@@ -590,14 +576,14 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="username">Password</label>
-                                    <input type="password" placeholder="Password" id="add_password" name="add_password" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true"/>
+                                    <input type="password" class="form-control" placeholder="Password" id="add_password" name="add_password" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
 
                                 </div>
                                 <div class="form-group">
                                     <label for="username">Confirm password</label>
-                                    <input type="password" placeholder="Confirm password" id="add_cfpassword" name="add_cfpassword" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true"/>
+                                    <input type="password" class="form-control" placeholder="Confirm password" id="add_cfpassword" name="add_cfpassword" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Password don't match</small>

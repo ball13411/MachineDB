@@ -480,8 +480,8 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Spare Part Type</label>
-                                    <select class="form-control" id="id_sp_type" name="id_sp_type">
-                                        <option value="0" selected>กรุณาเลือกประเภทอะไหล่</option>
+                                    <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
+                                        <option value="" selected>กรุณาเลือกประเภทอะไหล่</option>
                                         {% for sp_type in spare_part_type_all %}
                                         <option value="{{sp_type.pk}}">{{sp_type.spare_part_type_name}}</option>
                                         {% endfor %}
@@ -489,8 +489,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Spare Part Subtype</label>
-                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype">
-                                        <option value="0" selected>กรุณาเลือกชนิดอะไหล่</option>
+                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
+                                        <option value="" selected>กรุณาเลือกชนิดอะไหล่</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

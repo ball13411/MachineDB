@@ -168,30 +168,6 @@ class Machine_subtype(models.Model):
         db_table = "Machine_subtype"
 
 
-class Machine(models.Model):
-    machine_id = models.AutoField(primary_key=True)
-    serial_id = models.CharField(max_length=50, default=None, null=True)
-    machine_production_line_code = models.CharField(max_length=30, default=None, null=True)
-    machine_name = models.CharField(max_length=50, blank=True)
-    machine_brand = models.CharField(max_length=10, blank=True)
-    machine_model = models.CharField(max_length=10, blank=True)
-    machine_supplier_code = models.CharField(max_length=10, blank=True)
-    machine_location_id = models.CharField(max_length=10, blank=True)
-    machine_emp_id_response = models.CharField(max_length=15, blank=True)
-    machine_capacity_per_minute = models.CharField(max_length=10, blank=True)
-    machine_capacity_measure_unit = models.CharField(max_length=10, blank=True)
-    machine_power_use_watt_per_hour = models.CharField(max_length=10, blank=True)
-    machine_installed_datetime = models.DateField(default=None, null=True)
-    machine_start_use_datetime = models.DateField(default=None, null=True)
-    line = models.ForeignKey(Production_line, on_delete=models.CASCADE)
-    sub_type = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
-    mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "Machine_master"
-        ordering = ["machine_production_line_code"]
-
-
 class Spare_part_type(models.Model):
     spare_part_type_id = models.AutoField(primary_key=True)
     spare_part_type_code = models.CharField(max_length=30)
@@ -232,6 +208,32 @@ class Spare_part(models.Model):
 
     class Meta:
         db_table = "Spare_part"
+
+
+class Machine(models.Model):
+    machine_id = models.AutoField(primary_key=True)
+    serial_id = models.CharField(max_length=50, default=None, null=True)
+    machine_production_line_code = models.CharField(max_length=30, default=None, null=True)
+    machine_name = models.CharField(max_length=50, blank=True)
+    machine_brand = models.CharField(max_length=10, blank=True)
+    machine_model = models.CharField(max_length=10, blank=True)
+    machine_supplier_code = models.CharField(max_length=10, blank=True)
+    machine_location_id = models.CharField(max_length=10, blank=True)
+    machine_emp_id_response = models.CharField(max_length=15, blank=True)
+    machine_capacity_per_minute = models.CharField(max_length=10, blank=True)
+    machine_capacity_measure_unit = models.CharField(max_length=10, blank=True)
+    machine_power_use_watt_per_hour = models.CharField(max_length=10, blank=True)
+    machine_installed_datetime = models.DateField(default=None, null=True)
+    machine_start_use_datetime = models.DateField(default=None, null=True)
+    line = models.ForeignKey(Production_line, on_delete=models.CASCADE)
+    sub_type = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
+    mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
+    spare_parts = models.ManyToManyField(Spare_part)
+
+    class Meta:
+        db_table = "Machine_master"
+        ordering = ["machine_production_line_code"]
+
 
 
 class User(models.Model):
