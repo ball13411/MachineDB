@@ -13,14 +13,14 @@ from django.db.models import Q
 # Create your views here.
 
 # GLOBAL var
-User_loinged, UserRole, List_user_Screen, dict_menu_level, User_org_machine_line, List_user_Screen = None, None, [], {}, None, None  # User Login for use all pages
+User_login, UserRole, List_user_Screen, dict_menu_level, User_org_machine_line, List_user_Screen = None, None, [], {}, None, None  # User Login for use all pages
 
 
 def signin(request):
     # Functions for Sign In to webapp
     # Templates/signin.html
-    global User_loinged, UserRole
-    User_loinged, UserRole = None, None
+    global User_login, UserRole
+    User_login, UserRole = None, None
     if request.method == "POST":
         # Form Sign In
         if 'signin' in request.POST:
@@ -40,8 +40,8 @@ def signin(request):
                     messages.info(request, 'รหัสผ่านหมดอายุแล้ว กรุณาทำการ Reset Password')
                     return redirect('/')
                 if user is not None:  # Check login User                    # Set user login
-                    User_loinged = user
-                    UserRole = str(User_loinged.role)
+                    User_login = user
+                    UserRole = str(User_login.role)
                     return redirect('/home')
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
                 messages.info(request, "username หรือ password ไม่ถูกต้อง")
@@ -51,8 +51,7 @@ def signin(request):
 def usermanage(request):
     # Functions for User Management
     # Templates/usermanage.html
-    global User_loinged, List_user_Screen  # Call User sign in
-    production_lines = Production_line.objects.all()
+    global User_login, List_user_Screen  # Call User sign in
     if not Role_Screen.objects.filter(role=UserRole, screen_id='usermanage').exists():
         return redirect('/')
     if request.method == "POST":
@@ -64,7 +63,7 @@ def usermanage(request):
             now = datetime.datetime.now()  # Call Datetime now
             user = User.objects.get(username=username)  # Query user
             user.update_date = now  # Update UpdateDate to now
-            user.update_by = str(User_loinged.username)  # Update UserUpdate of UserSelect
+            user.update_by = str(User_login.username)  # Update UserUpdate of UserSelect
             org = Organization.objects.get(org_id=update_org)
             user.org = org
             role = Role.objects.get(role_id=update_role)  # Get RoleID of UserSelect
@@ -96,7 +95,7 @@ def usermanage(request):
                         firstname=fname.capitalize(),
                         lastname=lname.capitalize(),
                         password=passwd,
-                        create_by=str(User_loinged.username),
+                        create_by=str(User_login.username),
                         create_date=now,
                         expired_date=now - datetime.timedelta(1),
                         expired_day=90,
@@ -105,7 +104,8 @@ def usermanage(request):
                         update_date=None,
                         last_login_date=None,
                         role=role,
-                        org=org
+                        org=org,
+                        user_active=True
                     )
                     user.save()  # Save User
                     # return redirect('/usermanage')
@@ -113,23 +113,20 @@ def usermanage(request):
                 messages.info(request, "รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบใหม่")  # Show Message Password != ConPassword
         # Button Sign Out
         elif 'signout' in request.POST:
-            User_loinged = None  # Set User_login is None
+            User_login = None  # Set User_login is None
         # Form DeleteUser (icon delete)
         elif 'deleteuser' in request.POST:
             username = request.POST['deleteuser']  # get var('username') from HTML
             user = User.objects.get(username=username)  # Query Username
             user.delete()  # Delete User from Model(DB)
     # return var to HTML
-    form = AddUserForm()
     roles = Role.objects.all()
     users = User.objects.all()
     orgs = Organization.objects.all()
     context = {'users': users,
                'roles': roles,
-               'User_loinged': User_loinged,
-               'production_lines': production_lines,
-               'orgs': orgs,
-               'form': form}
+               'User_login': User_login,
+               'orgs': orgs}
     return render(request, 'usermanage.html', context)
 
 
@@ -224,7 +221,7 @@ def resetpassword(requset):
 
 
 def rolemanage(request):
-    global User_loinged  # Call User sign in
+    global User_login  # Call User sign in
     if not Role_Screen.objects.filter(role=UserRole, screen_id='rolemanage').exists():
         return redirect('/')
     if request.method == "POST":
@@ -247,15 +244,15 @@ def rolemanage(request):
             role = Role.objects.get(role_id=role_id)
             role.delete()
         elif 'signout' in request.POST:
-            User_loinged = None  # Set User_login is None
+            User_login = None  # Set User_login is None
     roles = Role.objects.all()
     context = {'roles': roles,
-               'User_loinged': User_loinged}
+               'User_login': User_login}
     return render(request, 'rolemanage.html', context)
 
 
 def screenmanage(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='screenmanage').exists():
         return redirect('/')
     if request.method == "POST":
@@ -290,12 +287,12 @@ def screenmanage(request):
             screen.file_html = set_file_html
             screen.save()
     screens = Screen.objects.all()
-    context = {'User_logined': User_loinged,
+    context = {'User_logined': User_login,
                'screens': screens}
     return render(request, 'screenmanage.html', context)
 
 def role_screen(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='role_screen').exists():
         return redirect('/')
     if request.method == "POST":
@@ -355,7 +352,7 @@ def role_screen(request):
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
-    context = {'User_loinged': User_loinged,
+    context = {'User_login': User_login,
                'list_role_screen': list_role_screen,
                'roles': roles,
                'screens': screens}
@@ -363,13 +360,13 @@ def role_screen(request):
 
 
 def home(request):
-    global User_loinged, UserRole, dict_menu_level, List_user_Screen
+    global User_login, UserRole, dict_menu_level, List_user_Screen
     if request.method == "POST":
         if 'signout' in request.POST:
-            User_loinged = None
+            User_login = None
             UserRole = None
     try:
-        user_role = Role.objects.get(role_id=User_loinged.role)
+        user_role = Role.objects.get(role_id=User_login.role)
     except AttributeError:
         return redirect("/")
     List_user_Screen = user_role.members.all()
@@ -389,36 +386,39 @@ def home(request):
         if child in list_menu_role:
             root = Menu.objects.get(menu_id=child.parent_menu)
             dict_menu_level[root].append(child)
-    context = {'User_loinged': User_loinged, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items()}
+    user_org = User_login.org.org_line.all()
+    User_org_machine_line = Machine.objects.filter(line__in=user_org)
+    context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
+               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org }
     return render(request, 'home.html', context)
 
 
 def machine_register(request):
-    global User_loinged, UserRole, dict_menu_level
+    global User_login, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_register').exists():
         return redirect('/')
-    user_org = User_loinged.org.org_line.all()
+    user_org = User_login.org.org_line.all()
     form = MachineForm(request.POST or None)
     if form.is_valid():
         form.save()
         form = MachineForm()
         messages.info(request, 'Register Success')
-    UserRole = str(User_loinged.role)
+    UserRole = str(User_login.role)
     context = {
-        'form': form, 'User_loinged': User_loinged, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
+        'form': form, 'User_login': User_login, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
         'dict_menu_level': dict_menu_level.items(), 'lines':user_org
     }
     return render(request, 'machine_register.html', context)
 
 
 def machine_data(request):
-    global User_loinged, UserRole, dict_menu_level, User_org_machine_line
+    global User_login, UserRole, dict_menu_level, User_org_machine_line
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_data').exists():
         return redirect('/')
-    user_org = User_loinged.org.org_line.all()
+    user_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {
-        'User_loinged': User_loinged, 'UserRole': UserRole,
+        'User_login': User_login, 'UserRole': UserRole,
         'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org
     }
     return render(request, 'machine_data.html', context)
@@ -436,7 +436,7 @@ def test(request):
 
 
 def menumanage(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='menumanage').exists():
         return redirect('/')
     if request.method == 'POST':
@@ -501,7 +501,7 @@ def menumanage(request):
     list_menu = Menu.objects.order_by('level')
     list_screen = Screen.objects.all()
     context = {
-        'User_loinged': User_loinged,
+        'User_login': User_login,
         'list_menu': list_menu,
         'list_screen': list_screen
     }
@@ -509,7 +509,7 @@ def menumanage(request):
 
 
 def organizemanage(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='organize_manage').exists():
         return redirect('/')
     if request.method == 'POST':
@@ -534,40 +534,40 @@ def organizemanage(request):
             organize.save()
     orgs = Organization.objects.all()
     context = {
-        'orgs': orgs, 'User_loinged': User_loinged
+        'orgs': orgs, 'User_login': User_login
     }
     return render(request, 'organizemanage.html', context)
 
 
 def machine_search(request):
-    global User_loinged, dict_menu_level, UserRole, User_org_machine_line
+    global User_login, dict_menu_level, UserRole, User_org_machine_line
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_search').exists():
         return redirect('/')
-    User_org = User_loinged.org.org_line.all()
+    User_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
     filtered_machine = MachineFilter(request.GET, queryset=User_org_machine_line)
     context = {
-        'User_loinged': User_loinged, 'dict_menu_level': dict_menu_level.items(), 'UserRole': UserRole,
+        'User_login': User_login, 'dict_menu_level': dict_menu_level.items(), 'UserRole': UserRole,
         'filtered_machine': filtered_machine
     }
     return render(request, 'machine_search.html', context)
 
 
 def machine_update(request):
-    global User_loinged, UserRole, User_org_machine_line, dict_menu_level
+    global User_login, UserRole, User_org_machine_line, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_update').exists():
         return redirect('/')
-    User_org = User_loinged.org.org_line.all()
+    User_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=User_org)
     context = {
-        'User_loinged': User_loinged, 'UserRole': UserRole, 'User_org_machine_line': User_org_machine_line,
+        'User_login': User_login, 'UserRole': UserRole, 'User_org_machine_line': User_org_machine_line,
         'dict_menu_level': dict_menu_level.items()
     }
     return render(request, 'machine_update.html', context)
 
 
 def machine_edit(request):
-    global User_loinged, UserRole, dict_menu_level
+    global User_login, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_update').exists():
         return redirect('/')
     get_machine = None
@@ -598,7 +598,7 @@ def machine_edit(request):
             machine.line_id = request.POST['select_pline']
             machine.save()
     context = {
-        'User_loinged': User_loinged, 'UserRole': UserRole,
+        'User_login': User_login, 'UserRole': UserRole,
         'dict_menu_level': dict_menu_level.items(), 'get_machine': get_machine, 'list_mtype': list_mtype,
         'list_line': list_line,'list_stype':list_stype
     }
@@ -631,7 +631,7 @@ def load_floor(request):
 
 
 def production_line(request):
-    global User_loinged, UserRole
+    global User_login, UserRole
     if not Role_Screen.objects.filter(role=UserRole, screen_id='production_line').exists():
         return redirect('/')
     if request.method == "POST":
@@ -678,13 +678,13 @@ def production_line(request):
     buildings = Building.objects.all()
     floors = Floor.objects.all()
     context = {
-        'User_loinged': User_loinged, 'lines': lines, 'sites': sites, 'buildings': buildings, 'floors': floors
+        'User_login': User_login, 'lines': lines, 'sites': sites, 'buildings': buildings, 'floors': floors
     }
     return render(request, 'production_line.html', context)
 
 
 def location(request):
-    global User_loinged, UserRole
+    global User_login, UserRole
     if not Role_Screen.objects.filter(role=UserRole, screen_id='location').exists():
         return redirect('/')
     if request.method == "POST":
@@ -738,13 +738,13 @@ def location(request):
     buildings = Building.objects.all()
     floors = Floor.objects.all()
     context = {
-        'User_loinged': User_loinged, 'sites': sites, 'buildings': buildings, 'floors': floors
+        'User_login': User_login, 'sites': sites, 'buildings': buildings, 'floors': floors
     }
     return render(request, 'location.html', context)
 
 
 def org_productline(request):
-    global User_loinged, UserRole
+    global User_login, UserRole
     if not Role_Screen.objects.filter(role=UserRole, screen_id='location').exists():
         return redirect('/')
     if request.method == "POST":
@@ -761,7 +761,7 @@ def org_productline(request):
     org_lines = Organization.objects.all()
     prod_lines = Production_line.objects.all()
     context = {
-        'org_lines': org_lines, 'prod_lines': prod_lines, 'User_loinged': User_loinged, 'UserRole': UserRole
+        'org_lines': org_lines, 'prod_lines': prod_lines, 'User_login': User_login, 'UserRole': UserRole
     }
     return render(request, 'org_prodline.html', context)
 
@@ -804,7 +804,7 @@ def check_role(request):
 
 
 def productmanage(request):
-    global User_loinged, UserRole
+    global User_login, UserRole
     if request.method == "POST":
         if 'Addpline' in request.POST:
             if not Product.objects.filter(product_code=request.POST['add_product_code']).exists():
@@ -834,18 +834,16 @@ def productmanage(request):
     products = Product.objects.all()
     plines = Production_line.objects.all()
     context = {
-        "User_loinged": User_loinged, "UserRole": UserRole, "products": products, 'plines': plines
+        "User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines
     }
     return render(request, 'productmanage.html', context)
 
 
-
-
 def machine_searching(request):
-    global User_loinged, UserRole, dict_menu_level
+    global User_login, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_searching').exists():
         return redirect('/')
-    User_org = User_loinged.org.org_line.all()
+    User_org = User_login.org.org_line.all()
     user_org_machine_line = Machine.objects.filter(line__in=User_org)
     filter_mch_type = Machine_type.objects.values('mtype_code').distinct()
     filter_sub_type = Machine_subtype.objects.values('subtype_code').distinct()
@@ -871,113 +869,27 @@ def machine_searching(request):
             machine_line_code = request.POST["machine_line_code"] or None
             if machine_line_code is not None:
                 user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code, line__in=User_org)
-    context = {"User_loinged": User_loinged, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
+    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
                "lines": User_org, "filter_mch_type": filter_mch_type, "filter_sub_type": filter_sub_type}
 
-    return render(request, 'machine_searching.html',context)
-
-
-def load_machine_type(request):
-    line = request.GET.get('line_production')
-    mch_type = Machine_type.objects.filter(line_id=line).all()
-    context = {'mch_type': mch_type}
-    return render(request, 'ajax_machine_type.html', context)
+    return render(request, 'machine_searching.html', context)
 
 
 def load_machine_subtype(request):
-    line = request.GET.get('line_production')
     mch_type = request.GET.get('mch_type')
-    mch_subtype = Machine_subtype.objects.filter(mch_type__mtype_id=mch_type, mch_type__line_id=line).all()
+    mch_subtype = Machine_subtype.objects.filter(mch_type_id=mch_type).all()
     context = {'mch_subtype': mch_subtype}
     return render(request, 'ajax_machine_subtype.html', context)
 
 
-# def machine_manage(request):
-#     global User_loinged, UserRole, dict_menu_level
-#     machine = Machine.objects.all()
-#     mch_subtype = Machine_subtype.objects.all()
-#     pd_line = Production_line.objects.all()
-#     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_management').exists():
-#         return redirect('/')
-#
-#     if request.method == "POST":
-#         if 'Addmachine' in request.POST:
-#             add_production_line = request.POST['add_production_line']
-#             add_subtype = request.POST['add_subtype']
-#             add_serial = request.POST['add_serial']
-#             add_machine_production_line_code = request.POST['add_mpc']
-#             add_machinename = request.POST['add_machinename']
-#             add_machinemodel = request.POST['add_machinemodel']
-#             add_machinebrand = request.POST['add_machinebrand']
-#             add_supplier = request.POST['add_supplier']
-#             add_person_in_change = request.POST['add_pic']
-#             add_capacity_per_min = request.POST['add_cpm']
-#             add_capacity = request.POST['add_capacity']
-#             add_power = request.POST['add_power']
-#             add_installdate = request.POST['add_installdate']
-#             add_startdate = request.POST['add_startdate']
-#             add_location = request.POST['add_location']
-#
-#             if not Machine.objects.filter(serial_id=add_serial, machine_production_line_code=add_machine_production_line_code).exists():
-#                 add_new_machine = Machine.objects.create(
-#                     serial_id=add_serial,
-#                     machine_production_line_code=add_machine_production_line_code,
-#                     machine_name=add_machinename,
-#                     machine_brand=add_machinebrand,
-#                     machine_model=add_machinemodel,
-#                     machine_supplier_code=add_supplier,
-#                     machine_location_id=add_location,
-#                     machine_emp_id_response=add_person_in_change,
-#                     machine_capacity_per_minute=add_capacity_per_min,
-#                     machine_capacity_measure_unit=add_capacity,
-#                     machine_power_use_watt_per_hour=add_power,
-#                     machine_installed_datetime=add_installdate,
-#                     machine_start_use_datetime=add_startdate,
-#                     line_id=add_production_line,
-#                     sub_type_id=add_subtype,
-#                     mch_type_id=Machine_subtype.objects.get(subtype_id=add_subtype).mch_type_id
-#                 )
-#                 add_new_machine.save()
-#                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
-#             else:
-#                 messages.error(request, 'การเพิ่มข้อมูล Machine ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
-#         elif 'EditMch' in request.POST:
-#             edit_mch = Machine.objects.get(machine_id=request.POST['EditMch'])
-#             edit_mch.machine_production_line_code = request.POST['set_mch_code']
-#             edit_mch.machine_name = request.POST['set_mch_name']
-#             edit_mch.machine_brand = request.POST['set_machinebrand']
-#             edit_mch.machine_model = request.POST['set_machinemodel']
-#             edit_mch.machine_supplier_code = request.POST['set_supplier']
-#             edit_mch.machine_location_id = request.POST['set_location']
-#             edit_mch.machine_emp_id_response = request.POST['set_pic']
-#             edit_mch.machine_capacity_per_minute = request.POST['set_cpm']
-#             edit_mch.machine_capacity_measure_unit = request.POST['set_capacity']
-#             edit_mch.machine_power_use_watt_per_hour = request.POST['set_power']
-#             edit_mch.machine_installed_datetime = request.POST['set_installdate']
-#             edit_mch.machine_start_use_datetime = request.POST['set_startdate']
-#             edit_mch.line_id = request.POST['select_line']
-#             edit_mch.sub_type_id = request.POST['select_subtype']
-#             edit_mch.mch_type_id = Machine_subtype.objects.get(subtype_id=request.POST['select_subtype']).mch_type_id
-#             edit_mch.save()
-#         elif 'deletemachine' in request.POST:
-#             del_machine = request.POST['deletemachine']
-#             machineid = Machine.objects.get(machine_id=del_machine)
-#             machineid.delete()
-#     context = {
-#         'User_loinged': User_loinged, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
-#         'dict_menu_level': dict_menu_level.items(),
-#         'machine': machine, 'subtypes': mch_subtype,
-#         'production_line': pd_line,
-#     }
-#     return render(request, 'machine_manage.html', context)
-
-
 def machine_manage(request):
-    global User_loinged, UserRole, dict_menu_level
+    global User_login, UserRole
     machine = Machine.objects.all()
-    mch_subtype = Machine_subtype.objects.all()
+    mch_type_all = Machine_type.objects.all()
+    mch_subtype_all = Machine_subtype.objects.all()
     pd_line = Production_line.objects.all()
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_management').exists():
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_management')
+    if not role_and_screen.exists():
         return redirect('/')
 
     if request.method == "POST":
@@ -997,7 +909,6 @@ def machine_manage(request):
             add_power = request.POST['add_power']
             add_installdate = request.POST['add_installdate']
             add_startdate = request.POST['add_startdate']
-            add_location = request.POST['add_location']
             if not Machine.objects.filter(serial_id=add_serial,
                                           machine_production_line_code=add_machine_production_line_code).exists():
                 add_new_machine = Machine.objects.create(
@@ -1007,7 +918,6 @@ def machine_manage(request):
                     machine_brand=add_machinebrand,
                     machine_model=add_machinemodel,
                     machine_supplier_code=add_supplier,
-                    machine_location_id=add_location,
                     machine_emp_id_response=add_person_in_change,
                     machine_capacity_per_minute=add_capacity_per_min,
                     machine_capacity_measure_unit=add_capacity,
@@ -1017,6 +927,9 @@ def machine_manage(request):
                     line_id=add_production_line,
                     mch_type_id=add_type,
                     sub_type_id=add_subtype,
+                    create_by=User_login.username,
+                    create_date=datetime.date.today(),
+                    machine_active=True
                 )
                 add_new_machine.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
@@ -1029,7 +942,6 @@ def machine_manage(request):
             edit_mch.machine_brand = request.POST['set_machinebrand']
             edit_mch.machine_model = request.POST['set_machinemodel']
             edit_mch.machine_supplier_code = request.POST['set_supplier']
-            edit_mch.machine_location_id = request.POST['set_location']
             edit_mch.machine_emp_id_response = request.POST['set_pic']
             edit_mch.machine_capacity_per_minute = request.POST['set_cpm']
             edit_mch.machine_capacity_measure_unit = request.POST['set_capacity']
@@ -1039,19 +951,19 @@ def machine_manage(request):
             edit_mch.line_id = request.POST['select_line']
             edit_mch.mch_type_id = request.POST['select_type']
             edit_mch.sub_type_id = request.POST['select_subtype']
+            edit_mch.last_update_by = str(User_login.username)
+            edit_mch.last_update_date = datetime.date.today()
             edit_mch.save()
             messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
         elif 'deletemachine' in request.POST:
             del_machine = request.POST['deletemachine']
-            machineid = Machine.objects.get(machine_id=del_machine)
-            machineid.delete()
+            machine_id = Machine.objects.get(machine_id=del_machine)
+            machine_id.delete()
     context = {
-        'User_loinged': User_loinged, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
-        'dict_menu_level': dict_menu_level.items(),
-        'machine': machine, 'subtypes': mch_subtype,
-        'production_line': pd_line,
-    }
+        'User_login': User_login,
+        'machine': machine, 'mch_subtype_all': mch_subtype_all,
+        'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen}
     return render(request, 'machine_manage.html', context)
 
 @csrf_exempt
@@ -1094,30 +1006,23 @@ def check_serial(request):
 
 
 def machine_type(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_type').exists():
         return redirect('/')
-    mch_type = Machine_type.objects.all()
-    lines = Production_line.objects.all()
-    roles = Role.objects.all()
+    mch_types = Machine_type.objects.all()
     if request.method == "POST":
         if 'Addtype' in request.POST:
             add_type_name = request.POST['add_type']
             add_type_code = request.POST['add_type_code']
-            added_by = User_loinged.username
-
+            added_by = User_login.username
             now = datetime.datetime.now()
             created_date = now.date()
-
-            add_type_line = request.POST['add_production_line']
-            if not Machine_type.objects.filter(mtype_code=add_type_code, mtype_name=add_type_name,
-                                               line_id=add_type_line).exists():
+            if not Machine_type.objects.filter(mtype_code=add_type_code, mtype_name=add_type_name).exists():
                 add_new_type = Machine_type.objects.create(
                     mtype_code=add_type_code,
                     mtype_name=add_type_name,
                     create_by=added_by,
                     create_date=created_date,
-                    line_id=add_type_line
                 )
                 add_new_type.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine Type เรียบร้อยแล้ว')
@@ -1128,25 +1033,21 @@ def machine_type(request):
             edit_type = Machine_type.objects.get(mtype_id=request.POST['Edittype'])
             edit_type.mtype_code = request.POST['set_type_code']
             edit_type.mtype_name = request.POST['set_mch_type']
-            edit_type.line_id = request.POST['select_line']
-            edit_type.last_update_by = User_loinged.username
-
+            edit_type.last_update_by = User_login.username
             now = datetime.datetime.now()
             edit_type.last_update_date = now.date()
-            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code, mtype_name=edit_type.mtype_name,
-                                               line_id=edit_type.line_id).exists():
+            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code, mtype_name=edit_type.mtype_name).exists():
                 edit_type.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Type สำเร็จ')
+            elif edit_type.mtype_code == request.POST['set_type_code'] and edit_type.line_id == request.POST['select_line']:
+                messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Type ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
-        elif 'Deletetype' in request.POST:
-            del_type = request.POST['Deletetype']
+        elif 'Delete_type' in request.POST:
+            del_type = request.POST['Delete_type']
             typeid = Machine_type.objects.get(mtype_id=del_type)
             typeid.delete()
-    context = {'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
-               'List_user_Screen': List_user_Screen,
-               'lines': lines,
-               'roles': roles}
+    context = {'mch_types': mch_types, 'User_login': User_login}
     return render(request, 'machine_type.html', context)
 
 @csrf_exempt
@@ -1154,7 +1055,6 @@ def check_machine_type_code(request):
     if request.method == 'POST':
         response_data = {}
         add_type_code = request.POST["add_type_code"]
-
         typeid = Machine_type.objects.filter(mtype_code=add_type_code)
         typecode = None
 
@@ -1174,12 +1074,11 @@ def check_machine_type_code(request):
             except Exception as e:
                 raise e
 
-
             if not typecode:
                 response_data["typecode_success"] = True
             else:
                 response_data["typecode_success"] = False
-            if typecode == None:
+            if typecode is None:
                 response_data["typecode_empty"] = True
 
         except Exception as e:
@@ -1191,23 +1090,20 @@ def check_machine_type_code(request):
 
 def machine_subtype(request):
 
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_sub_type').exists():
         return redirect('/')
     mch_subtype = Machine_subtype.objects.all()
-    mch_type = Machine_type.objects.all()
-    lines = Production_line.objects.all()
-    roles = Role.objects.all()
+    mch_type_all = Machine_type.objects.all()
     if request.method == "POST":
         if 'AddSubtype' in request.POST:
             add_subtype_name = request.POST['add_subtype']
             add_subtype_code = request.POST['add_subtype_code']
-            added_by = User_loinged.username
-
+            added_by = User_login.username
             now = datetime.datetime.now()
             created_date = now.date()
-
             add_type = request.POST['add_type']
+
             if not Machine_subtype.objects.filter(subtype_code=add_subtype_code, subtype_name=add_subtype_name,
                                                   mch_type_id=add_type).exists():
                 add_new_subtype = Machine_subtype.objects.create(
@@ -1226,25 +1122,23 @@ def machine_subtype(request):
         elif 'EditSubtype' in request.POST:
             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
             edit_subtype.subtype_name = request.POST['set_subtype']
-            edit_subtype.mch_type_id = Machine_type.objects.get(mtype_id=request.POST['select_type'])
-            edit_subtype.last_update_by = User_loinged.username
-
+            edit_subtype.mch_type_id = request.POST['select_type']
+            edit_subtype.last_update_by = User_login.username
             now = datetime.datetime.now()
             edit_subtype.last_update_date = now.date()
             if not Machine_subtype.objects.filter(subtype_name=request.POST['set_subtype'],
-                                                  mch_type_id=Machine_type.objects.get(mtype_id=request.POST['select_type'])).exists():
+                                                  mch_type_id=request.POST['select_type']).exists():
                 edit_subtype.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Subtype สำเร็จ')
+            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST['select_type']:
+                messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Subtype ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
         elif 'DeleteSubtype' in request.POST:
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
             subtypeid.delete()
-    context = {'subtypes': mch_subtype, 'types': mch_type, 'User_loinged': User_loinged, 'UserRole': UserRole,
-               'List_user_Screen': List_user_Screen,
-               'lines': lines,
-               'roles': roles}
+    context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login}
     return render(request, 'machine_subtype.html', context)
 
 
@@ -1255,7 +1149,6 @@ def check_screen_id(request):
         screen_id = request.POST["screen_id"]
         screen = Screen.objects.filter(screen_id=screen_id)
         screen_status = None
-
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
@@ -1328,7 +1221,7 @@ def check_org_code(request):
         org_code = request.POST["org_code"]
         organize = Organization.objects.filter(org_code=org_code)
         org_status = None
-        print(request.POST["org_code"])
+
         try:
             try:
                 # we are matching the input again hardcoded value to avoid use of DB.
@@ -1395,30 +1288,30 @@ def check_machine_subtype_code(request):
         return JsonResponse(response_data)
 
 
-def machine_data_machine(request, line):
-    global User_loinged, UserRole, dict_menu_level
+def home_machine(request, line):
+    global User_login, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole).exists():
         return redirect('/')
     product_line = Production_line.objects.filter(pid=line)
     products = Product.objects.filter(line__in=product_line)
     machine_line = Machine.objects.filter(line__in=product_line)
-    context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
+    context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine_line': machine_line, 'product_line': product_line, 'products': products}
-    return render(request, 'machine_data_machine.html', context)
+    return render(request, 'home_machine.html', context)
 
 
 def machine_details(request, line, machine):
-    global User_loinged, UserRole, dict_menu_level
+    global User_login, UserRole, dict_menu_level
     if not Role_Screen.objects.filter(role=UserRole).exists():
         return redirect('/')
     machine = Machine.objects.filter(machine_id=machine, line_id=line)
-    context = {'User_loinged': User_loinged, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
+    context = {'User_login': User_login, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
                'machine':machine}
     return render(request, 'machine_details.html', context)
 
 
 def spare_part_manage(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage').exists():
         return redirect('/')
     spare_part_all = Spare_part.objects.all()
@@ -1431,7 +1324,10 @@ def spare_part_manage(request):
                                                    service_life=request.POST['add_service_life'],
                                                    service_plan_life=request.POST['add_service_plan_life'],
                                                    spare_part_type_id=request.POST['id_sp_type'],
-                                                   spare_part_sub_type_id=request.POST['id_sp_subtype'])
+                                                   spare_part_sub_type_id=request.POST['id_sp_subtype'],
+                                                   create_by=User_login.username,
+                                                   create_date=datetime.date.today(),
+                                                   spare_part_active=True)
             spare_part.save()
         elif 'edit_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['edit_spare_part'])
@@ -1439,11 +1335,13 @@ def spare_part_manage(request):
             spare_part.spare_part_model = request.POST['set_sp_model']
             spare_part.service_life = request.POST['set_service_life']
             spare_part.service_plan_life = request.POST['set_service_plan_life']
+            spare_part.last_update_by = User_login.username
+            spare_part.last_update_date = datetime.date.today()
             spare_part.save()
         elif 'delete_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
             spare_part.delete()
-    context = {'User_loinged': User_loinged, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
+    context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
     return render(request, 'spare_part_manage.html', context)
 
 
@@ -1462,7 +1360,7 @@ def load_spare_part(request):
 
 
 def spare_part_subtype(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype').exists():
         return redirect('/')
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
@@ -1471,37 +1369,47 @@ def spare_part_subtype(request):
         if 'add_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.create(spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
                                                             spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
-                                                            spare_part_type_id=request.POST['select_sp_type'])
+                                                            spare_part_type_id=request.POST['select_sp_type'],
+                                                            create_by=User_login.username,
+                                                            create_date=datetime.date.today())
             sp_subtype.save()
         elif 'edit_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['edit_spare_part_subtype'])
             sp_subtype.spare_part_sub_type_name = request.POST['set_sp_suptype_name']
+            sp_subtype.last_update_by = User_login.username
+            sp_subtype.last_update_date = datetime.date.today()
             sp_subtype.save()
         elif 'delete_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
-    context = {'User_loinged': User_loinged, 'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_type_all': spare_part_type_all}
+    context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_type_all': spare_part_type_all}
     return render(request, 'spare_part_subtype.html',context)
 
 
 def spare_part_type(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type').exists():
         return redirect('/')
     sp_type_all = Spare_part_type.objects.all()
     if request.method == "POST":
         if 'add_spare_part_type' in request.POST:
-            spare_type = Spare_part_type.objects.create(spare_part_type_code=request.POST['add_sp_type_code'], spare_part_type_name=request.POST['add_sp_type_name'])
+            spare_type = Spare_part_type.objects.create(spare_part_type_code=request.POST['add_sp_type_code'],
+                                                        spare_part_type_name=request.POST['add_sp_type_name'],
+                                                        create_by=User_login.username,
+                                                        create_date=datetime.date.today())
             spare_type.save()
         elif 'edit_spare_part_type' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['edit_spare_part_type'])
             spare_type.spare_part_type_name = request.POST['set_sp_name']
+            spare_type.last_update_by = User_login.username
+            spare_type.last_update_date = datetime.date.today()
             spare_type.save()
         elif 'delete_spare_part' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['delete_spare_part'])
             spare_type.delete()
-    context = {'User_loinged': User_loinged, 'sp_type_all': sp_type_all}
+    context = {'User_login': User_login, 'sp_type_all': sp_type_all}
     return render(request, 'spare_part_type.html', context)
+
 
 @csrf_exempt
 def check_spare_part_type_code(request):
@@ -1585,24 +1493,32 @@ def check_spare_part_code(request):
 
 
 def machine_and_spare_part(request):
-    global User_loinged
+    global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_spare_part').exists():
         return redirect('/')
-    machine_all = Machine.objects.all()
-    spare_part_all = Spare_part.objects.all()
+    dict_mch_sp = {}
+    mch_and_sp_all = Machine_and_spare_part.objects.all()
     spare_part_type_all = Spare_part_type.objects.all()
+    spare_part_subtype_all = Spare_part_sub_type.objects.all()
+    spare_part_all = Spare_part.objects.all()
+
 
     if request.method == "POST":
-        if "add_spare_part" in request.POST:
-            mch = Machine.objects.get(machine_id=request.POST["add_spare_part"])
-            spare_part = Spare_part.objects.get(spare_part_id=request.POST["select_sp_name"])
-            mch.spare_parts.add(spare_part)
-            mch.save()
+        if "add_mch_and_sp" in request.POST:
+            mch_and_sp = Machine_and_spare_part.objects.create(machine_id=request.POST["add_mch_and_sp"],
+                                                               spare_part_id=request.POST["select_sp_name"])
+            mch_and_sp.save()
         elif "delete_spare_part" in request.POST:
-            mch = Machine.objects.get(pk=request.POST['delete_spare_part'])
-            spare_part = Spare_part.objects.get(pk=request.POST['select_delete_spare_part'])
-            mch.spare_parts.remove(spare_part)
-            mch.save()
+            mch_and_sp = Machine_and_spare_part.objects.filter(machine_id=request.POST['delete_spare_part'],
+                                                  spare_part_id=request.POST['select_delete_spare_part'])
+            mch_and_sp.delete()
 
-    context = {'User_loinged': User_loinged, 'machine_all': machine_all, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
+    for mch_sp in mch_and_sp_all:
+        if mch_sp.machine not in dict_mch_sp.keys():
+            dict_mch_sp[mch_sp.machine] = []
+        dict_mch_sp[mch_sp.machine].append(mch_sp.spare_part)
+
+    context = {'User_login': User_login,
+               'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
+               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all}
     return render(request, 'machine&spare_part.html', context)

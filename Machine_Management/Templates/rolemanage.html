@@ -321,7 +321,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>

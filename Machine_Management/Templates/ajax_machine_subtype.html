@@ -1,5 +1,4 @@
-
-<option value="">-----------</option>
+<option value="">--- กรุณาเลือกประเภทเครื่องจักร ---</option>
 {% for subtype in mch_subtype %}
-<option value="{{ subtype.pk }}">{{ subtype.subtype_code }}</option>
+<option value="{{ subtype.pk }}">{{ subtype.subtype_name }} ({{ subtype.subtype_code }})</option>
 {% endfor %}

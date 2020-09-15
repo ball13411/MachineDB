@@ -235,7 +235,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>
@@ -254,7 +254,7 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Organization <b>Management</b></h2>
+                        <h2>Organization<b>Management</b></h2>
                     </div>
                 </div>
             </div>
@@ -268,31 +268,27 @@
                     </tr>
                 </thead>
                 <tbody>
+            {% for machine,spare_part_of_machine in dict_mch_sp.items %}
+                <tr>
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}">{{forloop.counter}}</td>
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_name}}</td>
+                    <td>{{spare_part_of_machine.0.spare_part_name}}</td>
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}">
+                        <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
+                        <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                    </td>
+                </tr>
+                {% for spare_part in spare_part_of_machine %}
+                <tr>
+                    {% if spare_part != spare_part_of_machine.0 %}
+                    <td>{{spare_part.spare_part_name}}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
 
-            {% for mch in machine_all %}
-                    <tr>
-                        <td {% if mch.spare_parts.all|length != 0 %}rowspan="{{mch.spare_parts.all|length|add:1}}"{% endif %}>{{forloop.counter}}</td>
-                        <td {% if mch.spare_parts.all|length != 0 %}rowspan="{{mch.spare_parts.all|length|add:1}}"{% endif %}><img src="/static/img/automation1.png" width="20" height="20">&nbsp;&nbsp;{{mch.machine_production_line_code}} ({{mch.machine_name}}) </td>
-                        {% if mch.spare_parts.all|length > 0 %}
-                        <td><img src="/static/img/motorcycle.png" width="20" height="20">&nbsp;&nbsp;{{mch.spare_parts.all.0.spare_part_name}}</td>
-                        {% else %}
-                        <td>-</td>
-                        {% endif %}
-                        <td {% if mch.spare_parts.all|length != 0 %}rowspan="{{mch.spare_parts.all|length|add:1}}}"{% endif %}>
-                            <a href="#setting{{mch.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
-                            <a href="#delete{{mch.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
-                        </td>
-                    </tr>
-                    {% for spare_part in mch.spare_parts.all %}
-                    <tr>
-                        {% if mch.spare_parts.all|first != spare_part %}
-                        <td><img src="/static/img/motorcycle.png" width="20" height="20">&nbsp;&nbsp;{{spare_part.spare_part_name}}</td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
 
             <!-- Modal Setting -->
-            <div id="setting{{mch.pk}}" class="modal fade" tabindex="-1">
+            <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="POST" id="add_sp{{forloop.counter}}" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}" data-sp-subtype-url="{% url 'load_spare_part' %}">
@@ -304,7 +300,7 @@
                             <div class="modal-body" >
                                 <div class="form-group">
                                     <label>Machine Code (Machine Name)</label>
-                                    <input type="text" id="set_machine{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}} ({{mch.machine_name}})" name="set_machine" readonly>
+                                    <input type="text" id="set_machine{{forloop.counter}}" class="form-control" value="{{machine.machine_production_line_code}} ({{machine.machine_name}})" name="set_machine" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label>Select Spare Part Type</label>
@@ -326,18 +322,18 @@
                                     <select class="form-control" id="select_sp_name{{forloop.counter}}" name="select_sp_name" required="True">
                                         <option value="">--------------------</option>
                                         {% for spare_part in spare_part_all %}
-                                        {% if spare_part not in mch.spare_parts.all %}
+                                        {% if spare_part not in spare_part_of_machine %}
                                         <option value="{{spare_part.pk}}">{{spare_part.spare_part_name}} ({{spare_part.spare_part_type}})</option>
                                         {% endif %}
                                         {% endfor %}
-                                        {% if spare_part_all|length == mch.spare_parts.all|length %}
+                                        {% if spare_part_of_machine|length == spare_part_all|length %}
                                         <option value="">#Note: Machine have all spare part</option>
                                         {% endif %}
                                     </select>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="add_spare_part" value="{{mch.pk}}" {% if spare_part_all|length == mch.spare_parts.all|length %} disabled {% endif %}>Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="add_mch_and_sp" value="{{machine.pk}}" {% if spare_part_of_machine|length == spare_part_all|length %} disabled {% endif %}>Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -345,7 +341,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{mch.pk}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{forloop.counter}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="POST">
@@ -357,13 +353,13 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Machine</label>
-                                <input type="text" id="del_mch" class="form-control" value="Machine Code : {{mch.machine_production_line_code}} ({{mch.machine_name}})" name="del_mch" readonly>
+                                <input type="text" id="del_mch" class="form-control" value="Machine Code : {{machine.machine_production_line_code}} ({{machine.machine_name}})" name="del_mch" readonly>
                             </div>
                             <div class="form-group">
                                 <label>Select Spare Part</label>
                                 <select class="form-control" id="select_delete_spare_part{{forloop.counter}}" name="select_delete_spare_part">
-                                    {% for spare_part in spare_part_all %}
-                                    {% if spare_part in mch.spare_parts.all %}
+                                    {% for spare_part in spare_part_of_machine %}
+                                    {% if spare_part in spare_part_all.all %}
                                     <option value="{{spare_part.pk}}"> {{spare_part.spare_part_name}} ({{spare_part.spare_part_type}}) </option>
                                     {% endif %}
                                     {% endfor %}
@@ -375,7 +371,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-danger" value="{{mch.pk}}" name="delete_spare_part">Delete</button>
+                            <button type="submit" class="btn btn-danger" value="{{machine.pk}}" name="delete_spare_part">Delete</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         </div>
                         </form>
@@ -395,12 +391,14 @@
 } );
 </script>
 <script>
+
     var i;
-    for (i = 0; i <= {{machine_all|length}}; i++) {
+    for (i = 0; i <= {{dict_mch_sp.keys|length}}; i++) {
         $("#select_sp_type"+i).change(function () {
             var numID = this.id.substring(14,);
             const url = $("#add_sp"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
             const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
+            console.log(sp_typeID)
 
             $.ajax({                       // initialize an AJAX request
                 url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
@@ -417,11 +415,12 @@
 </script>
 <script>
     var i;
-    for (i = 0; i <= {{machine_all|length}}; i++) {
+    for (i = 0; i <= {{dict_mch_sp.keys|length}}; i++) {
         $("#select_sp_subtype"+i).change(function () {
             var numID = this.id.substring(17,);
             const url = $("#add_sp"+numID).attr("data-sp-subtype-url");  // get the url of the `load_cities` view
             const sp_subtypeID = $(this).val();  // get the selected country ID from the HTML input
+            console.log(sp_subtypeID)
 
             $.ajax({                       // initialize an AJAX request
                 url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )

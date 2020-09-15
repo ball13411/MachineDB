@@ -1,10 +1,9 @@
 {% extends 'layout_home.html' %}
 {% load static %}
 {% block breadcrumb %}
-    <li class="breadcrumb-item">machine</li>
-    <li class="breadcrumb-item active">data</li>
-    <li class="breadcrumb-item active">line</li>
-    <li class="breadcrumb-item active">machine</li>
+    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+    <li class="breadcrumb-item"><a href="javascript:history.back()">Line</a></li>
+    <li class="breadcrumb-item active">Machine</li>
 {% endblock %}
 {% block content %}
 <style>
@@ -83,7 +82,7 @@
                     <h4>( {{mch.sub_type}} )</h4>
                     <p class="mb-2 text-muted text-uppercase small">Site {{mch.line.location_site}} / Production line {{mch.line.production_line}}</p>
                     <p><span class="mr-1"><strong> ## {{mch.machine_production_line_code}} ##</strong></span></p>
-                    <p class="pt-1">ลายละเอียดย่อย</p>
+                    <p class="pt-1">รายละเอียดย่อย</p>
                     {% endfor %}
                 </div>
             </div>
@@ -105,7 +104,7 @@
                   <h5>Machine Details</h5>
                   <p class="small text-muted text-uppercase mb-2">Shirts</p>
             
-                  <p class="pt-1">ลายละเอียดย่อย2</p>
+                  <p class="pt-1">รายละเอียดย่อย2</p>
                 </div>
                 <div class="tab-pane fade" id="supplier" role="tabpanel" aria-labelledby="supplier-tab">
                   <h5>Specification Information</h5>
