@@ -188,7 +188,7 @@ def check_email(request):
         return JsonResponse(response_data)
 
 
-def resetpassword(requset):
+def reset_password(request):
     # Form Reset Password
     # Get variables from Input HTML
     if requset.method == "POST":
@@ -690,7 +690,7 @@ def location(request):
                 site = Site.objects.create(site=request.POST['add_site'])
                 site.save()
             if Building.objects.filter(building=request.POST['add_building'], site=site).exists():
-                building = Building.objects.get(building=request.POST['add_building'])
+                building = Building.objects.get(building=request.POST['add_building'], site=site)
             else:
                 building = Building.objects.create(building=request.POST['add_building'], site=site)
                 building.save()
