@@ -1,9 +1,8 @@
 {% extends 'layout_home.html' %}
 {% load static %}
 {% block breadcrumb %}
-    <li class="breadcrumb-item">machine</li>
-    <li class="breadcrumb-item active">data</li>
-    <li class="breadcrumb-item active">line</li>
+    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+    <li class="breadcrumb-item active">Line</li>
 {% endblock %}
 {% block content %}
 <link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">

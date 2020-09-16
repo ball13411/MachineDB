@@ -459,22 +459,22 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>screen ID</label>
-                                    <input type="text" id="screen_id" class="form-control" name="screen_id" autocomplete="off" maxlength="20" onkeyup="check_screen_id(this);return false;" data-url="{% url 'check_screen_id' %}">
+                                    <input type="text" id="screen_id" class="form-control" name="screen_id" autocomplete="off" required="True" maxlength="20" onkeyup="check_screen_id(this);return false;" data-url="{% url 'check_screen_id' %}">
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Screen ID already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label>screen Name</label>
-                                    <input type="text" id="screen_name" class="form-control" name="screen_name" autocomplete="off" maxlength="20">
+                                    <input type="text" id="screen_name" class="form-control" name="screen_name" autocomplete="off" maxlength="20" required="True">
                                 </div>
                                 <div class="form-group">
                                     <label>File PY</label>
-                                    <input type="text" id="file_py" class="form-control" name="file_py" autocomplete="off" maxlength="30">
+                                    <input type="text" id="file_py" class="form-control" name="file_py" autocomplete="off" maxlength="30" required="True">
                                 </div>
                                 <div class="form-group">
                                     <label>File HTML</label>
-                                    <input type="text" id="file_html" class="form-control" name="file_html" autocomplete="off" maxlength="20">
+                                    <input type="text" id="file_html" class="form-control" name="file_html" autocomplete="off" maxlength="20" required="True">
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

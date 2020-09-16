@@ -62,21 +62,6 @@
                 }
             });
         }
-        // $(document).ready(function(){
-        //     $("input").keyup(function(){
-        //         var button = document.getElementById("Addrole");
-        //         var input = document.getElementsByTagName('input');
-        //         for (i = 0; i < input.length; i++) {
-        //             // Check the input type
-        //             if (input[i].type == 'text' && input[i].value == '') {
-        //                 button.disabled = true;    // Disable the button.
-        //                 return false;
-        //             } else {
-        //                 button.disabled = false;   // Enable the button.
-        //             }
-        //         }
-        //     });
-        // });
     </script>
     <style>
         body {
@@ -273,21 +258,6 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
-
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
-
         .form-group.success input {
             border-color: #2ecc71;
         }
@@ -351,7 +321,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout">Sign out</button>
                 </ul>
             </form>
@@ -464,14 +434,14 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Role ID</label>
-                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="20" onkeyup="check_role(this);return false;" data-url="{% url "check_role" %}"/>
+                                    <input type="text" id="add_roleid" class="form-control" name="add_roleid" autocomplete="off" maxlength="20" required="True" onkeyup="check_role(this);return false;" data-url="{% url 'check_role' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Role ID already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">Role name</label>
-                                    <input type="text" class="form-control" id="add_rolename"  name="add_rolename" maxlength="20" required>
+                                    <input type="text" class="form-control" id="add_rolename"  name="add_rolename" maxlength="20" required="True">
                                 </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

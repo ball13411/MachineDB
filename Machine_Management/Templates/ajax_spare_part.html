@@ -1,0 +1,4 @@
+<option value="">--------------------</option>
+{% for sp in spare_part %}
+<option value="{{sp.pk}}">{{sp.spare_part_name}} ({{sp.spare_part_type}})</option>
+{% endfor %}

@@ -311,6 +311,7 @@
 
                 <ul class="list-unstyled components mb-5">
                     {% for root , list_child in dict_menu_level %}
+                    {% if root.menu_id not in 'user,organization' %}
                     <li class="active">
                         <a  aria-expanded="false" {% if list_child|length != 0 %} href="#{{root}}menu" data-toggle="collapse" class="dropdown-toggle"{% else %}href="{% url root.path_url %}"{% endif %}>{{root.name}}</a>
                         <ul class="collapse list-unstyled" id="{{root}}menu">
@@ -319,33 +320,29 @@
                             {% endfor %}
                         </ul>
                     </li>
+                    {% endif%}
                     {% endfor %}
                 </ul>
-
-<!--                <ul class="list-unstyled components mb-5">-->
-<!--                    -->
-<!--                    {% for root , list_child in dict_menu_level %}-->
-<!--                    {% if root.menu_id == 'machine_manage_menu' or root.menu_id == 'organization' or root.menu_id == 'user' %}-->
-<!--                    <li class="active">-->
-<!--                        <a  aria-expanded="false" {% if list_child|length != 0 %} href="#{{root}}menu" data-toggle="collapse" class="dropdown-toggle"{% else %}href="{% url root.path_url %}"{% endif %}>{{root.name}}</a>-->
-<!--                        <ul class="collapse list-unstyled" id="{{root}}menu">-->
-<!--                            {% for child in list_child %}-->
-<!--                                <li><a href="{% url child.path_url %}">{{child.name}}</a></li>-->
-<!--                            {% endfor %}-->
-<!--                        </ul>-->
-<!--                    </li>-->
-<!--                    {% endif %}-->
-<!--                    {% endfor %}-->
-<!--                </ul>-->
-
 
                 <ul class="list-unstyled CTAs">
                     <li>
                         <form method="POST" action="{% url 'signin' %}">
                             {% csrf_token %}
-                            <h4><b>{{User_loinged.username}} ({{UserRole}})</b></h4>
+                            <h4><b>{{User_login.username}} ({{UserRole}})</b></h4>
                         </form>
                     </li>
+                    {% for root , list_child in dict_menu_level %}
+                    {% if root.menu_id in 'user,organization' %}
+                    <li class="active">
+                        <a  aria-expanded="false" {% if list_child|length != 0 %} href="#{{root}}menu" data-toggle="collapse" class="dropdown-toggle"{% else %}href="{% url root.path_url %}"{% endif %}>{{root.name}}</a>
+                        <ul class="collapse list-unstyled" id="{{root}}menu">
+                            {% for child in list_child %}
+                                <li><a href="{% url child.path_url %}">{{child.name}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif%}
+                    {% endfor %}
                     <li><a href="{% url 'signin' %}" name="signout">ออกจากระบบ</a></li>
                 </ul>
             </div>

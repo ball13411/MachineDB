@@ -265,20 +265,20 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
+        /*.form-group input {*/
+        /*    border: 2px solid #f0f0f0;*/
+        /*    border-radius: 4px;*/
+        /*    display: block;*/
+        /*    font-family: inherit;*/
+        /*    font-size: 14px;*/
+        /*    padding: 10px;*/
+        /*    width: 100%;*/
+        /*}*/
 
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
+        /*.form-group input:focus {*/
+        /*    outline: 0;*/
+        /*    border-color: #777;*/
+        /*}*/
 
         .form-group.success input {
             border-color: #2ecc71;
@@ -342,11 +342,12 @@
                 <a href="{% url 'machine_manage' %}" class="nav-item nav-link active"><b>Machine Manage</b></a>
                 <a href="{% url 'machine_type' %}" class="nav-item nav-link">Machine Type</a>
                 <a href="{% url 'machine_subtype' %}" class="nav-item nav-link">Machine Subtype</a>
+                <a href="{% url 'machine_and_spare_part' %}" class="nav-item nav-link">Machine & Spare part</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
                 </ul>
             </form>
@@ -367,7 +368,7 @@
                     <div class="col-sm-5">
                         <h2>Machine <b>Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#createmch" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine</span></a>
                     </div>
                 </div>
@@ -384,7 +385,7 @@
                         <th>Line</th>
 <!--                        <th>Machine Brand</th>-->
 <!--                        <th>Machine Model</th>-->
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -395,12 +396,12 @@
                         <td>{{mch.machine_production_line_code}}</td>
                         <td>{{mch.machine_name}}</td>
                         <td>{{mch.mch_type}}</td>
-                        <td>{{mch.sub_type.subtype_name}}</td>
+                        <td>{{mch.sub_type}}</td>
                         <td>{{mch.line}}</td>
 <!--                        <td>{{mch.machine_brand}}</td>-->
 <!--                        <td>{{mch.machine_model}}</td>-->
-                        <td>
-                            <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                            <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{mch.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
@@ -409,7 +410,7 @@
             <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-type-url="{% url 'ajax_machine_type' %}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+                        <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Setting</h5>
@@ -423,13 +424,20 @@
                                     <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
+                                    <label for="model">Model</label>
+                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
                                 </div>
-                                
+                                <div class="form-group">
+                                    <label for="brand">Brand</label>
+                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
+                                </div>
                                 <div class="form-group">
                                     <label for="machine_name">Machine Name</label>
                                     <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="mac_prod_code">Machine-Production line Code</label>
+                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
                                 </div>
                                 <div class="form-group">
                                     <label>Select Production Line</label>
@@ -442,22 +450,20 @@
                                 <div class="form-group">
                                     <label>Select Machine Type</label>
                                     <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
-                                        <option value="{{mch.mch_type_id}}">{{mch.mch_type.mtype_name}}</option>
+                                        {% for mch_type in mch_type_all %}
+                                        <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Select Machine Subtype</label>
                                     <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
-                                        <option value="{{mch.sub_type_id}}" >{{mch.sub_type.subtype_name}}</option>
+                                        {% for mch_subtype in mch_subtype_all %}
+                                        {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
+                                        <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
+                                        {% endif %}
+                                        {% endfor %}
                                     </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
                                 </div>
                                 <div class="form-group">
                                     <label for="supplier">Supplier</label>
@@ -490,12 +496,8 @@
                                     <label>Start Date</label>
                                     <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
                                 </div>
-
-                                <div class="form-group">
-                                    <label>Location</label>
-                                    <input type="text" id="set_location{{forloop.counter}}" class="form-control" value="{{mch.machine_location_id}}" name="set_location">
-                                    </select>
-                                </div>
+                                <small>Create by : {{mch.create_by}} [ {{mch.create_date}} ]</small><br>
+                                <small>Update by : {% if mch.last_update_by %} {{mch.last_update_by}} [ {{mch.last_update_date}} ] {% else %} - {% endif %}</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary" name="EditMch" value="{{mch.machine_id}}">Submit</button>
@@ -533,7 +535,7 @@
             <div id="createmch" class="modal fade" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" id="add_machine" data-mch-type-url="{% url 'ajax_machine_type' %}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+                        <form method="POST" id="add_machine" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" >
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Add New Machine</h5>
@@ -542,86 +544,83 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="production_line">Select Production Line</label>
-                                    <select class="form-control" id="id_line" name="add_production_line">
-                                        <option value="0">กรุณาเลือกสายการผลิต</option>
+                                    <label>Select Production Line</label>
+                                    <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                        <option value="">--- กรุณาเลือกสายการผลิต ---</option>
                                         {% for line in production_line %}
                                         <option value="{{line.pid}}">{{line}}</option>
                                         {% endfor %}
                                         </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="production_line">Select Machine Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type">
-                                        <option value="0" selected>กรุณาเลือกประเภทเครื่องจักร</option>
+                                    <label>Select Machine Type</label>
+                                    <select class="form-control" id="id_mch_type" name="add_type" required="True">
+                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                        {% for mch_type in mch_type_all %}
+                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="production_line">Select Machine Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype">
-                                        <option value="0" selected>กรุณาเลือกชนิดเครื่องจักร</option>
+                                    <label>Select Machine Subtype</label>
+                                    <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
+                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+
                                     </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="machine_name">Machine Name</label>
+                                    <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
                                 </div>
                                 <div class="form-group">
                                     <label for="serial">Serial No.</label>
-                                    <input type="text" name="add_serial" id="add_serial" placeholder="Serial No." required="True" utocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
+                                    <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Serial No. already exists</small>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" name="add_mpc" id="add_mpc" placeholder="Machine-Production line Code" required="True" utocomplete="off" maxlength="20" />
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" name="add_machinename" id="add_machinename" placeholder="Machine Name" required="True" utocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-group">
                                     <label for="model">Model</label>
-                                    <input type="text" name="add_machinemodel" id="add_machinemodel" placeholder="Model" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="โมเดล" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="brand">Brand</label>
-                                    <input type="text" name="add_machinebrand" id="add_machinebrand" placeholder="Brand" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="แบรนด์" required="True" autocomplete="off" maxlength="20" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="mac_prod_code">Machine-Production line Code</label>
+                                    <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="supplier">Supplier</label>
-                                    <input type="text" name="add_supplier" id="add_supplier" placeholder="Supplier" required="True" utocomplete="off" maxlength="20" />
+                                    <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="" required="True" autocomplete="off" maxlength="20" />
                                 </div>
                                 <div class="form-group">
                                     <label for="pic">Person In Charge</label>
-                                    <input type="text" name="add_pic" id="add_pic" placeholder="Person In Charge" required="True" utocomplete="off" maxlength="50" />
+                                    <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="" required="True" autocomplete="off" maxlength="50" />
                                 </div>
                                 <div class="form-row">
                                     <div class="col-md-6">
                                         <label class="control-label">Capacity/min</label>
-                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10">
+                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10" autocomplete="off">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" class="form-control" id="add_capacity" placeholder="unit" name="add_capacity" maxlength="10"> 
+                                        <input type="text" class="form-control" id="add_capacity" placeholder="" name="add_capacity" maxlength="10" autocomplete="off">
                                     </div>
                                 </div>
                                 <br>
                                 <div class="form-group">
                                     <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" name="add_power" id="add_power" placeholder="" required="True" utocomplete="off" maxlength="50">
+                                    <input type="text" class="form-control" name="add_power" id="add_power" placeholder="" required="True" autocomplete="off" maxlength="50">
                                 </div>
                                 <div class="form-group">
                                     <label>Installation Date</label>
-                                    <input type="date" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                    <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
                                 </div>
                                 <div class="form-group">
                                     <label>Start Date</label>
-                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Location</label>
-                                    <input type="text" class="form-control" id="add_location" placeholder="" name="add_location" maxlength="20"> 
-                                    </select>
+                                    <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -644,44 +643,13 @@
 } );
 </script>
 <script>
-    $("#id_line").change(function () {
-        const url = $("#add_machine").attr("data-mch-type-url");  // get the url of the `load_cities` view
-        const lineID = $(this).val();  // get the selected country ID from the HTML input
-
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-            data: {
-                'line_production': lineID       // add the country id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_mch_type").html(data);  // replace the contents of the city input with the data that came from the server
-            }
-        });
-    });
-    $("#id_line").change(function () {
-        const url = $("#add_machine").attr("data-mch-subtype-url");
-        const lineID = $(this).val();
-        const mch_typeID = 0;
-        $.ajax({
-            url: url,
-            data: {
-                'line_production': lineID,
-                'mch_type': mch_typeID
-            },
-            success: function (data) {
-                $("#id_sub_type").html(data);
-            }
-        });
-    });
     $("#id_mch_type").change(function () {
         const url = $("#add_machine").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
-        const lineID = $("#id_line").val();
         const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
 
         $.ajax({                       // initialize an AJAX request
             url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
             data: {
-                'line_production':lineID,
                 'mch_type': mch_typeID       // add the country id to the GET parameters
             },
             success: function (data) {   // `data` is the return of the `load_cities` view function
@@ -694,53 +662,14 @@
 <script>
     var i;
     for (i = 0; i <= {{machine|length}}; i++) {
-        $("#select_pline"+i).change(function () {
-            var numID = this.id.substring(12,);
-            const url = $("#mch_edit"+numID).attr("data-mch-type-url");  // get the url of the `load_cities` view
-            const lineID = $(this).val();  // get the selected country ID from the HTML input
-
-            $.ajax({                       // initialize an AJAX request
-                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-                data: {
-                    'line_production': lineID       // add the country id to the GET parameters
-                },
-                success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#select_mtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
-                }
-            });
-        });
-    }
-    var i;
-    for (i = 0; i <= {{machine|length}}; i++) {
-        $("#select_pline"+i).change(function () {
-            var numID = this.id.substring(12,);
-            const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");
-            const lineID = $(this).val();
-            const mch_typeID = 0;
-            $.ajax({
-                url: url,
-                data: {
-                    'line_production': lineID,
-                    'mch_type': mch_typeID
-                },
-                success: function (data) {
-                    $("#select_stype"+numID).html(data);
-                }
-            });
-        });
-    }
-    var i;
-    for (i = 0; i <= {{machine|length}}; i++) {
         $("#select_mtype"+i).change(function () {
             var numID = this.id.substring(12,);
             const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");  // get the url of the `load_cities` view
-            const lineID = $("#select_pline"+numID).val();
             const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
 
             $.ajax({                       // initialize an AJAX request
                 url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
                 data: {
-                    'line_production':lineID,
                     'mch_type': mch_typeID       // add the country id to the GET parameters
                 },
                 success: function (data) {   // `data` is the return of the `load_cities` view function

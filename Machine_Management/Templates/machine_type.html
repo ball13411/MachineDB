@@ -266,20 +266,6 @@
             margin-bottom: 5px;
         }
 
-        .form-group input {
-            border: 2px solid #f0f0f0;
-            border-radius: 4px;
-            display: block;
-            font-family: inherit;
-            font-size: 14px;
-            padding: 10px;
-            width: 100%;
-        }
-
-        .form-group input:focus {
-            outline: 0;
-            border-color: #777;
-        }
 
         .form-group.success input {
             border-color: #2ecc71;
@@ -341,15 +327,14 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'machine_manage' %}" class="nav-item nav-link">Machine Manage</a>
-                <!-- Edited -->
                 <a href="{% url 'machine_type' %}" class="nav-item nav-link active"><b>Machine Type</b></a>
                 <a href="{% url 'machine_subtype' %}" class="nav-item nav-link">Machine Subtype</a>
-                <!-- Edited -->
+                <a href="{% url 'machine_and_spare_part' %}" class="nav-item nav-link">Machine & Spare part</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
                 </ul>
             </form>
@@ -370,7 +355,7 @@
                     <div class="col-sm-5">
                         <h2>Machine Type<b> Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#Addtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Type</span></a>
                     </div>
                 </div>
@@ -381,18 +366,16 @@
                         <th>#</th>
                         <th>mType Code</th>
                         <th>mType Name</th>
-                        <th>Line</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for type in types %}
+            {% for type in mch_types %}
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{type.mtype_code}}</td>
                         <td>{{type.mtype_name}}</td>
-                        <td>{{type.line.production_line}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{type.mtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{type.mtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
@@ -417,20 +400,13 @@
                                     <label>Type</label>
                                     <input type="text" id="set_mch_type{{forloop.counter}}" class="form-control" value="{{type.mtype_name}}" name="set_mch_type" >
                                 </div>
-                                <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="select_line{{forloop.counter}}" name="select_line">
-                                    {% for line in lines %}
-                                        <option value="{{line.pid}}" {% if line.pid == type.line.pid %} selected {% endif %}>{{line}}</option>
-                                    {% endfor %}
-                                    </select>
+                                <small>Create by : {{type.create_by}} [ {{type.create_date}} ]</small><br>
+                                <small>Update by : {% if type.last_update_by %} {{type.last_update_by}} [ {{type.last_update_date}} ] {% else %} - {% endif %}</small>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary" name="Edittype" value="{{type.mtype_id}}">Submit</button>
                                 </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary" name="Edittype" value="{{type.mtype_id}}">Submit</button>
                             </div>
-                        </div>
                         </form>
                     </div>
                 </div>
@@ -451,7 +427,7 @@
                         <div class="modal-footer">
                             <form method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger" value="{{type.mtype_id}}" name="Deletetype">Delete</button>
+                                <button type="submit" class="btn btn-danger" value="{{type.mtype_id}}" name="Delete_type">Delete</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </form>
                         </div>
@@ -472,23 +448,15 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>Machine Type Name</label>
-                                    <input type="text" name="add_type" id="add_type" placeholder="Type" required="True" utocomplete="off" maxlength="50">
-                                </div>
-                                <div class="form-group">
                                     <label>Machine Type Code</label>
-                                    <input type="text" name="add_type_code" id="add_type_code" placeholder="Code" required="True" utocomplete="off" maxlength="50" onkeyup="check_machine_type_code(this);return false;" data-url="{% url "check_machine_type_code" %}"/>
+                                    <input type="text" class="form-control" name="add_type_code" id="add_type_code" placeholder="รหัสประเภทเครื่อจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_machine_type_code(this);return false;" data-url="{% url 'check_machine_type_code' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Type Code already exists</small>
                                 </div>
                                 <div class="form-group">
-                                    <label for="production_line">Select production line</label>
-                                    <select class="form-control" id="add_production_line" name="add_production_line">
-                                    {% for line in lines %}
-                                    <option value="{{line.pid}}">{{line}}</option>
-                                    {% endfor %}
-                                    </select>
+                                    <label>Machine Type Name</label>
+                                    <input type="text" class="form-control" name="add_type" id="add_type" placeholder="ชื่อประเภทเครื่องจักร" required="True" autocomplete="off" maxlength="50">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -332,7 +332,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
                 </ul>
             </form>
@@ -369,7 +369,7 @@
                         <th>Model</th>
                         <th>Service Life</th>
                         <th>Service Plan Life</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -383,7 +383,7 @@
                         <td>{{spare_part.spare_part_model}}</td>
                         <td>{{spare_part.service_life}}</td>
                         <td>{{spare_part.service_plan_life}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
@@ -433,6 +433,8 @@
                                     </div>
                                 </div>
                                 </div>
+                                <small>Create by : {{spare_part.create_by}} [ {{spare_part.create_date}} ]</small><br>
+                                <small>Update by : {% if spare_part.last_update_by %} {{spare_part.last_update_by}} [ {{spare_part.last_update_date}} ] {% else %} - {% endif %}</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary" name="edit_spare_part" value="{{spare_part.pk}}">Submit</button>
@@ -480,8 +482,8 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Spare Part Type</label>
-                                    <select class="form-control" id="id_sp_type" name="id_sp_type">
-                                        <option value="0" selected>กรุณาเลือกประเภทอะไหล่</option>
+                                    <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
+                                        <option value="" selected>กรุณาเลือกประเภทอะไหล่</option>
                                         {% for sp_type in spare_part_type_all %}
                                         <option value="{{sp_type.pk}}">{{sp_type.spare_part_type_name}}</option>
                                         {% endfor %}
@@ -489,8 +491,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Spare Part Subtype</label>
-                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype">
-                                        <option value="0" selected>กรุณาเลือกชนิดอะไหล่</option>
+                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
+                                        <option value="" selected>กรุณาเลือกชนิดอะไหล่</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

@@ -327,7 +327,7 @@
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
                 <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_loinged.username}}</a>
+                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
                     <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
                 </ul>
             </form>
@@ -393,6 +393,8 @@
                                     <label>Spare Part Type Name</label>
                                     <input type="text" class="form-control" name="set_sp_name" id="set_sp_name{{forloop.counter}}" placeholder="ชื่ออะไหล่" required="True" value="{{sp_type.spare_part_type_name}}" maxlength="40" />
                                 </div>
+                                <small>Create by : {{sp_type.create_by}} [ {{sp_type.create_date}} ]</small><br>
+                                <small>Update by : {% if sp_type.last_update_by %} {{sp_type.last_update_by}} [ {{sp_type.last_update_date}} ] {% else %} - {% endif %}</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-primary" name="edit_spare_part_type" value="{{sp_type.pk}}">Submit</button>
