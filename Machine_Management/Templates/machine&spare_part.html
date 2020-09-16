@@ -262,18 +262,20 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Line</th>
                         <th>Machine</th>
                         <th>Spare part</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
             {% for machine,spare_part_of_machine in dict_mch_sp.items %}
                 <tr>
                     <td rowspan="{{spare_part_of_machine|length|add:1}}">{{forloop.counter}}</td>
-                    <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_name}}</td>
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.line}}</td>
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_name}} ({{machine.machine_production_line_code}})</td>
                     <td>{{spare_part_of_machine.0.spare_part_name}}</td>
-                    <td rowspan="{{spare_part_of_machine|length|add:1}}">
+                    <td rowspan="{{spare_part_of_machine|length|add:1}}" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                         <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
                         <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                     </td>

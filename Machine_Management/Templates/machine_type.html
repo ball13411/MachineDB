@@ -355,7 +355,7 @@
                     <div class="col-sm-5">
                         <h2>Machine Type<b> Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#Addtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Type</span></a>
                     </div>
                 </div>
@@ -366,7 +366,7 @@
                         <th>#</th>
                         <th>mType Code</th>
                         <th>mType Name</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -375,7 +375,7 @@
                         <td>{{forloop.counter}}</td>
                         <td>{{type.mtype_code}}</td>
                         <td>{{type.mtype_name}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{type.mtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{type.mtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>

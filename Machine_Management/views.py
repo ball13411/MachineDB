@@ -144,18 +144,17 @@ def check_username(request):
                 if userid.count():
                     user = True
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
-
 
             if not user:
                 response_data["username_success"] = True
             else:
                 response_data["username_success"] = False
 
-        except Exception as e:
+        except Exception:
             response_data["username_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
@@ -171,25 +170,20 @@ def check_email(request):
         email = None
 
         try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if mail.count():
-                    email = True
+            # we are matching the input again hardcoded value to avoid use of DB.
+            # You can use DB and fetch value from table and proceed accordingly.
+            if mail.count():
+                email = True
 
-            except ObjectDoesNotExist as e:
-                pass
-            except Exception as e:
-                raise e
-
-            if not email:
-                response_data["email_success"] = True
-            else:
-                response_data["email_success"] = False
-
+        except ObjectDoesNotExist:
+            pass
         except Exception as e:
+            raise e
+
+        if not email:
+            response_data["email_success"] = True
+        else:
             response_data["email_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
 
         return JsonResponse(response_data)
 
@@ -291,6 +285,7 @@ def screenmanage(request):
                'screens': screens}
     return render(request, 'screenmanage.html', context)
 
+
 def role_screen(request):
     global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='role_screen').exists():
@@ -302,7 +297,7 @@ def role_screen(request):
             role_screen.delete()
         elif 'Edit_rs' in request.POST:
             rs = Role_Screen.objects.get(id=request.POST['Edit_rs'])
-            if rs.role_id == request.POST['set_rs_role'] and rs.screen_id == request.POST['set_rs_screen'] :
+            if rs.role_id == request.POST['set_rs_role'] and rs.screen_id == request.POST['set_rs_screen']:
                 rs_id = request.POST['Edit_rs']
                 rs_role_id = request.POST['set_rs_role']
                 rs_screen_id = request.POST['set_rs_screen']
@@ -331,7 +326,7 @@ def role_screen(request):
                 role_screen.permission_delete = rs_delete
                 role_screen.save()
             else:
-                messages.info(request,'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
+                messages.info(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
         elif 'Addrolescreen' in request.POST:
             if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'], screen_id=request.POST['add_rs_screen']).exists():
                 rs_role_id = request.POST['add_rs_role']
@@ -348,7 +343,7 @@ def role_screen(request):
                 )
                 role_screen.save()
             else:
-                messages.info(request,'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
+                messages.info(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
@@ -389,7 +384,7 @@ def home(request):
     user_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
-               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org }
+               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org}
     return render(request, 'home.html', context)
 
 
@@ -406,7 +401,7 @@ def machine_register(request):
     UserRole = str(User_login.role)
     context = {
         'form': form, 'User_login': User_login, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
-        'dict_menu_level': dict_menu_level.items(), 'lines':user_org
+        'dict_menu_level': dict_menu_level.items(), 'lines': user_org
     }
     return render(request, 'machine_register.html', context)
 
@@ -426,7 +421,7 @@ def machine_data(request):
 
 def test(request):
     mch = Machine.objects.all()
-    form = UserForm(request.POST or None)
+    # form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -461,7 +456,7 @@ def menumanage(request):
                 )
                 menu.save()
             else:
-                messages.info(request,"มีการใช้ Menu ID นี้แล้ว กรุณาตั้งชื่อใหม่")
+                messages.info(request, "มีการใช้ Menu ID นี้แล้ว กรุณาตั้งชื่อใหม่")
         elif 'Editmenu' in request.POST:
             old_menu_id = request.POST['Editmenu']
             set_menu_id = request.POST['set_menu_id']
@@ -523,7 +518,7 @@ def organizemanage(request):
                 )
                 organize.save()
             else:
-                messages.info(request,'มีชื่อ Organize Code นี้แล้ว ไม่สามารถเพิ่มได้ กรุณาทำรายการใหม่')
+                messages.info(request, 'มีชื่อ Organize Code นี้แล้ว ไม่สามารถเพิ่มได้ กรุณาทำรายการใหม่')
         elif 'delete_org' in request.POST:
             organize = Organization.objects.get(org_id=request.POST['delete_org'])
             organize.delete()
@@ -600,7 +595,7 @@ def machine_edit(request):
     context = {
         'User_login': User_login, 'UserRole': UserRole,
         'dict_menu_level': dict_menu_level.items(), 'get_machine': get_machine, 'list_mtype': list_mtype,
-        'list_line': list_line,'list_stype':list_stype
+        'list_line': list_line, 'list_stype': list_stype
     }
     return render(request, 'machine_edit.html', context)
 
@@ -784,11 +779,10 @@ def check_role(request):
                 else:
                     role = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
-
 
             if not role:
                 response_data["role_success"] = True
@@ -796,7 +790,7 @@ def check_role(request):
                 response_data["role_success"] = False
             if role is None:
                 response_data["role_empty"] = True
-        except Exception as e:
+        except Exception:
             response_data["role_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
@@ -869,7 +863,7 @@ def machine_searching(request):
             machine_line_code = request.POST["machine_line_code"] or None
             if machine_line_code is not None:
                 user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code, line__in=User_org)
-    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level":dict_menu_level.items(), "machines": user_org_machine_line,
+    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level": dict_menu_level.items(), "machines": user_org_machine_line,
                "lines": User_org, "filter_mch_type": filter_mch_type, "filter_sub_type": filter_sub_type}
 
     return render(request, 'machine_searching.html', context)
@@ -884,7 +878,8 @@ def load_machine_subtype(request):
 
 def machine_manage(request):
     global User_login, UserRole
-    machine = Machine.objects.all()
+    user_org = User_login.org.org_line.all()
+    machine = Machine.objects.filter(line__in=user_org)
     mch_type_all = Machine_type.objects.all()
     mch_subtype_all = Machine_subtype.objects.all()
     pd_line = Production_line.objects.all()
@@ -966,6 +961,7 @@ def machine_manage(request):
         'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen}
     return render(request, 'machine_manage.html', context)
 
+
 @csrf_exempt
 def check_serial(request):
     if request.method == 'POST':
@@ -986,7 +982,7 @@ def check_serial(request):
                 else:
                     serial_status = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -998,7 +994,7 @@ def check_serial(request):
             if serial_status is None:
                 response_data["serial_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["serial_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
@@ -1007,7 +1003,8 @@ def check_serial(request):
 
 def machine_type(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_type').exists():
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_type')
+    if not role_and_screen.exists():
         return redirect('/')
     mch_types = Machine_type.objects.all()
     if request.method == "POST":
@@ -1047,8 +1044,9 @@ def machine_type(request):
             del_type = request.POST['Delete_type']
             typeid = Machine_type.objects.get(mtype_id=del_type)
             typeid.delete()
-    context = {'mch_types': mch_types, 'User_login': User_login}
+    context = {'mch_types': mch_types, 'User_login': User_login, 'role_and_screen': role_and_screen}
     return render(request, 'machine_type.html', context)
+
 
 @csrf_exempt
 def check_machine_type_code(request):
@@ -1069,7 +1067,7 @@ def check_machine_type_code(request):
                 else:
                     typecode = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -1081,7 +1079,7 @@ def check_machine_type_code(request):
             if typecode is None:
                 response_data["typecode_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["typecode_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
@@ -1091,7 +1089,8 @@ def check_machine_type_code(request):
 def machine_subtype(request):
 
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_sub_type').exists():
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_sub_type')
+    if not role_and_screen.exists():
         return redirect('/')
     mch_subtype = Machine_subtype.objects.all()
     mch_type_all = Machine_type.objects.all()
@@ -1138,7 +1137,7 @@ def machine_subtype(request):
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
             subtypeid.delete()
-    context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login}
+    context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login, 'role_and_screen': role_and_screen}
     return render(request, 'machine_subtype.html', context)
 
 
@@ -1160,7 +1159,7 @@ def check_screen_id(request):
                 else:
                     screen_status = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -1171,7 +1170,7 @@ def check_screen_id(request):
             if screen_status is None:
                 response_data["screen_status_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["screen_status_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
         return JsonResponse(response_data)
@@ -1196,7 +1195,7 @@ def check_menu_id(request):
                 else:
                     menu_status = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -1207,7 +1206,7 @@ def check_menu_id(request):
             if menu_status is None:
                 response_data["menu_status_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["menu_status_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
         return JsonResponse(response_data)
@@ -1233,7 +1232,7 @@ def check_org_code(request):
                 else:
                     org_status = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -1244,7 +1243,7 @@ def check_org_code(request):
             if org_status is None:
                 response_data["org_status_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["org_status_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
         return JsonResponse(response_data)
@@ -1270,7 +1269,7 @@ def check_machine_subtype_code(request):
                 else:
                     subtypecode = False  # avialble
 
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist:
                 pass
             except Exception as e:
                 raise e
@@ -1281,7 +1280,7 @@ def check_machine_subtype_code(request):
             if subtypecode is None:
                 response_data["subtypecode_empty"] = True
 
-        except Exception as e:
+        except Exception:
             response_data["subtypecode_success"] = False
             response_data["msg"] = "Some error occurred. Please let Admin know."
 
@@ -1305,8 +1304,9 @@ def machine_details(request, line, machine):
     if not Role_Screen.objects.filter(role=UserRole).exists():
         return redirect('/')
     machine = Machine.objects.filter(machine_id=machine, line_id=line)
-    context = {'User_login': User_login, 'UserRole': UserRole,'dict_menu_level': dict_menu_level.items(),
-               'machine':machine}
+    spare_part_of_mch = Machine_and_spare_part.objects.filter(machine_id__in=machine)
+    context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
+               'machine': machine, 'spare_part_of_mch': spare_part_of_mch}
     return render(request, 'machine_details.html', context)
 
 
@@ -1383,7 +1383,7 @@ def spare_part_subtype(request):
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
     context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_type_all': spare_part_type_all}
-    return render(request, 'spare_part_subtype.html',context)
+    return render(request, 'spare_part_subtype.html', context)
 
 
 def spare_part_type(request):
@@ -1425,7 +1425,7 @@ def check_spare_part_type_code(request):
             else:
                 spare_type_code = False  # avialble
 
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             pass
         except Exception as e:
             raise e
@@ -1452,7 +1452,7 @@ def check_spare_part_subtype_code(request):
             else:
                 spare_subtype_code = False  # avialble
 
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             pass
         except Exception as e:
             raise e
@@ -1479,7 +1479,7 @@ def check_spare_part_code(request):
             else:
                 spare_part_code = False  # avialble
 
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist:
             pass
         except Exception as e:
             raise e
@@ -1494,14 +1494,16 @@ def check_spare_part_code(request):
 
 def machine_and_spare_part(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='machine_spare_part').exists():
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_spare_part')
+    if not role_and_screen.exists():
         return redirect('/')
     dict_mch_sp = {}
+    user_org = User_login.org.org_line.all()
+    machine = Machine.objects.filter(line__in=user_org)
     mch_and_sp_all = Machine_and_spare_part.objects.all()
     spare_part_type_all = Spare_part_type.objects.all()
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_all = Spare_part.objects.all()
-
 
     if request.method == "POST":
         if "add_mch_and_sp" in request.POST:
@@ -1510,15 +1512,14 @@ def machine_and_spare_part(request):
             mch_and_sp.save()
         elif "delete_spare_part" in request.POST:
             mch_and_sp = Machine_and_spare_part.objects.filter(machine_id=request.POST['delete_spare_part'],
-                                                  spare_part_id=request.POST['select_delete_spare_part'])
+                                                               spare_part_id=request.POST['select_delete_spare_part'])
             mch_and_sp.delete()
-
+    for mch in machine:
+        dict_mch_sp[mch] = []
     for mch_sp in mch_and_sp_all:
-        if mch_sp.machine not in dict_mch_sp.keys():
-            dict_mch_sp[mch_sp.machine] = []
         dict_mch_sp[mch_sp.machine].append(mch_sp.spare_part)
 
     context = {'User_login': User_login,
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
-               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all}
+               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all, 'role_and_screen': role_and_screen}
     return render(request, 'machine&spare_part.html', context)

@@ -564,10 +564,8 @@
                                 <div class="form-group">
                                     <label>Select Machine Subtype</label>
                                     <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
-                                        <option value="" selected>กรุณาเลือกชนิดเครื่องจักร</option>
-                                        {% for mch_subtype in mch_subtype_all %}
-                                        <option value="{{mch_type.pk}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
-                                        {% endfor %}
+                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -645,8 +643,8 @@
 } );
 </script>
 <script>
-    $("#id_sub_type").change(function () {
-        const url = $("#add_machine").attr("data-mch-type-url");  // get the url of the `load_cities` view
+    $("#id_mch_type").change(function () {
+        const url = $("#add_machine").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
         const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
 
         $.ajax({                       // initialize an AJAX request

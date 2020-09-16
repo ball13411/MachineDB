@@ -353,7 +353,7 @@
                     <div class="col-sm-5">
                         <h2>Machine Subtype<b> Management</b></h2>
                     </div>
-                    <div class="col-sm-7" >
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#AddSubtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Subtype</span></a>
                     </div>
                 </div>
@@ -365,7 +365,7 @@
                         <th>sType Code</th>
                         <th>sType Name</th>
                         <th>mType</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -375,7 +375,7 @@
                         <td>{{subtype.subtype_code}}</td>
                         <td>{{subtype.subtype_name}}</td>
                         <td>{{subtype.mch_type.mtype_name}} ({{subtype.mch_type.mtype_code}})</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{subtype.subtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{subtype.subtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>

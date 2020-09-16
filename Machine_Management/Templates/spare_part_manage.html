@@ -369,7 +369,7 @@
                         <th>Model</th>
                         <th>Service Life</th>
                         <th>Service Plan Life</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -383,7 +383,7 @@
                         <td>{{spare_part.spare_part_model}}</td>
                         <td>{{spare_part.service_life}}</td>
                         <td>{{spare_part.service_plan_life}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
