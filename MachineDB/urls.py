@@ -22,7 +22,7 @@ urlpatterns = [
     # General Path
     path('admin/', admin.site.urls),
     path('', views.signin, name='signin'),
-    path('resetpassword/', views.resetpassword, name='resetpassword'),
+    path('resetpassword/', views.reset_password, name='resetpassword'),
 
     # User Management
     path('usermanage/user', views.usermanage, name='usermanage'),
