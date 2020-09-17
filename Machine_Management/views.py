@@ -423,6 +423,9 @@ def test(request):
     mch = Machine.objects.all()
     # form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
+    if 'toggle' in request.POST:
+        a = request.POST.get('toggle', False)
+        print(type(a),a)
     if form.is_valid():
         form.save()
         form = UserForm()
@@ -495,10 +498,14 @@ def menumanage(request):
             menu_del.delete()
     list_menu = Menu.objects.order_by('level')
     list_screen = Screen.objects.all()
+    screen_of_menu = []
+    for menu in list_menu:
+        screen_of_menu.append(menu.screen_id)
     context = {
         'User_login': User_login,
         'list_menu': list_menu,
-        'list_screen': list_screen
+        'list_screen': list_screen,
+        'screen_of_menu': screen_of_menu
     }
     return render(request, 'menumanage.html', context)
 
@@ -727,7 +734,17 @@ def location(request):
                     floor.save()
         elif 'delete_location' in request.POST:
             locations = Floor.objects.get(pk=request.POST['delete_location'])
-            locations.delete()
+            if Floor.objects.filter(site_id=locations.site_id).count() == 1:
+                site = Site.objects.get(pk=locations.site_id)
+                print('site : ', site)
+                site.delete()
+            if Floor.objects.filter(building_id=locations.building_id).count() == 1:
+                building = Building.objects.get(pk=locations.building_id)
+                print('building : ', building)
+                building.delete()
+            if Floor.objects.filter(pk=locations.pk).count() == 1:
+                print('location : ', locations)
+                locations.delete()
 
     sites = Site.objects.all()
     buildings = Building.objects.all()
@@ -1523,3 +1540,7 @@ def machine_and_spare_part(request):
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
                'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all, 'role_and_screen': role_and_screen}
     return render(request, 'machine&spare_part.html', context)
+
+
+def maintenance_plan(request):
+    return render(request, 'maintenance_plan.html')

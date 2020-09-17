@@ -49,6 +49,9 @@ urlpatterns = [
     path('sparepartmanage/subtype/', views.spare_part_subtype, name='spare_part_subtype'),
     path('sparepartmanage/type/', views.spare_part_type, name='spare_part_type'),
 
+    # Preventive Data
+    path('preventive/plan', views.maintenance_plan, name='maintenance_plan'),
+
     # Home
     path('home/', views.home, name='home'),
     path('machine/data/', views.machine_data, name='machinedata'),

@@ -368,7 +368,7 @@
                         <th>Screen</th>
                         <th>Parent menu</th>
                         <th>Index</th>
-                        <th>Path</th>
+                        <th hidden>Path</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -384,7 +384,7 @@
                         <td>{{menu.screen}}</td>
                         <td>{{menu.parent_menu}}</td>
                         <td>{{menu.index}}</td>
-                        <td>{{menu.path_url}}</td>
+                        <td hidden>{{menu.path_url}}</td>
                         <td>
                             <a href="#setting{{menu.menu_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{menu.menu_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
@@ -508,7 +508,9 @@
                                     <label for="exampleFormControlSelect1">Select Screen</label>
                                     <select class="form-control" id="exampleFormControlSelect1" required="True" name="select_screen">
                                     {% for screen in list_screen %}
+                                    {% if screen.pk not in screen_of_menu %}
                                     <option value="{{screen.screen_id}}">{{screen}}</option>
+                                    {% endif %}
                                     {% endfor %}
                                     </select>
                                 </div>
@@ -517,7 +519,9 @@
                                     <select class="form-control" id="exampleFormControlSelect2" name="select_parent">
                                     <option value="">None</option>
                                     {% for menu_select in list_menu %}
-                                    <option value="{{menu_select.menu_id}}" {% if menu.parent_menu == menu_select.menu_id %} selected {% endif %}>{{menu_select.menu_id}} {% if menu_select.level == 0 %}[root]{% endif %}</option>
+                                    {% if menu_select.level == 0 %}
+                                    <option value="{{menu_select.menu_id}}" {% if menu.parent_menu == menu_select.menu_id %} selected {% endif %}>{{menu_select.menu_id}} [root]</option>
+                                    {% endif %}
                                     {% endfor %}
                                     </select>
                                 </div>
