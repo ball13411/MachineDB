@@ -191,11 +191,11 @@ def check_email(request):
 def reset_password(request):
     # Form Reset Password
     # Get variables from Input HTML
-    if requset.method == "POST":
-        username = requset.POST['inputUser']
-        old_password = requset.POST['oldPassword']
-        new_password = requset.POST['newPassword']
-        con_new_password = requset.POST['conPassword']
+    if request.method == "POST":
+        username = request.POST['inputUser']
+        old_password = request.POST['oldPassword']
+        new_password = request.POST['newPassword']
+        con_new_password = request.POST['conPassword']
         try:  # Test connect User in modals(DB)
             user = User.objects.get(username=username, password=old_password)
             if old_password != new_password:
@@ -206,12 +206,12 @@ def reset_password(request):
                     user.save()
                     return redirect('/')
                 else:  # NewPassword != ConPassword
-                    messages.info(requset, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
+                    messages.info(request, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
             else:  # OldPassword != NewPassword
-                messages.info(requset, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
+                messages.info(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
         except Machine_Management.models.User.DoesNotExist:  # Failed Connect User in model(DB)
-            messages.info(requset, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
-    return render(requset, 'resetpassword.html')
+            messages.info(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
+    return render(request, 'resetpassword.html')
 
 
 def rolemanage(request):
@@ -1543,4 +1543,25 @@ def machine_and_spare_part(request):
 
 
 def maintenance_plan(request):
-    return render(request, 'maintenance_plan.html')
+    global User_login
+    list_mch_mtn = []
+    mch_sp_all = Machine_and_spare_part.objects.all()
+    for mch_sp in mch_sp_all:
+        if Maintenance_plan.objects.filter(machine_and_spare=mch_sp):
+            continue
+        try:
+            if mch_sp.machine.machine_hour > mch_sp.spare_part.service_plan_life + mch_sp.last_maintenance_hour:
+                list_mch_mtn.append(mch_sp)
+                mtn_plan = Maintenance_plan.objects.create(machine_and_spare=mch_sp, gen_date=datetime.date.today())
+                mtn_plan.save()
+        except TypeError:
+            continue
+    list_plan = Maintenance_plan.objects.all()
+    list_user = User.objects.all()
+    context = {'User_login': User_login, 'list_plan': list_plan, 'list_user': list_user}
+    return render(request, 'maintenance_plan.html', context)
+
+
+def machine_capacity(request):
+    global User_login
+    return render(request,'machine_capacity.html')

@@ -237,6 +237,8 @@ class Machine(models.Model):
     machine_power_use_watt_per_hour = models.CharField(max_length=10, blank=True)
     machine_installed_datetime = models.DateField(default=None, null=True)
     machine_start_use_datetime = models.DateField(default=None, null=True)
+    machine_hour = models.IntegerField(default=None, null=True, blank=True)
+    machine_minute = models.IntegerField(default=None, null=True, blank=True)
     create_by = models.CharField(max_length=20)
     create_date = models.DateField()
     last_update_by = models.CharField(max_length=20, default=None, null=True)
@@ -244,7 +246,7 @@ class Machine(models.Model):
     line = models.ForeignKey(Production_line, on_delete=models.CASCADE)
     sub_type = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
     mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
-    machine_image1 = models.CharField(max_length=50,blank=True)
+    machine_image1 = models.CharField(max_length=50, blank=True)
     machine_image2 = models.CharField(max_length=50, blank=True)
     machine_image3 = models.CharField(max_length=50, blank=True)
     machine_image4 = models.CharField(max_length=50, blank=True)
@@ -257,15 +259,29 @@ class Machine(models.Model):
     machine_details = models.CharField(max_length=256, blank=True)
     machine_active = models.BooleanField()
 
-
     class Meta:
         db_table = "Machine_master"
         ordering = ["machine_production_line_code"]
 
 
+class Machine_capacity(models.Model):
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    fg_batch_size = models.IntegerField(default=None, null=True, blank=True)
+    fg_batch_time = models.IntegerField(default=None, null=True, blank=True)
+    rm_name = models.CharField(max_length=30)
+    rm_batch_size = models.IntegerField(default=None, null=True, blank=True)
+    rm_unit = models.CharField(max_length=20)
+    fg_capacity = models.FloatField(default=None, null=True, blank=True)
+
+    class Meta:
+        db_table = "Machine_capacity"
+
+
 class Machine_and_spare_part(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     spare_part = models.ForeignKey(Spare_part, on_delete=models.CASCADE)
+    last_maintenance_hour = models.IntegerField(default=None, null=True, blank=True)
 
     class Meta:
         db_table = "Machine_and_spare_part"
@@ -292,3 +308,38 @@ class User(models.Model):
 
     class Meta:
         db_table = "User_management"
+
+
+class Maintenance_order_head(models.Model):
+    job_id = models.AutoField(primary_key=True)
+    job_no = models.IntegerField()
+    job_date = models.DateField()
+    job_assignor_id = models.CharField(max_length=10)
+    job_assignee_id = models.CharField(max_length=10)
+    job_status = models.BooleanField()
+    close_reason = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = "Maintenance_order_head"
+
+
+class Maintenance_plan(models.Model):
+    plan_id = models.AutoField(primary_key=True)
+    gen_date = models.DateField()
+    machine_and_spare = models.ForeignKey(Machine_and_spare_part, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Maintenance_plan"
+
+
+class Maintenance_order_detail(models.Model):
+    mtn_order_id = models.AutoField(primary_key=True)
+    plan_work_start = models.DateTimeField()
+    plan_work_finish = models.DateTimeField()
+    actual_work_start = models.DateTimeField()
+    actual_work_finish = models.DateTimeField()
+    remark = models.CharField(max_length=255)
+    status = models.BooleanField()
+
+    class Meta:
+        db_table = "Maintenance_order_detail"

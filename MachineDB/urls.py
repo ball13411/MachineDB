@@ -42,6 +42,7 @@ urlpatterns = [
     path('machinemanage/machine/', views.machine_manage, name='machine_manage'),
     path('machinemanage/machinetype/', views.machine_type, name='machine_type'),
     path('machinemanage/machinesubtype/', views.machine_subtype, name='machine_subtype'),
+    path('machinemanage/machine_capacity/', views.machine_capacity, name='machine_capacity'),
     path('machinemanage/machine_spare_part/', views.machine_and_spare_part, name='machine_and_spare_part'),
 
     # Spare part Management
