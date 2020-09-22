@@ -37,6 +37,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
 </head>
 <body>
 <div class="container-fluid">
@@ -142,26 +143,48 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Insert</label>
-                                    <select class="form-control" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert">
-                                    <option value="Y" {% if rs.permission_insert == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_insert == 'N' %}selected{% endif %}>N</option>
-                                    </select>
+                                    <div class="row">
+                                        <div class="col-sm-6">Permission Type</div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Insert</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert" value="{{rs.permission_insert}}" {% if rs.permission_insert == 'Y' %}checked{% endif %}>
+                                                <label class="onoffswitch-label" for="set_rs_insert{{forloop.counter}}">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Update</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_update{{forloop.counter}}" name="set_rs_update" value="Y" {% if rs.permission_update == 'Y' %}checked{% endif %}>
+                                                <label class="onoffswitch-label" for="set_rs_update{{forloop.counter}}">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Delete</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_delete{{forloop.counter}}" name="set_rs_delete" value="Y"  {% if rs.permission_delete == 'Y' %} checked{% endif %}>
+                                                <label class="onoffswitch-label" for="set_rs_delete{{forloop.counter}}">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Update</label>
-                                    <select class="form-control" id="set_rs_update{{forloop.counter}}" name="set_rs_update">
-                                    <option value="Y" {% if rs.permission_update == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_update == 'N' %}selected{% endif %}>N</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Delete</label>
-                                    <select class="form-control" id="set_rs_delete{{forloop.counter}}" name="set_rs_delete">
-                                    <option value="Y" {% if rs.permission_delete == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_delete == 'N' %}selected{% endif %}>N</option>
-                                    </select>
-                                </div>
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary" name="Edit_rs" value="{{rs.id}}">Submit</button>
@@ -229,26 +252,48 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Insert</label>
-                                    <select class="form-control" id="add_rs_insert" name="add_rs_insert">
-                                    <option value="Y" {% if rs.permission_insert == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_insert == 'N' %}selected{% endif %}>N</option>
-                                    </select>
+                                    <div class="row">
+                                        <div class="col-sm-6">Permission Type</div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Insert</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="add_insert" name="add_rs_insert" value="Y" tabindex="0">
+                                                <label class="onoffswitch-label" for="add_insert">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Update</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="add_update" name="add_rs_update" value="Y" tabindex="0">
+                                                <label class="onoffswitch-label" for="add_update">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4 permission-label">Delete</div>
+                                        <div class="col-sm-4">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="add_delete" name="add_rs_delete" value="Y" tabindex="0">
+                                                <label class="onoffswitch-label" for="add_delete">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Update</label>
-                                    <select class="form-control" id="add_rs_update" name="add_rs_update">
-                                    <option value="Y" {% if rs.permission_update == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_update == 'N' %}selected{% endif %}>N</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Delete</label>
-                                    <select class="form-control" id="add_rs_delete" name="add_rs_delete">
-                                    <option value="Y" {% if rs.permission_delete == 'Y' %}selected{% endif %}>Y</option>
-                                    <option value="N" {% if rs.permission_delete == 'N' %}selected{% endif %}>N</option>
-                                    </select>
-                                </div>
+                            </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary" name="Addrolescreen">Submit</button>

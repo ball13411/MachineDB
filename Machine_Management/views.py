@@ -301,9 +301,9 @@ def role_screen(request):
                 rs_id = request.POST['Edit_rs']
                 rs_role_id = request.POST['set_rs_role']
                 rs_screen_id = request.POST['set_rs_screen']
-                rs_insert = request.POST['set_rs_insert']
-                rs_update = request.POST['set_rs_update']
-                rs_delete = request.POST['set_rs_delete']
+                rs_insert = request.POST.get('set_rs_insert', "N")
+                rs_update = request.POST.get('set_rs_update', "N")
+                rs_delete = request.POST.get('set_rs_delete', "N")
                 role_screen = Role_Screen.objects.get(id=rs_id)
                 role_screen.role_id = rs_role_id
                 role_screen.screen_id = rs_screen_id
@@ -315,9 +315,9 @@ def role_screen(request):
                 rs_id = request.POST['Edit_rs']
                 rs_role_id = request.POST['set_rs_role']
                 rs_screen_id = request.POST['set_rs_screen']
-                rs_insert = request.POST['set_rs_insert']
-                rs_update = request.POST['set_rs_update']
-                rs_delete = request.POST['set_rs_delete']
+                rs_insert = request.POST.get('set_rs_insert', "N")
+                rs_update = request.POST.get('set_rs_update', "N")
+                rs_delete = request.POST.get('set_rs_delete', "N")
                 role_screen = Role_Screen.objects.get(id=rs_id)
                 role_screen.role_id = rs_role_id
                 role_screen.screen_id = rs_screen_id
@@ -331,9 +331,9 @@ def role_screen(request):
             if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'], screen_id=request.POST['add_rs_screen']).exists():
                 rs_role_id = request.POST['add_rs_role']
                 rs_screen_id = request.POST['add_rs_screen']
-                rs_insert = request.POST['add_rs_insert']
-                rs_update = request.POST['add_rs_update']
-                rs_delete = request.POST['add_rs_delete']
+                rs_insert = request.POST.get('add_rs_insert', "N")
+                rs_update = request.POST.get('add_rs_update', "N")
+                rs_delete = request.POST.get('add_rs_delete', "N")
                 role_screen = Role_Screen.objects.create(
                     role_id=rs_role_id,
                     screen_id=rs_screen_id,
