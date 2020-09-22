@@ -87,8 +87,8 @@
                     <tr>
                         <th>#</th>
                         <th>Production Line</th>
-                        <th>Product Name</th>
                         <th>Product Code</th>
+                        <th>Product Name</th>
                         <th>Capacity</th>
                         <th>Labour</th>
                         <th>Action</th>
@@ -99,8 +99,8 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{product.line.location_site}} / Line : {{product.line.production_line}}</td>
-                        <td><a href="#"><img src="/static/img/bread.png" width="30" height="30">&nbsp;&nbsp;{{product.product_name}}</a></td>
                         <td>{{product.product_code}}</td>
+                        <td><a href="#"><img src="/static/img/bread.png" width="30" height="30">&nbsp;&nbsp;{{product.product_name}}</a></td>
                         <td>{{product.capacity}}</td>
                         <td>{{product.labour}}</td>
                         <td>

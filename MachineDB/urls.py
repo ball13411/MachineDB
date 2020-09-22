@@ -42,7 +42,7 @@ urlpatterns = [
     path('machinemanage/machine/', views.machine_manage, name='machine_manage'),
     path('machinemanage/machinetype/', views.machine_type, name='machine_type'),
     path('machinemanage/machinesubtype/', views.machine_subtype, name='machine_subtype'),
-    path('machinemanage/machine_capacity/', views.machine_capacity, name='machine_capacity'),
+    path('machinemanage/capacity/', views.machine_capacity, name='machine_capacity'),
     path('machinemanage/machine_spare_part/', views.machine_and_spare_part, name='machine_and_spare_part'),
 
     # Spare part Management
@@ -83,6 +83,9 @@ urlpatterns = [
     path('check_spare_part_subtype_code', views.check_spare_part_subtype_code, name='check_spare_part_subtype_code'),
     path('check_spare_part_code', views.check_spare_part_code, name='check_spare_part_code'),
     path('ajax/load_spare_part/', views.load_spare_part, name='load_spare_part'),
+    path('ajax/load_machine/', views.load_machine, name='ajax_load_machine'),
+    path('ajax/load_product/', views.load_product, name='ajax_load_product'),
+    path('check_machine_product', views.check_machine_product, name='check_machine_product'),
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),

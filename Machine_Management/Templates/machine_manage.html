@@ -158,7 +158,7 @@
 
             <!-- Modal Setting -->
             <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
                             {% csrf_token %}
@@ -169,81 +169,112 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
-                                        {% for line in production_line %}
-                                        <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
-                                        {% for mch_subtype in mch_subtype_all %}
-                                        {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
-                                        <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label>Select Production Line</label>
+                                            <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
+                                                {% for line in production_line %}
+                                                <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Type</label>
+                                            <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
+                                                {% for mch_type in mch_type_all %}
+                                                <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Subtype</label>
+                                            <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
+                                                {% for mch_subtype in mch_subtype_all %}
+                                                {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
+                                                <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <br>
                                 <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label for="serial">Serial No.</label>
+                                            <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="model">Model</label>
+                                            <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="brand">Brand</label>
+                                            <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="machine_name">Machine Name</label>
+                                            <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="mac_prod_code">Machine-Production line Code</label>
+                                            <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="supplier">Supplier</label>
+                                            <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="pic">Person In Charge</label>
+                                            <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
+                                    <div class="form-row">
+                                        <div class="col-md-4">
+                                            <label class="control-label">Capacity/min</label>
+                                            <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="control-label">Capacity measure unit</label>
+                                            <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pic">Power (Watt/Hour) :</label>
+                                            <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-3">
+                                            <label>Installation Date</label>
+                                            <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Start Date</label>
+                                            <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Hours</label>
+                                            <input type="text" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Minutes</label>
+                                            <input type="text" id="set_minute{{forloop.counter}}" class="form-control" value="{{mch.machine_minute}}" name="set_minute">
+                                        </div>
+                                    </div>
                                 </div>
                                 <small>Create by : {{mch.create_by}} [ {{mch.create_date}} ]</small><br>
                                 <small>Update by : {% if mch.last_update_by %} {{mch.last_update_by}} [ {{mch.last_update_date}} ] {% else %} - {% endif %}</small>
@@ -282,7 +313,7 @@
             {% endfor %}
             <!-- Modal Add Machine -->
             <div id="createmch" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="add_machine" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" >
                             {% csrf_token %}
@@ -290,86 +321,118 @@
                                 <h5 class="modal-title">Add New Machine</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="id_line" name="add_production_line" required="True">
-                                        <option value="">--- กรุณาเลือกสายการผลิต ---</option>
-                                        {% for line in production_line %}
-                                        <option value="{{line.pid}}">{{line}}</option>
-                                        {% endfor %}
-                                        </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label>Select Production Line</label>
+                                            <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                                <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                                {% for line in production_line %}
+                                                <option value="{{line.pid}}">{{line}}</option>
+                                                {% endfor %}
+                                                </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Type</label>
+                                            <select class="form-control" id="id_mch_type" name="add_type" required="True">
+                                                <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                                {% for mch_type in mch_type_all %}
+                                                <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Subtype</label>
+                                            <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
+                                                <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
 
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Serial No. already exists</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="โมเดล" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="แบรนด์" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="" required="True" autocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10" autocomplete="off">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" class="form-control" id="add_capacity" placeholder="" name="add_capacity" maxlength="10" autocomplete="off">
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" class="form-control" name="add_power" id="add_power" placeholder="" required="True" autocomplete="off" maxlength="50">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="serial">Serial No.</label>
+                                            <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url 'check_serial' %}"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Serial No. already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="model">Model</label>
+                                            <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="รุ่นของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="brand">Brand</label>
+                                            <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="ยี่ห้อของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="machine_name">Machine Name</label>
+                                            <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="mac_prod_code">Machine-Production line Code</label>
+                                            <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="supplier">Supplier</label>
+                                            <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="ผู้ขายเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="pic">Person In Charge</label>
+                                            <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="พนักงานผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-md-4">
+                                            <label class="control-label">Capacity/min</label>
+                                            <input type="number" class="form-control" id="add_cpm" placeholder="ความจุต่อนาที" name="add_cpm" maxlength="10" autocomplete="off">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="control-label">Capacity measure unit</label>
+                                            <input type="text" class="form-control" id="add_capacity" placeholder="หน่วยความจุ (ชิ้น,กก.)" name="add_capacity" maxlength="10" autocomplete="off">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pic">Power (Watt/Hour) :</label>
+                                            <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานวัตต์/ชั่วโมง" required="True" autocomplete="off" maxlength="50">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-3">
+                                            <label>Installation Date</label>
+                                            <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Start Date</label>
+                                            <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Machine Hours</label>
+                                            <input type="number" class="form-control" id="add_hour" placeholder="เวลาเครื่องจักรทำงาน (ชั่วโมง)" name="add_hour" maxlength="10">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Machine Minutes</label>
+                                            <input type="number" class="form-control" id="add_minute" placeholder="เวลาเครื่องจักรทำงาน (นาที)" name="add_minute" maxlength="10">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

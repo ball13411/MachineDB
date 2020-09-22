@@ -1,0 +1,4 @@
+<option value="">--- กรุณาเลือกผลิตภัณฑ์ ---</option>
+{% for product in product_all %}
+<option value="{{ product.pk }}">{{ product.product_name }} | {{ product.product_code }} </option>
+{% endfor %}

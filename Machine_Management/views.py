@@ -1564,4 +1564,65 @@ def maintenance_plan(request):
 
 def machine_capacity(request):
     global User_login
-    return render(request,'machine_capacity.html')
+    if request.method == "POST":
+        if 'Add_machine_capacity' in request.POST:
+            mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'], product=request.POST['add_product'])
+            if not mch_capacity.exists():
+                create_mch_capacity = Machine_capacity.objects.create(
+                    machine_id=request.POST['add_mch'],
+                    product_id=request.POST['add_product'],
+                    rm_name=request.POST['add_rm_name'],
+                    rm_batch_size=request.POST['add_rm_batch_size'],
+                    rm_unit=request.POST['add_rm_batch_unit'],
+                    fg_batch_size=request.POST['add_fg_batch_size'],
+                    fg_batch_time=request.POST['add_fg_batch_time'],
+                    fg_capacity=request.POST['add_fg_capacity']
+                )
+                create_mch_capacity.save()
+            else:
+                messages.info(request, 'รายการเครื่องจักรและผลิตภัณฑ์นี้มีข้อมูลแล้ว ไม่สามารถทำการเพิ่มรายการได้')
+
+    mch_capacity_all = Machine_capacity.objects.all()
+    production_line = Production_line.objects.all()
+    context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line}
+    return render(request, 'machine_capacity.html', context)
+
+
+def load_machine(request):
+    line_id = request.GET.get('line_id')
+    machine = Machine.objects.filter(line_id=line_id).all()
+    context = {'machine': machine}
+    return render(request, 'ajax_machine.html', context)
+
+
+def load_product(request):
+    line_id = request.GET.get('line_id')
+    product_all = Product.objects.filter(line_id=line_id).all()
+    context = {'product_all': product_all}
+    return render(request, 'ajax_product.html', context)
+
+@csrf_exempt
+def check_machine_product(request):
+    if request.method == 'POST':
+        response_data = {}
+        machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'], product_id=request.POST['product_id'])
+        machine_product_code = None
+        try:
+            if machine_product.count():
+                machine_product_code = True  # alredy exist
+            elif len(request.POST['mch_id']) == 0 or len(request.POST['product_id']) == 0:
+                machine_product_code = None  # empty input
+            else:
+                machine_product_code = False  # avialble
+
+        except ObjectDoesNotExist:
+            pass
+        except Exception as e:
+            raise e
+        if not machine_product_code:
+            response_data["data_code_success"] = True
+        else:
+            response_data["data_code_success"] = False
+        if machine_product_code is None:
+            response_data["data_code_empty"] = True
+        return JsonResponse(response_data)

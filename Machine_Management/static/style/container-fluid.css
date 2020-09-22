@@ -182,9 +182,9 @@ table.table .avatar {
 }
 
 /* Modal width */
-.modal-dialog {
+/*.modal-dialog {
     width: 600px;
-}
+}*/
 hr {
    margin-top: 2px;
    margin-bottom: 10px;

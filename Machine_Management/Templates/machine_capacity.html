@@ -30,36 +30,42 @@
         });
     </script>
     <script>
-        function check_serial(element) {
-            add_serial= $(element).val();
-            var button = document.getElementById("AddmachineButton");
-            if (add_serial == "") {
-                $('#add_serial').parent().removeClass();
-                $('#add_serial').parent().addClass('form-group');
+        function check_machine_product() {
+            mch_id = $('#id_mch').val();
+            product_id = $('#id_product').val();
+            var button = document.getElementById("Add_machine_capacity");
+            if (id_product == "") {
+                $('#id_product').parent().removeClass();
+                $('#id_product').parent().addClass('form-group');
             }
             $.ajax({
-                url : $(element).attr("data-url"),
+                url : $('#id_product').attr("data-url"),
                 data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_serial" : add_serial,
+                    "csrfmiddlewaretoken" : $('#id_product').siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "mch_id" : mch_id,
+                    "product_id" : product_id,
 
                 },
                 method: "POST",
                 dataType : "json",
                 success : function (data) {
                     //console.log(data);
-                    if (data.serial_success) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group success');
+                    if (data.data_code_success) {
+                        $('#id_mch').parent().removeClass();
+                        $('#id_mch').parent().addClass('form-group success');
+                        $('#id_product').parent().removeClass();
+                        $('#id_product').parent().addClass('form-group success');
                         button.disabled = false;
                     } else {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group error');
+                        $('#id_mch').parent().removeClass();
+                        $('#id_mch').parent().addClass('form-group error');
+                        $('#id_product').parent().removeClass();
+                        $('#id_product').parent().addClass('form-group error');
                         button.disabled = true;
                     }
-                    if (data.serial_empty) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group');
+                    if (data.data_code_empty) {
+                        $('#id_product').parent().removeClass();
+                        $('#id_product').parent().addClass('form-group');
                         button.disabled = true;
                     }
                 }
@@ -116,10 +122,10 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Machine Capacity <b>Management</b></h2>
+                        <h2>Machine Capacity<b>Management</b></h2>
                     </div>
                     <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
-                        <a href="#createmch" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine</span></a>
+                        <a href="#create_mch_capacity" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Capacity</span></a>
                     </div>
                 </div>
             </div>
@@ -127,37 +133,29 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>mSerial</th>
-                        <th>mCode</th>
-                        <th>mName</th>
-                        <th>mType</th>
-                        <th>mSubtype</th>
-                        <th>Line</th>
-<!--                        <th>Machine Brand</th>-->
-<!--                        <th>Machine Model</th>-->
+                        <th>Production Line</th>
+                        <th>Machine</th>
+                        <th>Product</th>
+                        <th>FG Capacity</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for mch in machine %}
+            {% for mch_capacity in mch_capacity_all %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{mch.serial_id}}</td>
-                        <td>{{mch.machine_production_line_code}}</td>
-                        <td>{{mch.machine_name}}</td>
-                        <td>{{mch.mch_type}}</td>
-                        <td>{{mch.sub_type}}</td>
-                        <td>{{mch.line}}</td>
-<!--                        <td>{{mch.machine_brand}}</td>-->
-<!--                        <td>{{mch.machine_model}}</td>-->
+                        <td>{{mch_capacity.machine.line}}</td>
+                        <td>{{mch_capacity.machine.machine_name}}</td>
+                        <td>{{mch_capacity.product}}</td>
+                        <td>{{mch_capacity.fg_capacity}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{mch.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <a href="#setting{{mch_capacity.machine_id}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{mch_capacity.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
 
             <!-- Modal Setting -->
-            <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
+            <div id="setting{{mch_capacity.machine_id}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
@@ -257,7 +255,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{mch.machine_id}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{mch_capacity.machine_id}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
                     <div class="modal-content modal-lg">
                         <div class="modal-header">
@@ -281,10 +279,10 @@
             </div>
             {% endfor %}
             <!-- Modal Add Machine -->
-            <div id="createmch" class="modal fade" tabindex="-1">
+            <div id="create_mch_capacity" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <form method="POST" id="add_machine" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" >
+                        <form method="POST" id="add_machine" data-mch-url="{% url 'ajax_load_machine' %}" data-product-url="{% url 'ajax_load_product' %}" >
                             {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Add New Machine</h5>
@@ -301,79 +299,61 @@
                                         {% endfor %}
                                         </select>
                                 </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Select Machine</label>
+                                            <select class="form-control" id="id_mch" name="add_mch" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}">
+                                                <option value="" selected>--- กรุณาเลือกเครื่องจักร ---</option>
+                                            </select>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Machine and Product already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Select Product</label>
+                                            <select class="form-control" id="id_product" name="add_product" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}">
+                                                <option value="" selected>--- กรุณาเลือกผลิตภัณฑ์ ---</option>
+                                            </select>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Machine and Product already exists</small>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Serial No. already exists</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="โมเดล" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="แบรนด์" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="" required="True" autocomplete="off" maxlength="50" />
+                                    <label class="form-label">Raw Material Name</label>
+                                    <input type="text" id="add_rm_name" class="form-control" name="add_rm_name" placeholder="ชื่อวัตถุดิบ" required="True">
                                 </div>
                                 <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10" autocomplete="off">
+                                    <div class="form-group col-md-8">
+                                        <label class="form-label">Raw Material Batch Size</label>
+                                        <input type="number" id="add_rm_batch_size" class="form-control" name="add_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" class="form-control" id="add_capacity" placeholder="" name="add_capacity" maxlength="10" autocomplete="off">
+                                    <div class="form-group col-md-4">
+                                        <label class="form-label">Unit</label>
+                                        <input type="text" id="add_rm_batch_unit" class="form-control" name="add_rm_batch_unit" placeholder="หน่วย" required="True">
                                     </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" class="form-control" name="add_power" id="add_power" placeholder="" required="True" autocomplete="off" maxlength="50">
+                                <div class="form-row">
+                                    <div class="form-group col-md-8">
+                                        <label class="form-label">Finished Goods Batch Size</label>
+                                        <input type="number" id="add_fg_batch_size" class="form-control batch" name="add_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="fg_capacity()" required="True">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="form-label">Time/Batch (Minute)</label>
+                                        <input type="number" id="add_fg_batch_time" class="form-control batch" name="add_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="fg_capacity()" required="True">
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
-                                </div>
-                                <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                    <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
+                                    <input type="number" id="add_fg_capacity" class="form-control" name="add_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" readonly>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="Addmachine" id="AddmachineButton" disabled>Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="Add_machine_capacity" id="Add_machine_capacity" disabled>Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -392,21 +372,34 @@
 } );
 </script>
 <script>
-    $("#id_mch_type").change(function () {
-        const url = $("#add_machine").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
-        const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
+    $("#id_line").change(function () {
+        const url = $("#add_machine").attr("data-mch-url");  // get the url of the `load_cities` view
+        const line_id = $(this).val();  // get the selected country ID from the HTML input
 
         $.ajax({                       // initialize an AJAX request
             url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
             data: {
-                'mch_type': mch_typeID       // add the country id to the GET parameters
+                'line_id': line_id       // add the country id to the GET parameters
             },
             success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_sub_type").html(data);  // replace the contents of the city input with the data that came from the server
+                $("#id_mch").html(data);  // replace the contents of the city input with the data that came from the server
             }
         });
     });
+    $("#id_line").change(function () {
+        const url = $("#add_machine").attr("data-product-url");  // get the url of the `load_cities` view
+        const line_id = $(this).val();  // get the selected country ID from the HTML input
 
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'line_id': line_id       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#id_product").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
 </script>
 <script>
     var i;
@@ -426,6 +419,15 @@
                 }
             });
         });
+    }
+</script>
+<script>
+    function fg_capacity()
+    {
+        var fg_batch_size = document.getElementById('add_fg_batch_size').value;
+        var fg_batch_time = document.getElementById('add_fg_batch_time').value;
+        var capacity = fg_batch_size / fg_batch_time * 60
+        document.getElementById('add_fg_capacity').value = Math.floor(capacity) ;
     }
 </script>
 </body>
