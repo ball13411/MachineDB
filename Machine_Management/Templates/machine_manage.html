@@ -67,269 +67,18 @@
         }
     </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
-        @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,500&display=swap');
-
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            color: #566787;
-            background: #f5f5f5;
-            font-family: 'Pridi', serif;
-            font-size: 18px;
-        }
-        .table-responsive {
-            margin: 30px 0;
-            font-size: 16px;
-        }
-        .table-wrapper {
-            min-width: 1000px;
-            background: #fff;
-            padding: 20px 25px;
-            border-radius: 3px;
-            box-shadow: 0 1px 1px rgba(0,0,0,.05);
-        }
-        .table-title {
-            padding-bottom: 15px;
-            background: #cf152d;
-            color: #fff;
-            padding: 16px 30px;
-            margin: -20px -25px 10px;
-            border-radius: 3px 3px 0 0;
-        }
-        .table-title h2 {
-            margin: 5px 0 0;
-            font-size: 24px;
-        }
-        .table-title .btn {
-            color: #566787;
-            float: right;
-            font-size: 13px;
-            background: #fff;
-            border: none;
-            min-width: 50px;
-            border-radius: 2px;
-            border: none;
-            outline: none !important;
-            margin-left: 10px;
-        }
-        .table-title .btn:hover, .table-title .btn:focus {
-            color: #566787;
-            background: #f2f2f2;
-        }
-        .table-title .btn i {
-            float: left;
-            font-size: 21px;
-            margin-right: 5px;
-        }
-        .table-title .btn span {
-            float: left;
-            margin-top: 2px;
-        }
-        table.table tr th, table.table tr td {
-            border-color: #e9e9e9;
-            padding: 12px 15px;
-            vertical-align: middle;
-        }
-        table.table tr th:first-child {
-            width: 60px;
-        }
-        table.table tr th:last-child {
-            width: 100px;
-        }
-        table.table-striped tbody tr:nth-of-type(odd) {
-            background-color: #fcfcfc;
-        }
-        table.table-striped.table-hover tbody tr:hover {
-            background: #f5f5f5;
-        }
-        table.table th i {
-            font-size: 13px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-        table.table td:last-child i {
-            opacity: 0.9;
-            font-size: 22px;
-            margin: 0 5px;
-        }
-        table.table td a {
-            font-weight: bold;
-            color: #566787;
-            display: inline-block;
-            text-decoration: none;
-        }
-        table.table td a:hover {
-            color: #cf152d;
-        }
-        table.table td a.settings {
-            color: #2196F3;
-        }
-        table.table td a.delete {
-            color: #F44336;
-        }
-        table.table td i {
-            font-size: 19px;
-        }
-        table.table .avatar {
-            border-radius: 50%;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        .status {
-            font-size: 30px;
-            margin: 2px 2px 0 0;
-            display: inline-block;
-            vertical-align: middle;
-            line-height: 10px;
-        }
-        .text-success {
-            color: #10c469;
-        }
-        .text-info {
-            color: #62c9e8;
-        }
-        .text-warning {
-            color: #FFC107;
-        }
-        .text-danger {
-            color: #ff5b5b;
-        }
-        .pagination {
-            float: right;
-            margin: 0 0 5px;
-        }
-        .pagination li a {
-            border: none;
-            font-size: 13px;
-            min-width: 30px;
-            min-height: 30px;
-            color: #999;
-            margin: 0 2px;
-            line-height: 30px;
-            border-radius: 2px !important;
-            text-align: center;
-            padding: 0 6px;
-        }
-        .pagination li a:hover {
-            color: #666;
-        }
-        .pagination li.active a, .pagination li.active a.page-link {
-            background: #837766;
-        }
-        .pagination li.active a:hover {
-            background: #cf152d;
-        }
-        .pagination li.disabled i {
-            color: #ccc;
-        }
-        .pagination li i {
-            font-size: 16px;
-            padding-top: 6px
-        }
-        .hint-text {
-            float: left;
-            margin-top: 10px;
-            font-size: 13px;
-        }
-
-        .closebtn {
-            margin-left: 15px;
-            color: white;
-            font-weight: bold;
-            float: right;
-            font-size: 22px;
-            line-height: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .closebtn:hover {
-            color: black;
-        }
-        /* form css */
-        .form {
-        padding: 30px 40px;
-        }
-
-        .form-group {
-            margin-bottom: 10px;
-            padding-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: inline-block;
-            margin-bottom: 5px;
-        }
-
-        /*.form-group input {*/
-        /*    border: 2px solid #f0f0f0;*/
-        /*    border-radius: 4px;*/
-        /*    display: block;*/
-        /*    font-family: inherit;*/
-        /*    font-size: 14px;*/
-        /*    padding: 10px;*/
-        /*    width: 100%;*/
-        /*}*/
-
-        /*.form-group input:focus {*/
-        /*    outline: 0;*/
-        /*    border-color: #777;*/
-        /*}*/
-
-        .form-group.success input {
-            border-color: #2ecc71;
-        }
-
-        .form-group.error input {
-            border-color: #e74c3c;
-        }
-
-        .form-group i {
-            visibility: hidden;
-            position: absolute;
-            top: 40px;
-            right: 10px;
-        }
-
-        .form-group.success i.fa-check-circle {
-            color: #2ecc71;
-            visibility: visible;
-        }
-
-        .form-group.error i.fa-exclamation-circle {
-            color: #e74c3c;
-            visibility: visible;
-        }
-
-        .form-group small {
-            color: #e74c3c;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            visibility: hidden;
-        }
-
-        .form-group.error small {
-            visibility: visible;
-        }
-        /* modal 
-        #createmch .modal-content {
-            width: 700px;
-        }*/
-    </style>
     <script>
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
     });
     </script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
 </head>
 <body>
 
-<div class="container px-0 px-xl-0">
+<div class="container-fluid">
     <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
         <a href="{% url 'home' %}" class="navbar-brand">
             <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
@@ -342,6 +91,7 @@
                 <a href="{% url 'machine_manage' %}" class="nav-item nav-link active"><b>Machine Manage</b></a>
                 <a href="{% url 'machine_type' %}" class="nav-item nav-link">Machine Type</a>
                 <a href="{% url 'machine_subtype' %}" class="nav-item nav-link">Machine Subtype</a>
+                <a href="{% url 'machine_capacity' %}" class="nav-item nav-link">Machine Capacity</a>
                 <a href="{% url 'machine_and_spare_part' %}" class="nav-item nav-link">Machine & Spare part</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
@@ -354,7 +104,7 @@
         </div>
     </nav>
 </div>
-<div class="container-xl">
+<div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
         <div class="alert {{ message.tags }} alert-dismissible" role="alert">
@@ -408,7 +158,7 @@
 
             <!-- Modal Setting -->
             <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
                             {% csrf_token %}
@@ -419,81 +169,112 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
-                                        {% for line in production_line %}
-                                        <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
-                                        {% for mch_subtype in mch_subtype_all %}
-                                        {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
-                                        <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label>Select Production Line</label>
+                                            <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
+                                                {% for line in production_line %}
+                                                <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Type</label>
+                                            <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
+                                                {% for mch_type in mch_type_all %}
+                                                <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Subtype</label>
+                                            <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
+                                                {% for mch_subtype in mch_subtype_all %}
+                                                {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
+                                                <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <br>
                                 <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label for="serial">Serial No.</label>
+                                            <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="model">Model</label>
+                                            <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="brand">Brand</label>
+                                            <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="machine_name">Machine Name</label>
+                                            <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label for="mac_prod_code">Machine-Production line Code</label>
+                                            <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="supplier">Supplier</label>
+                                            <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="pic">Person In Charge</label>
+                                            <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
+                                    <div class="form-row">
+                                        <div class="col-md-4">
+                                            <label class="control-label">Capacity/min</label>
+                                            <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="control-label">Capacity measure unit</label>
+                                            <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pic">Power (Watt/Hour) :</label>
+                                            <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-3">
+                                            <label>Installation Date</label>
+                                            <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Start Date</label>
+                                            <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Hours</label>
+                                            <input type="text" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Minutes</label>
+                                            <input type="text" id="set_minute{{forloop.counter}}" class="form-control" value="{{mch.machine_minute}}" name="set_minute">
+                                        </div>
+                                    </div>
                                 </div>
                                 <small>Create by : {{mch.create_by}} [ {{mch.create_date}} ]</small><br>
                                 <small>Update by : {% if mch.last_update_by %} {{mch.last_update_by}} [ {{mch.last_update_date}} ] {% else %} - {% endif %}</small>
@@ -509,7 +290,7 @@
             <!-- Modal Delete -->
             <div id="delete{{mch.machine_id}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
-                    <div class="modal-content">
+                    <div class="modal-content modal-lg">
                         <div class="modal-header">
                             <h5 class="modal-title">Confirmation</h5>
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -532,7 +313,7 @@
             {% endfor %}
             <!-- Modal Add Machine -->
             <div id="createmch" class="modal fade" tabindex="-1">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="add_machine" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" >
                             {% csrf_token %}
@@ -540,86 +321,118 @@
                                 <h5 class="modal-title">Add New Machine</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>Select Production Line</label>
-                                    <select class="form-control" id="id_line" name="add_production_line" required="True">
-                                        <option value="">--- กรุณาเลือกสายการผลิต ---</option>
-                                        {% for line in production_line %}
-                                        <option value="{{line.pid}}">{{line}}</option>
-                                        {% endfor %}
-                                        </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="id_mch_type" name="add_type" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <label>Select Production Line</label>
+                                            <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                                <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                                {% for line in production_line %}
+                                                <option value="{{line.pid}}">{{line}}</option>
+                                                {% endfor %}
+                                                </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Type</label>
+                                            <select class="form-control" id="id_mch_type" name="add_type" required="True">
+                                                <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                                {% for mch_type in mch_type_all %}
+                                                <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label>Select Machine Subtype</label>
+                                            <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
+                                                <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
 
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url "check_serial" %}"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Serial No. already exists</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="โมเดล" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="แบรนด์" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="" required="True" autocomplete="off" maxlength="20" />
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="" required="True" autocomplete="off" maxlength="50" />
-                                </div>
-                                <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" class="form-control" id="add_cpm" placeholder="" name="add_cpm" maxlength="10" autocomplete="off">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" class="form-control" id="add_capacity" placeholder="" name="add_capacity" maxlength="10" autocomplete="off">
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" class="form-control" name="add_power" id="add_power" placeholder="" required="True" autocomplete="off" maxlength="50">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="serial">Serial No.</label>
+                                            <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url 'check_serial' %}"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Serial No. already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="model">Model</label>
+                                            <input type="text" class="form-control" name="add_machinemodel" id="add_machinemodel" placeholder="รุ่นของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="brand">Brand</label>
+                                            <input type="text" class="form-control" name="add_machinebrand" id="add_machinebrand" placeholder="ยี่ห้อของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="machine_name">Machine Name</label>
+                                            <input type="text" class="form-control" name="add_machinename" id="add_machinename" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="mac_prod_code">Machine-Production line Code</label>
+                                            <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="supplier">Supplier</label>
+                                            <input type="text" class="form-control" name="add_supplier" id="add_supplier" placeholder="ผู้ขายเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="pic">Person In Charge</label>
+                                            <input type="text" class="form-control" name="add_pic" id="add_pic" placeholder="พนักงานผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-md-4">
+                                            <label class="control-label">Capacity/min</label>
+                                            <input type="number" class="form-control" id="add_cpm" placeholder="ความจุต่อนาที" name="add_cpm" maxlength="10" autocomplete="off">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="control-label">Capacity measure unit</label>
+                                            <input type="text" class="form-control" id="add_capacity" placeholder="หน่วยความจุ (ชิ้น,กก.)" name="add_capacity" maxlength="10" autocomplete="off">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="pic">Power (Watt/Hour) :</label>
+                                            <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานวัตต์/ชั่วโมง" required="True" autocomplete="off" maxlength="50">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-3">
+                                            <label>Installation Date</label>
+                                            <input type="date" class="form-control" id="add_installdate" class="form-control" name="add_installdate" min="2020-01-01" value="2020-01-01">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Start Date</label>
+                                            <input type="date" class="form-control" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" value="2020-01-01">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Machine Hours</label>
+                                            <input type="number" class="form-control" id="add_hour" placeholder="เวลาเครื่องจักรทำงาน (ชั่วโมง)" name="add_hour" maxlength="10">
+                                        </div>
+                                        <div class="col-3">
+                                            <label>Machine Minutes</label>
+                                            <input type="number" class="form-control" id="add_minute" placeholder="เวลาเครื่องจักรทำงาน (นาที)" name="add_minute" maxlength="10">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

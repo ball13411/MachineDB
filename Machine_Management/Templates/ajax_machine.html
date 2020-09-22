@@ -1,0 +1,4 @@
+<option value="">--- กรุณาเลือกเครื่องจักร ---</option>
+{% for mch in machine %}
+<option value="{{ mch.pk }}">{{ mch.machine_production_line_code }} | {{ mch.machine_name }} </option>
+{% endfor %}

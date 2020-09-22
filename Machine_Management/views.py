@@ -191,11 +191,11 @@ def check_email(request):
 def reset_password(request):
     # Form Reset Password
     # Get variables from Input HTML
-    if requset.method == "POST":
-        username = requset.POST['inputUser']
-        old_password = requset.POST['oldPassword']
-        new_password = requset.POST['newPassword']
-        con_new_password = requset.POST['conPassword']
+    if request.method == "POST":
+        username = request.POST['inputUser']
+        old_password = request.POST['oldPassword']
+        new_password = request.POST['newPassword']
+        con_new_password = request.POST['conPassword']
         try:  # Test connect User in modals(DB)
             user = User.objects.get(username=username, password=old_password)
             if old_password != new_password:
@@ -206,12 +206,12 @@ def reset_password(request):
                     user.save()
                     return redirect('/')
                 else:  # NewPassword != ConPassword
-                    messages.info(requset, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
+                    messages.info(request, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
             else:  # OldPassword != NewPassword
-                messages.info(requset, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
+                messages.info(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
         except Machine_Management.models.User.DoesNotExist:  # Failed Connect User in model(DB)
-            messages.info(requset, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
-    return render(requset, 'resetpassword.html')
+            messages.info(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
+    return render(request, 'resetpassword.html')
 
 
 def rolemanage(request):
@@ -423,6 +423,9 @@ def test(request):
     mch = Machine.objects.all()
     # form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
+    if 'toggle' in request.POST:
+        a = request.POST.get('toggle', False)
+        print(type(a),a)
     if form.is_valid():
         form.save()
         form = UserForm()
@@ -495,10 +498,14 @@ def menumanage(request):
             menu_del.delete()
     list_menu = Menu.objects.order_by('level')
     list_screen = Screen.objects.all()
+    screen_of_menu = []
+    for menu in list_menu:
+        screen_of_menu.append(menu.screen_id)
     context = {
         'User_login': User_login,
         'list_menu': list_menu,
-        'list_screen': list_screen
+        'list_screen': list_screen,
+        'screen_of_menu': screen_of_menu
     }
     return render(request, 'menumanage.html', context)
 
@@ -727,7 +734,17 @@ def location(request):
                     floor.save()
         elif 'delete_location' in request.POST:
             locations = Floor.objects.get(pk=request.POST['delete_location'])
-            locations.delete()
+            if Floor.objects.filter(site_id=locations.site_id).count() == 1:
+                site = Site.objects.get(pk=locations.site_id)
+                print('site : ', site)
+                site.delete()
+            if Floor.objects.filter(building_id=locations.building_id).count() == 1:
+                building = Building.objects.get(pk=locations.building_id)
+                print('building : ', building)
+                building.delete()
+            if Floor.objects.filter(pk=locations.pk).count() == 1:
+                print('location : ', locations)
+                locations.delete()
 
     sites = Site.objects.all()
     buildings = Building.objects.all()
@@ -1523,3 +1540,89 @@ def machine_and_spare_part(request):
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
                'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all, 'role_and_screen': role_and_screen}
     return render(request, 'machine&spare_part.html', context)
+
+
+def maintenance_plan(request):
+    global User_login
+    list_mch_mtn = []
+    mch_sp_all = Machine_and_spare_part.objects.all()
+    for mch_sp in mch_sp_all:
+        if Maintenance_plan.objects.filter(machine_and_spare=mch_sp):
+            continue
+        try:
+            if mch_sp.machine.machine_hour > mch_sp.spare_part.service_plan_life + mch_sp.last_maintenance_hour:
+                list_mch_mtn.append(mch_sp)
+                mtn_plan = Maintenance_plan.objects.create(machine_and_spare=mch_sp, gen_date=datetime.date.today())
+                mtn_plan.save()
+        except TypeError:
+            continue
+    list_plan = Maintenance_plan.objects.all()
+    list_user = User.objects.all()
+    context = {'User_login': User_login, 'list_plan': list_plan, 'list_user': list_user}
+    return render(request, 'maintenance_plan.html', context)
+
+
+def machine_capacity(request):
+    global User_login
+    if request.method == "POST":
+        if 'Add_machine_capacity' in request.POST:
+            mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'], product=request.POST['add_product'])
+            if not mch_capacity.exists():
+                create_mch_capacity = Machine_capacity.objects.create(
+                    machine_id=request.POST['add_mch'],
+                    product_id=request.POST['add_product'],
+                    rm_name=request.POST['add_rm_name'],
+                    rm_batch_size=request.POST['add_rm_batch_size'],
+                    rm_unit=request.POST['add_rm_batch_unit'],
+                    fg_batch_size=request.POST['add_fg_batch_size'],
+                    fg_batch_time=request.POST['add_fg_batch_time'],
+                    fg_capacity=request.POST['add_fg_capacity']
+                )
+                create_mch_capacity.save()
+            else:
+                messages.info(request, 'รายการเครื่องจักรและผลิตภัณฑ์นี้มีข้อมูลแล้ว ไม่สามารถทำการเพิ่มรายการได้')
+
+    mch_capacity_all = Machine_capacity.objects.all()
+    production_line = Production_line.objects.all()
+    context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line}
+    return render(request, 'machine_capacity.html', context)
+
+
+def load_machine(request):
+    line_id = request.GET.get('line_id')
+    machine = Machine.objects.filter(line_id=line_id).all()
+    context = {'machine': machine}
+    return render(request, 'ajax_machine.html', context)
+
+
+def load_product(request):
+    line_id = request.GET.get('line_id')
+    product_all = Product.objects.filter(line_id=line_id).all()
+    context = {'product_all': product_all}
+    return render(request, 'ajax_product.html', context)
+
+@csrf_exempt
+def check_machine_product(request):
+    if request.method == 'POST':
+        response_data = {}
+        machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'], product_id=request.POST['product_id'])
+        machine_product_code = None
+        try:
+            if machine_product.count():
+                machine_product_code = True  # alredy exist
+            elif len(request.POST['mch_id']) == 0 or len(request.POST['product_id']) == 0:
+                machine_product_code = None  # empty input
+            else:
+                machine_product_code = False  # avialble
+
+        except ObjectDoesNotExist:
+            pass
+        except Exception as e:
+            raise e
+        if not machine_product_code:
+            response_data["data_code_success"] = True
+        else:
+            response_data["data_code_success"] = False
+        if machine_product_code is None:
+            response_data["data_code_empty"] = True
+        return JsonResponse(response_data)
