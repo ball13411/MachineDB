@@ -107,7 +107,7 @@
                     check3 = true;
                 } else {
                     $('#add_password').parent().removeClass();
-                    $('#add_password').parent().addClass('form-group');
+                    $('#add_password').parent().addClass('form-group error');
                     $('#add_cfpassword').parent().removeClass();
                     $('#add_cfpassword').parent().addClass('form-group error');
                     check3 = false;
@@ -133,6 +133,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
 </head>
 <body>
 
@@ -222,31 +223,59 @@
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>User ID</label>
-                                    <input type="text" id="set_username{{forloop.counter}}" class="form-control" value="{{user.username}}" name="set_username" readonly maxlength="10">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <label>User ID</label>
+                                            <input type="text" id="set_username{{forloop.counter}}" class="form-control" value="{{user.username}}" name="set_username" readonly maxlength="10">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>Status</label>
+                                            <div class="activeswitch">
+                                                <input type="checkbox" class="activeswitch-checkbox" id="set_user_status{{forloop.counter}}" name="set_user_status" value="True"  {% if user.user_active == True %}checked{% endif %}>
+                                                <label class="activeswitch-label" for="set_user_status{{forloop.counter}}">
+                                                  <span class="activeswitch-inner"></span>
+                                                  <span class="activeswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Name</label>
-                                    <input type="text" class="form-control" id="fullname{{forloop.counter}}" placeholder="{{user.firstname}} {{user.lastname}}" readonly>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="control-label">Name</label>
+                                            <input type="text" class="form-control" id="fullname{{forloop.counter}}" placeholder="{{user.firstname}} {{user.lastname}}" readonly>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="control-label">Email</label>
+                                            <input type="text" class="form-control" id="email{{forloop.counter}}" placeholder="{{user.email}}" readonly>
+                                        </div>
+                                    </div>
                                 </div>
-                            <div class="form-group">
-                                <label>Select Role</label>
-                                <select class="form-control" id="select_role{{forloop.counter}}" name="select_role">
-                                {% for role in roles %}
-                                    <option value="{{role.role_id}}" {% if role.role_id == user.role.role_id %} selected {% endif %}>{{role}}</option>
-                                {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Select Organize</label>
-                                <select class="form-control" id="select_org{{forloop.counter}}" name="select_org">
-                                {% for org in orgs %}
-                                    <option value="{{org.org_id}}" {% if org.org_id == user.org.org_id %} selected {% endif %}>{{org.org_code}}</option>
-                                {% endfor %}
-                                </select>
-                            </div>
-                            <small>Create by : {{user.create_by}} [ {{user.create_date}} ]</small><br>
-                            <small>Update by : {% if user.update_by %} {{user.update_by}} [ {{user.update_date}} ] {% else %} - {% endif %}</small>
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Select Role</label>
+                                            <select class="form-control" id="select_role{{forloop.counter}}" name="select_role">
+                                            {% for role in roles %}
+                                                <option value="{{role.role_id}}" {% if role.role_id == user.role.role_id %} selected {% endif %}>{{role}}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Select Organize</label>
+                                            <select class="form-control" id="select_org{{forloop.counter}}" name="select_org">
+                                            {% for org in orgs %}
+                                                <option value="{{org.org_id}}" {% if org.org_id == user.org.org_id %} selected {% endif %}>{{org.org_code}}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <small>Create by : {{user.create_by}} [ {{user.create_date}} ]</small><br>
+                                <small>Update by : {% if user.update_by %} {{user.update_by}} [ {{user.update_date}} ] {% else %} - {% endif %}</small>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary" name="Edituser">Submit</button>
@@ -295,7 +324,7 @@
 
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control" name="add_username" id="add_username" placeholder="Username" required="True" autocomplete="off" maxlength="10" onkeyup="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
+                                    <input type="text" class="form-control" name="add_username" id="add_username" placeholder="ไอดีผู้ใช้งาน" required="True" autocomplete="off" maxlength="10" onkeyup="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Username already exists</small>
@@ -304,54 +333,70 @@
                                 <div class="form-row">
                                     <div class="col-md-6">
                                         <label class="control-label">First name</label>
-                                        <input type="text" class="form-control" id="add_fname" placeholder="" name="add_fname" maxlength="20" required="True" autocomplete="off">
+                                        <input type="text" class="form-control" id="add_fname" placeholder="ชื่อจริง" name="add_fname" maxlength="20" required="True" autocomplete="off">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="control-label">Last name</label>
-                                        <input type="text" class="form-control" id="add_lname" placeholder="" name="add_lname" maxlength="20" required="True" autocomplete="off">
+                                        <input type="text" class="form-control" id="add_lname" placeholder="นามสกุล" name="add_lname" maxlength="20" required="True" autocomplete="off">
                                     </div>
                                 </div>
                                 <br>
-                                <div class="form-group">
-                                    <label for="username">Email</label>
-                                    <input type="email" class="form-control" maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" required="True" onkeyup="check_email(this);return false;" data-url="{% url 'check_email' %}"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Email already exists</small>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label for="add_email">Email</label>
+                                            <input type="email" class="form-control" maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" required="True" onkeyup="check_email(this);return false;" data-url="{% url 'check_email' %}"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Email already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Start date</label>
+                                            <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" required="True" >
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Start date</label>
-                                    <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2020-01-01" required="True" >
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="select_role">Select role</label>
+                                            <select class="form-control" id="select_role" name="select_role" required="True">
+                                            {% for role in roles %}
+                                            <option value="{{role.role_id}}">{{role}}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Select Organize</label>
+                                            <select class="form-control" id="add_select_org" name="add_select_org" required="True">
+                                            {% for org in orgs %}
+                                                <option value="{{org.org_id}}">{{org.org_code}}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Select role</label>
-                                    <select class="form-control" id="exampleFormControlSelect1" name="select_role" required="True">
-                                    {% for role in roles %}
-                                    <option value="{{role.role_id}}">{{role}}</option>
-                                    {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Organize</label>
-                                    <select class="form-control" id="add_select_org" name="add_select_org" required="True">
-                                    {% for org in orgs %}
-                                        <option value="{{org.org_id}}">{{org.org_code}}</option>
-                                    {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="username">Password</label>
-                                    <input type="password" class="form-control" placeholder="Password" id="add_password" name="add_password" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
 
-                                </div>
-                                <div class="form-group">
-                                    <label for="username">Confirm password</label>
-                                    <input type="password" class="form-control" placeholder="Confirm password" id="add_cfpassword" name="add_cfpassword" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Password don't match</small>
+                                <div class="row">
+                                    <div class="check-password col-md-6">
+                                        <div class="form-group">
+                                            <label for="username">Password</label>
+                                            <input type="password" class="form-control" placeholder="รหัสผ่าน" id="add_password" name="add_password" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="check-password col-md-6">
+                                        <div class="form-group">
+                                            <label for="username">Confirm password</label>
+                                            <input type="password" class="form-control" placeholder="ยืนยันรหัสผ่าน" id="add_cfpassword" name="add_cfpassword" onkeyup="check_password()" maxlength="20" minlength="6" autocomplete="true" required="True"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Password don't match</small>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="modal-footer">

@@ -75,6 +75,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
 </head>
 <body>
 
@@ -266,13 +267,23 @@
                                             <label>Start Date</label>
                                             <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-2">
                                             <label>Hours</label>
                                             <input type="text" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-2">
                                             <label>Minutes</label>
                                             <input type="text" id="set_minute{{forloop.counter}}" class="form-control" value="{{mch.machine_minute}}" name="set_minute">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label>Status</label>
+                                            <div class="activeswitch">
+                                                <input type="checkbox" class="activeswitch-checkbox" id="set_mch_status{{forloop.counter}}" name="set_mch_status" value="True"  {% if mch.machine_active == True %}checked{% endif %}>
+                                                <label class="activeswitch-label" for="set_mch_status{{forloop.counter}}">
+                                                  <span class="activeswitch-inner"></span>
+                                                  <span class="activeswitch-switch"></span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

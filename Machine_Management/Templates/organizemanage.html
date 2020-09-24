@@ -219,14 +219,14 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Organize Code</label>
-                                    <input type="text" id="add_org_code" class="form-control" name="add_org_code" autocomplete="off" maxlength="25" onkeyup="check_org_code(this);return false;" data-url="{% url 'check_org_code' %}" required="True" >
+                                    <input type="text" id="add_org_code" class="form-control" placeholder="รหัสองค์กร" name="add_org_code" autocomplete="off" maxlength="25" onkeyup="check_org_code(this);return false;" data-url="{% url 'check_org_code' %}" required="True" >
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Organize Code already exists</small>
                                 </div>
                                 <div class="form-group">
                                     <label>Organize Name</label>
-                                    <input type="text" id="add_org_name" class="form-control" name="add_org_name" maxlength="50">
+                                    <input type="text" id="add_org_name" class="form-control" placeholder="ชื่อองค์กร" name="add_org_name" maxlength="50">
                                 </div
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

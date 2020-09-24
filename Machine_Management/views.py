@@ -60,8 +60,9 @@ def usermanage(request):
             username = request.POST['set_username']  # Get var('username') from HTML
             update_role = request.POST['select_role']  # Get var('role') from HTML
             update_org = request.POST['select_org']
-            now = datetime.datetime.now()  # Call Datetime now
+            now = datetime.datetime.now()   # Call Datetime now
             user = User.objects.get(username=username)  # Query user
+            user.user_active = request.POST.get('set_user_status', False)
             user.update_date = now  # Update UpdateDate to now
             user.update_by = str(User_login.username)  # Update UserUpdate of UserSelect
             org = Organization.objects.get(org_id=update_org)
@@ -895,14 +896,15 @@ def load_machine_subtype(request):
 
 def machine_manage(request):
     global User_login, UserRole
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_management')
+    if not role_and_screen.exists():
+        return redirect('/')
+
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
     mch_type_all = Machine_type.objects.all()
     mch_subtype_all = Machine_subtype.objects.all()
     pd_line = Production_line.objects.all()
-    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_management')
-    if not role_and_screen.exists():
-        return redirect('/')
 
     if request.method == "POST":
         if 'Addmachine' in request.POST:
@@ -965,6 +967,7 @@ def machine_manage(request):
             edit_mch.sub_type_id = request.POST['select_subtype']
             edit_mch.last_update_by = str(User_login.username)
             edit_mch.last_update_date = datetime.date.today()
+            edit_mch.machine_active = request.POST.get('set_mch_status',False)
             edit_mch.save()
             messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
@@ -1354,6 +1357,7 @@ def spare_part_manage(request):
             spare_part.service_plan_life = request.POST['set_service_plan_life']
             spare_part.last_update_by = User_login.username
             spare_part.last_update_date = datetime.date.today()
+            spare_part.spare_part_active = request.POST.get('set_sp_status',False)
             spare_part.save()
         elif 'delete_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
@@ -1563,7 +1567,10 @@ def maintenance_plan(request):
 
 
 def machine_capacity(request):
-    global User_login
+    global User_login, UserRole
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_capacity')
+    if not role_and_screen.exists():
+        return redirect('/')
     if request.method == "POST":
         if 'Add_machine_capacity' in request.POST:
             mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'], product=request.POST['add_product'])
@@ -1581,6 +1588,18 @@ def machine_capacity(request):
                 create_mch_capacity.save()
             else:
                 messages.info(request, 'รายการเครื่องจักรและผลิตภัณฑ์นี้มีข้อมูลแล้ว ไม่สามารถทำการเพิ่มรายการได้')
+        elif 'Edit_mch_capacity' in request.POST:
+            edit_mch_cap = Machine_capacity.objects.get(pk=request.POST['Edit_mch_capacity'])
+            edit_mch_cap.rm_name = request.POST['set_rm_name']
+            edit_mch_cap.rm_batch_size = request.POST['set_rm_batch_size']
+            edit_mch_cap.rm_unit = request.POST['set_rm_batch_unit']
+            edit_mch_cap.fg_batch_size = request.POST['set_fg_batch_size']
+            edit_mch_cap.fg_batch_time = request.POST['set_fg_batch_time']
+            edit_mch_cap.fg_capacity = request.POST['set_fg_capacity']
+            edit_mch_cap.save()
+        elif 'delete_machine_capacity' in request.POST:
+            delete_machine_capacity = Machine_capacity.objects.get(pk=request.POST['delete_machine_capacity'])
+            delete_machine_capacity.delete()
 
     mch_capacity_all = Machine_capacity.objects.all()
     production_line = Production_line.objects.all()
@@ -1604,25 +1623,28 @@ def load_product(request):
 @csrf_exempt
 def check_machine_product(request):
     if request.method == 'POST':
-        response_data = {}
-        machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'], product_id=request.POST['product_id'])
-        machine_product_code = None
         try:
-            if machine_product.count():
-                machine_product_code = True  # alredy exist
-            elif len(request.POST['mch_id']) == 0 or len(request.POST['product_id']) == 0:
-                machine_product_code = None  # empty input
-            else:
-                machine_product_code = False  # avialble
+            response_data = {}
+            machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'], product_id=request.POST['product_id'])
+            machine_product_code = None
+            try:
+                if machine_product.count():
+                    machine_product_code = True  # alredy exist
+                elif len(request.POST['mch_id']) == 0 or len(request.POST['product_id']) == 0:
+                    machine_product_code = None  # empty input
+                else:
+                    machine_product_code = False  # avialble
 
-        except ObjectDoesNotExist:
+            except ObjectDoesNotExist:
+                pass
+            except Exception as e:
+                raise e
+            if not machine_product_code:
+                response_data["data_code_success"] = True
+            else:
+                response_data["data_code_success"] = False
+            if machine_product_code is None:
+                response_data["data_code_empty"] = True
+        except ValueError:
             pass
-        except Exception as e:
-            raise e
-        if not machine_product_code:
-            response_data["data_code_success"] = True
-        else:
-            response_data["data_code_success"] = False
-        if machine_product_code is None:
-            response_data["data_code_empty"] = True
         return JsonResponse(response_data)

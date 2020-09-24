@@ -122,7 +122,7 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Machine Capacity<b>Management</b></h2>
+                        <h2>Machine Capacity <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#create_mch_capacity" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Capacity</span></a>
@@ -147,15 +147,15 @@
                         <td>{{mch_capacity.machine.line}}</td>
                         <td>{{mch_capacity.machine.machine_name}}</td>
                         <td>{{mch_capacity.product}}</td>
-                        <td>{{mch_capacity.fg_capacity}}</td>
+                        <td>{{mch_capacity.fg_capacity|floatformat }}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{mch_capacity.machine_id}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{mch_capacity.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <a href="#setting{{mch_capacity.pk}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{mch_capacity.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
 
             <!-- Modal Setting -->
-            <div id="setting{{mch_capacity.machine_id}}" class="modal fade" tabindex="-1">
+            <div id="setting{{mch_capacity.pk}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
@@ -167,87 +167,69 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="machine_name">Machine Name</label>
-                                    <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
-                                </div>
-                                <div class="form-group">
-                                    <label for="serial">Serial No.</label>
-                                    <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="model">Model</label>
-                                    <input type="text" id="set_machinemodel{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machinemodel">
-                                </div>
-                                <div class="form-group">
-                                    <label for="brand">Brand</label>
-                                    <input type="text" id="set_machinebrand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machinebrand">
-                                </div>
-                                <div class="form-group">
-                                    <label for="mac_prod_code">Machine-Production line Code</label>
-                                    <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
-                                </div>
-                                <div class="form-group">
                                     <label>Select Production Line</label>
-                                    <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
+                                    <select class="form-control" id="set_id_line{{forloop.counter}}" name="set_production_line" required="True" disabled>
+                                        <option value="">--- กรุณาเลือกสายการผลิต ---</option>
                                         {% for line in production_line %}
-                                        <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
+                                        <option value="{{line.pid}}" {% if line.pid == mch_capacity.machine.line_id %} selected {% endif %}>{{line}}</option>
                                         {% endfor %}
-                                    </select>
+                                        </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Select Machine</label>
+                                            <select class="form-control" id="set_id_mch{{forloop.counter}}" name="set_mch" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}" disabled>
+                                                <option value="{{mch_capacity.machine_id}}" selected>{{mch_capacity.machine.machine_name}}</option>
+                                            </select>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Machine and Product already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Select Product</label>
+                                            <select class="form-control" id="set_id_product{{forloop.counter}}" name="set_product" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}" disabled>
+                                                <option value="{{mch_capacity.product_id}}" selected>{{mch_capacity.product.product_name}}</option>
+                                            </select>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Machine and Product already exists</small>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Subtype</label>
-                                    <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
-                                        {% for mch_subtype in mch_subtype_all %}
-                                        {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
-                                        <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="supplier">Supplier</label>
-                                    <input type="text" id="set_supplier{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier">
-                                </div>
-                                <div class="form-group">
-                                    <label for="pic">Person In Charge</label>
-                                    <input type="text" id="set_pic{{forloop.counter}}" class="form-control" value="{{mch.machine_emp_id_response}}" name="set_pic">
+                                    <label class="form-label">Raw Material Name</label>
+                                    <input type="text" id="set_rm_name{{forloop.counter}}" class="form-control" name="set_rm_name" placeholder="ชื่อวัตถุดิบ" required="True" autocomplete="off" value="{{mch_capacity.rm_name}}">
                                 </div>
                                 <div class="form-row">
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity/min</label>
-                                        <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_per_minute}}" name="set_cpm">
+                                    <div class="form-group col-md-8">
+                                        <label class="form-label">Raw Material Batch Size</label>
+                                        <input type="number" id="set_rm_batch_size{{forloop.counter}}" class="form-control" name="set_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" value="{{mch_capacity.rm_batch_size}}">
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="control-label">Capacity measure unit</label>
-                                        <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_capacity_measure_unit}}" name="set_capacity">
+                                    <div class="form-group col-md-4">
+                                        <label class="form-label">Unit</label>
+                                        <input type="text" id="set_rm_batch_unit{{forloop.counter}}" class="form-control" name="set_rm_batch_unit" placeholder="หน่วย" required="True" autocomplete="off" value="{{mch_capacity.rm_unit}}">
                                     </div>
                                 </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="pic">Power (Watt/Hour) :</label>
-                                    <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_watt_per_hour}}" name="set_power">
+                                <div class="form-row">
+                                    <div class="form-group col-md-8">
+                                        <label class="form-label">Finished Goods Batch Size</label>
+                                        <input type="number" id="set_fg_batch_size{{forloop.counter}}" class="form-control batch" name="set_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="cal_capacity1(this.id,'set_fg_batch_time{{forloop.counter}}','set_fg_capacity{{forloop.counter}}')" required="True" value="{{mch_capacity.fg_batch_size}}">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label class="form-label">Time/Batch (Minute)</label>
+                                        <input type="number" id="set_fg_batch_time{{forloop.counter}}" class="form-control batch" name="set_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="cal_capacity(this.id);" required="True" value="{{mch_capacity.fg_batch_time}}">
+                                    </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Installation Date</label>
-                                    <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2020-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                    <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
+                                    <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}">
                                 </div>
-                                <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2020-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
-                                </div>
-                                <small>Create by : {{mch.create_by}} [ {{mch.create_date}} ]</small><br>
-                                <small>Update by : {% if mch.last_update_by %} {{mch.last_update_by}} [ {{mch.last_update_date}} ] {% else %} - {% endif %}</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="EditMch" value="{{mch.machine_id}}">Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="Edit_mch_capacity" value="{{mch_capacity.pk}}">Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -255,7 +237,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{mch_capacity.machine_id}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{mch_capacity.pk}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog">
                     <div class="modal-content modal-lg">
                         <div class="modal-header">
@@ -263,14 +245,16 @@
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Machine : {{mch.machine_name}}" name="del_machine" readonly>
-                            <br><p>Do you want to delete this machine?</p>
+                            <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Machine : {{mch_capacity.machine.machine_name}}" name="del_machine" readonly>
+                            <br>
+                            <input type="text" id="del_product{{forloop.counter}}" class="form-control" value="Product : {{mch_capacity.product.product_name}}" name="del_product" readonly>
+                            <br><p>Do you want to delete this machine & product?</p>
                             <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
                         </div>
                         <div class="modal-footer">
                             <form method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger" value="{{mch.machine_id}}" name="deletemachine">Delete</button>
+                                <button type="submit" class="btn btn-danger" value="{{mch_capacity.pk}}" name="delete_machine_capacity">Delete</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </form>
                         </div>
@@ -285,7 +269,7 @@
                         <form method="POST" id="add_machine" data-mch-url="{% url 'ajax_load_machine' %}" data-product-url="{% url 'ajax_load_product' %}" >
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Add New Machine</h5>
+                                <h5 class="modal-title">Add New Machine & Product</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
 
@@ -325,7 +309,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Raw Material Name</label>
-                                    <input type="text" id="add_rm_name" class="form-control" name="add_rm_name" placeholder="ชื่อวัตถุดิบ" required="True">
+                                    <input type="text" id="add_rm_name" class="form-control" name="add_rm_name" placeholder="ชื่อวัตถุดิบ" required="True" autocomplete="off">
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-8">
@@ -334,7 +318,7 @@
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="form-label">Unit</label>
-                                        <input type="text" id="add_rm_batch_unit" class="form-control" name="add_rm_batch_unit" placeholder="หน่วย" required="True">
+                                        <input type="text" id="add_rm_batch_unit" class="form-control" name="add_rm_batch_unit" placeholder="หน่วย" required="True" autocomplete="off">
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -426,8 +410,30 @@
     {
         var fg_batch_size = document.getElementById('add_fg_batch_size').value;
         var fg_batch_time = document.getElementById('add_fg_batch_time').value;
-        var capacity = fg_batch_size / fg_batch_time * 60
+        var capacity = fg_batch_size / fg_batch_time * 60;
         document.getElementById('add_fg_capacity').value = Math.floor(capacity) ;
+    }
+</script>
+<script>
+    function cal_capacity(id)
+    {
+        console.log("id " + id);
+        var numID = id.substring(17);
+        console.log("numID "+ numID);
+        var fg_batch_size = document.getElementById('set_fg_batch_size'+numID).value;
+        var fg_batch_time = document.getElementById('set_fg_batch_time'+numID).value;
+        var capacity = fg_batch_size / fg_batch_time * 60;
+        console.log(capacity);
+        document.getElementById('set_fg_capacity'+numID).value = Math.floor(capacity) ;
+    }
+</script>
+<script>
+    function cal_capacity1(batch_size,batch_time,batch_capacity)
+    {
+        var fg_batch_size = document.getElementById(batch_size).value;
+        var fg_batch_time = document.getElementById(batch_time).value;
+        var capacity = fg_batch_size / fg_batch_time * 60;
+        document.getElementById(batch_capacity).value = Math.floor(capacity) ;
     }
 </script>
 </body>
