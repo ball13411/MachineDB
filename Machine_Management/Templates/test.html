@@ -1,119 +1,28 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>Title</title>-->
-<!--</head>-->
-<!--<body>-->
-<!--<form method="POST">-->
-<!--    {% csrf_token %}-->
-<!--    {% for field in form %}-->
-<!--    <div class="form-group.css">-->
-<!--        {{ field.label_tag }} {{ field }} {% for error in field.errors %}<label style="color:#C22D1E">{{error}}</label>{% endfor %}-->
-<!--    </div>-->
-<!--    {% endfor %}-->
-<!--    <input type="submit" value="Save">-->
-<!--</form>-->
-
-<!--&lt;!&ndash;<div class="p-4">&ndash;&gt;-->
-<!--&lt;!&ndash;    <h1><b>Machine</b></h1>&ndash;&gt;-->
-<!--&lt;!&ndash;    <ul class="list-unstyled components mb-5">&ndash;&gt;-->
-<!--&lt;!&ndash;        {% for root,list_child in dict_menu_level %}&ndash;&gt;-->
-<!--&lt;!&ndash;        <li class="active">&ndash;&gt;-->
-<!--&lt;!&ndash;            <a href="#Machinemenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">{{root}}</a>&ndash;&gt;-->
-<!--&lt;!&ndash;            <ul class="collapse list-unstyled" id="Machinemenu">&ndash;&gt;-->
-<!--&lt;!&ndash;                {% for child in list_child %}&ndash;&gt;-->
-<!--&lt;!&ndash;                    <li><a href="{% url 'machinedata' %}">{{child}}</a></li>&ndash;&gt;-->
-<!--&lt;!&ndash;                {% endfor %}&ndash;&gt;-->
-<!--&lt;!&ndash;            </ul>&ndash;&gt;-->
-<!--&lt;!&ndash;        </li>&ndash;&gt;-->
-<!--&lt;!&ndash;        {% endfor %}&ndash;&gt;-->
-<!--&lt;!&ndash;    </ul>&ndash;&gt;-->
-<!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-
-<!--</body>-->
-<!--</html>-->
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>id demo</title>
-<style>
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-</style>
+    <meta charset="utf-8">
+    <title>id demo</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
+
+
 <body>
+    <form>
+        <input type="date"  class="form-control" id='date' name='date' autocomplete="off" >
+         <input type='submit'>
 
-{% for i in mch %}
-{{i.subtype.mchtype}}
-{% endfor %}
-<form method="POST">
-  {% csrf_token %}
-  <label class="switch">
-    <input type="checkbox" name="toggle">
-    <span class="slider round"></span>
-  </label>
-  <input type="submit">
-</form>
-
+    </form>
 </body>
+
+<!--<script>-->
+<!--    $('#date').datepicker({ dateFormat: 'dd-mm-yy' }).val();-->
+<!--</script>-->
+
 </html>
+
+

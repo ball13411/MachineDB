@@ -136,6 +136,8 @@
                         <th>Production Line</th>
                         <th>Machine</th>
                         <th>Product</th>
+                        <th>FG Size</th>
+                        <th>FG Time</th>
                         <th>FG Capacity</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
@@ -145,8 +147,10 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{mch_capacity.machine.line}}</td>
-                        <td>{{mch_capacity.machine.machine_name}}</td>
+                        <td>{{mch_capacity.machine.machine_production_line_code}} | {{mch_capacity.machine.machine_name}}</td>
                         <td>{{mch_capacity.product}}</td>
+                        <td>{{mch_capacity.fg_batch_size}}</td>
+                        <td>{{mch_capacity.fg_batch_time}}</td>
                         <td>{{mch_capacity.fg_capacity|floatformat }}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{mch_capacity.pk}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
@@ -225,7 +229,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
-                                    <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}">
+                                    <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}" readonly>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

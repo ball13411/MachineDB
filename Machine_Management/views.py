@@ -913,36 +913,42 @@ def machine_manage(request):
             add_subtype = request.POST['add_subtype']
             add_serial = request.POST['add_serial']
             add_machine_production_line_code = request.POST['add_mpc']
-            add_machinename = request.POST['add_machinename']
-            add_machinemodel = request.POST['add_machinemodel']
-            add_machinebrand = request.POST['add_machinebrand']
+            add_machine_name = request.POST['add_machinename']
+            add_machine_model = request.POST['add_machinemodel']
+            add_machine_brand = request.POST['add_machinebrand']
             add_supplier = request.POST['add_supplier']
             add_person_in_change = request.POST['add_pic']
+            add_machine_emp_contact = request.POST['add_contact']
             add_capacity_per_min = request.POST['add_cpm']
             add_capacity = request.POST['add_capacity']
             add_power = request.POST['add_power']
-            add_installdate = request.POST['add_installdate']
-            add_startdate = request.POST['add_startdate']
+            add_install_date = request.POST['add_installdate']
+            add_start_date = request.POST['add_startdate']
+            add_hour = request.POST['add_hour'] if request.POST['add_hour'] != '' else None
+            add_minute = request.POST['add_minute'] if request.POST['add_minute'] != '' else None
             if not Machine.objects.filter(serial_id=add_serial,
                                           machine_production_line_code=add_machine_production_line_code).exists():
                 add_new_machine = Machine.objects.create(
                     serial_id=add_serial,
                     machine_production_line_code=add_machine_production_line_code,
-                    machine_name=add_machinename,
-                    machine_brand=add_machinebrand,
-                    machine_model=add_machinemodel,
+                    machine_name=add_machine_name,
+                    machine_brand=add_machine_brand,
+                    machine_model=add_machine_model,
                     machine_supplier_code=add_supplier,
                     machine_emp_id_response=add_person_in_change,
-                    machine_capacity_per_minute=add_capacity_per_min,
-                    machine_capacity_measure_unit=add_capacity,
-                    machine_power_use_watt_per_hour=add_power,
-                    machine_installed_datetime=add_installdate,
-                    machine_start_use_datetime=add_startdate,
+                    machine_emp_contact=add_machine_emp_contact,
+                    machine_load_capacity=add_capacity_per_min,
+                    machine_load_capacity_unit=add_capacity,
+                    machine_power_use_kwatt_per_hour=add_power,
+                    machine_installed_datetime=add_install_date,
+                    machine_start_use_datetime=add_start_date,
                     line_id=add_production_line,
                     mch_type_id=add_type,
                     sub_type_id=add_subtype,
                     create_by=User_login.username,
                     create_date=datetime.date.today(),
+                    machine_hour=add_hour,
+                    machine_minute=add_minute,
                     machine_active=True
                 )
                 add_new_machine.save()
@@ -957,9 +963,10 @@ def machine_manage(request):
             edit_mch.machine_model = request.POST['set_machinemodel']
             edit_mch.machine_supplier_code = request.POST['set_supplier']
             edit_mch.machine_emp_id_response = request.POST['set_pic']
-            edit_mch.machine_capacity_per_minute = request.POST['set_cpm']
-            edit_mch.machine_capacity_measure_unit = request.POST['set_capacity']
-            edit_mch.machine_power_use_watt_per_hour = request.POST['set_power']
+            edit_mch.machine_emp_contact = request.POST['set_contact']
+            edit_mch.machine_load_capacity = request.POST['set_cpm']
+            edit_mch.machine_load_capacity_unit = request.POST['set_capacity']
+            edit_mch.machine_power_use_kwatt_per_hour = request.POST['set_power']
             edit_mch.machine_installed_datetime = request.POST['set_installdate']
             edit_mch.machine_start_use_datetime = request.POST['set_startdate']
             edit_mch.line_id = request.POST['select_line']
@@ -967,7 +974,9 @@ def machine_manage(request):
             edit_mch.sub_type_id = request.POST['select_subtype']
             edit_mch.last_update_by = str(User_login.username)
             edit_mch.last_update_date = datetime.date.today()
-            edit_mch.machine_active = request.POST.get('set_mch_status',False)
+            edit_mch.machine_active = request.POST['set_mch_status']
+            edit_mch.machine_hour = request.POST['set_hour'] if request.POST['set_hour'] != '' else None
+            edit_mch.machine_minute = request.POST['set_minute'] if request.POST['set_minute'] != '' else None
             edit_mch.save()
             messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
@@ -1521,7 +1530,7 @@ def machine_and_spare_part(request):
     dict_mch_sp = {}
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
-    mch_and_sp_all = Machine_and_spare_part.objects.all()
+    mch_and_sp_all = Machine_and_spare_part.objects.filter(machine__in=machine)
     spare_part_type_all = Spare_part_type.objects.all()
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_all = Spare_part.objects.all()
