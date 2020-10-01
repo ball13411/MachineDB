@@ -157,20 +157,20 @@
                             </div>
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>Subtype Code</label>
-                                    <input type="text" id="set_subtype_code{{forloop.counter}}" class="form-control" value="{{subtype.subtype_code}}" name="set_subtype_code" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label>Subtype</label>
-                                    <input type="text" id="set_subtype{{forloop.counter}}" class="form-control" value="{{subtype.subtype_name}}" name="set_subtype" >
-                                </div>
-                                <div class="form-group">
                                     <label>Select Machine Type</label>
                                     <select class="form-control" id="select_type{{forloop.counter}}" name="select_type">
                                         {% for mch_type in mch_type_all %}
                                         <option value="{{mch_type.pk}}" {% if subtype.mch_type_id == mch_type.pk %} selected {% endif %}>{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
                                         {% endfor %}
                                     </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Subtype Code</label>
+                                    <input type="text" id="set_subtype_code{{forloop.counter}}" class="form-control" value="{{subtype.subtype_code}}" name="set_subtype_code" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Subtype</label>
+                                    <input type="text" id="set_subtype{{forloop.counter}}" class="form-control" value="{{subtype.subtype_name}}" name="set_subtype" >
                                 </div>
                                 <small>Create by : {{subtype.create_by}} [ {{subtype.create_date}} ]</small><br>
                                 <small>Update by : {% if subtype.last_update_by %} {{subtype.last_update_by}} [ {{subtype.last_update_date}} ] {% else %} - {% endif %}</small>
@@ -220,6 +220,15 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
+                                    <label>Select Machine Type</label>
+                                    <select class="form-control" id="add_type" name="add_type" required="True">
+                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                        {% for mch_type in mch_type_all %}
+                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Machine Subtype Code</label>
                                     <input type="text" class="form-control" name="add_subtype_code" id="add_subtype_code" placeholder="รหัสชนิดเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_machine_subtype_code(this);return false;" data-url="{% url "check_machine_subtype_code" %}"/>
                                     <i class="fas fa-check-circle"></i>
@@ -229,15 +238,6 @@
                                 <div class="form-group">
                                     <label>Machine Subtype Name</label>
                                     <input type="text" class="form-control" name="add_subtype" id="add_subtype" placeholder="ชื่อชนิดเครื่องจักร" required="True" autocomplete="off" maxlength="50">
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Machine Type</label>
-                                    <select class="form-control" id="add_type" name="add_type" required="True">
-                                        <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-                                        {% for mch_type in mch_type_all %}
-                                        <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
-                                        {% endfor %}
-                                    </select>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

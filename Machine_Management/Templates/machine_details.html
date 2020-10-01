@@ -114,6 +114,14 @@
                     <tbody>
                     {% for mch in machine %}
                         <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Brand</th>
+                            <td><em>{{mch.machine_brand}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Model</th>
+                            <td><em>{{mch.machine_model}}</em></td>
+                        </tr>
+                        <tr>
                             <th scope="row" class="w-150 dark-grey-text h6">Machine Serial Number</th>
                             <td><em>{{mch.serial_id}}</em></td>
                         </tr>
@@ -126,32 +134,12 @@
                             <td><em>{{mch.machine_name}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Brand</th>
-                            <td><em>{{mch.machine_brand}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Load Capacity</th>
+                            <td><em>{{mch.machine_load_capacity}} {{mch.machine_load_capacity_unit}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Model</th>
-                            <td><em>{{mch.machine_model}}</em></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier Code</th>
-                            <td><em>{{mch.machine_supplier_code}}</em></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine EMP ID</th>
-                            <td><em>{{mch.machine_emp_id_response}}</em></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Capacity/Min</th>
-                            <td><em>{{mch.machine_capacity_per_minute}}</em></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Capacity Unit</th>
-                            <td><em>{{mch.machine_capacity_measure_unit}}</em></td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Power (Watt/Hour)</th>
-                            <td><em>{{mch.machine_power_use_watt_per_hour}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Power (KWatt/Hour)</th>
+                            <td><em>{{mch.machine_power_use_kwatt_per_hour}}</em></td>
                         </tr>
                         <tr>
                             <th scope="row" class="w-150 dark-grey-text h6">Machine Install Date</th>
@@ -160,6 +148,14 @@
                         <tr>
                             <th scope="row" class="w-150 dark-grey-text h6">Machine Start Date</th>
                             <td><em>{{mch.machine_start_use_datetime}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier Code</th>
+                            <td><em>{{mch.machine_supplier_code}}</em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine EMP ID</th>
+                            <td><em>{{mch.machine_emp_id_response}}</em></td>
                         </tr>
                     {% endfor %}
                     </tbody>

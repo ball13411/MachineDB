@@ -75,6 +75,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
 </head>
 <body>
 
@@ -132,6 +133,7 @@
                         <th>Model</th>
                         <th>Service Life</th>
                         <th>Service Plan Life</th>
+                        <th>Status</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
@@ -146,6 +148,7 @@
                         <td>{{spare_part.spare_part_model}}</td>
                         <td>{{spare_part.service_life}}</td>
                         <td>{{spare_part.service_plan_life}}</td>
+                        <td>{{spare_part.spare_part_active}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
@@ -164,17 +167,37 @@
                             </div>
 
                             <div class="modal-body">
-                                <div class="form-group">
-                                    <label>Spare Part Type</label>
-                                    <input type="text" class="form-control" name="set_sp_type" id="set_sp_type{{forloop.counter}}" value="{{spare_part.spare_part_type}}" readonly/>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Spare Part Type</label>
+                                            <input type="text" class="form-control" name="set_sp_type" id="set_sp_type{{forloop.counter}}" value="{{spare_part.spare_part_type}}" readonly/>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Spare Part Subtype</label>
+                                            <input type="text" class="form-control" name="set_sp_subtype" id="set_sp_subtype{{forloop.counter}}" value="{{spare_part.spare_part_sub_type}}" readonly/>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Spare Part Subtype</label>
-                                    <input type="text" class="form-control" name="set_sp_subtype" id="set_sp_subtype{{forloop.counter}}" value="{{spare_part.spare_part_sub_type}}" readonly/>
-                                </div>
-                                <div class="form-group">
-                                    <label>Spare Part Code</label>
-                                    <input type="text" class="form-control" name="set_sp_code" id="set_sp_code{{forloop.counter}}" value="{{spare_part.spare_part_code}}" readonly/>
+                                <div class="row">
+                                    <div class="col-10">
+                                        <div class="form-group">
+                                            <label>Spare Part Code</label>
+                                            <input type="text" class="form-control" name="set_sp_code" id="set_sp_code{{forloop.counter}}" value="{{spare_part.spare_part_code}}" readonly/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                            <label>Status</label>
+                                            <div class="activeswitch">
+                                                <input type="checkbox" class="activeswitch-checkbox" id="set_sp_status{{forloop.counter}}" name="set_sp_status" value="True"  {% if spare_part.spare_part_active == True %}checked{% endif %}>
+                                                <label class="activeswitch-label" for="set_sp_status{{forloop.counter}}">
+                                                  <span class="activeswitch-inner"></span>
+                                                  <span class="activeswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Spare Part Name</label>

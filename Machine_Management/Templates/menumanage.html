@@ -250,49 +250,67 @@
                               </div>
                             {% endfor %}
                             <div class="modal-body">
-                                <div class="form-group">
-                                    <label>Menu ID</label>
-                                    <input type="text" id="add_menu_id" class="form-control" name="add_menu_id" autocomplete="off" maxlength="30" required="True" onkeyup="check_menu_id(this);return false;" data-url="{% url 'check_menu_id' %}" >
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Menu ID already exists</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Menu Name</label>
-                                    <input type="text" id="add_menu_name" class="form-control" name="add_menu_name" required="True" maxlength="30" >
-                                </div>
-                                <div class="form-group">
-                                    <label>Level</label>
-                                    <input type="text" id="add_menu_level" class="form-control" required="True" name="add_menu_level" >
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Menu ID</label>
+                                            <input type="text" id="add_menu_id" class="form-control" name="add_menu_id" placeholder="ไอดีของเมนู" autocomplete="off" maxlength="30" required="True" onkeyup="check_menu_id(this);return false;" data-url="{% url 'check_menu_id' %}" >
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Menu ID already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Menu Name</label>
+                                            <input type="text" id="add_menu_name" class="form-control" name="add_menu_name" placeholder="ชื่อของเมนู"autocomplete="off" required="True" maxlength="30" >
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="exampleFormControlSelect1">Select Screen</label>
                                     <select class="form-control" id="exampleFormControlSelect1" required="True" name="select_screen">
                                     {% for screen in list_screen %}
                                     {% if screen.pk not in screen_of_menu %}
-                                    <option value="{{screen.screen_id}}">{{screen}}</option>
+                                    <option value="{{screen.screen_id}}">{{screen}}  ( ชื่อหน้าจอ : {{screen.screen_name}} )</option>
                                     {% endif %}
                                     {% endfor %}
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="exampleFormControlSelect1">Parent Menu</label>
-                                    <select class="form-control" id="exampleFormControlSelect2" name="select_parent">
-                                    <option value="">None</option>
-                                    {% for menu_select in list_menu %}
-                                    {% if menu_select.level == 0 %}
-                                    <option value="{{menu_select.menu_id}}" {% if menu.parent_menu == menu_select.menu_id %} selected {% endif %}>{{menu_select.menu_id}} [root]</option>
-                                    {% endif %}
-                                    {% endfor %}
-                                    </select>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Level</label>
+                                            <input type="number" id="add_menu_level" class="form-control" required="True" placeholder="ระดับ" autocomplete="off" name="add_menu_level" onkeyup="level_check()">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label for="exampleFormControlSelect1">Parent Menu</label>
+                                            <select class="form-control" id="select_parent" name="select_parent">
+                                            <option value="">--------- None ---------</option>
+                                            {% for menu_select in list_menu %}
+                                            {% if menu_select.level == 0 %}
+                                            <option value="{{menu_select.menu_id}}" {% if menu.parent_menu == menu_select.menu_id %} selected {% endif %}>{{menu_select.menu_id}} [root]</option>
+                                            {% endif %}
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Index</label>
-                                    <input type="text" id="add_menu_index" class="form-control" required="True" name="add_menu_index" >
-                                </div>
-                                <div class="form-group">
-                                    <label>Path</label>
-                                    <input type="text" id="add_menu_path" class="form-control" name="add_menu_path" maxlength="30">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Index</label>
+                                            <input type="text" id="add_menu_index" class="form-control" placeholder="เลขดัชนี (ความสำคัญ)" required="True" autocomplete="off" name="add_menu_index" >
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label>Path</label>
+                                            <input type="text" id="add_menu_path" class="form-control" placeholder="Url name path" name="add_menu_path" autocomplete="off" maxlength="30">
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -313,6 +331,19 @@
     $(document).ready( function () {
     $('#myTable').DataTable();
 } );
+</script>
+<script>
+    function level_check() {
+        var level = document.getElementById('add_menu_level').value;
+        var select_parent = document.getElementById("select_parent");
+        if (level == 1 ) {
+            select_parent.disabled = false;
+        }
+        else {
+          select_parent.disabled = true;
+        }
+
+    }
 </script>
 </body>
 </html>
