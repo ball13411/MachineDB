@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from Machine_Management import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
 
@@ -89,6 +91,11 @@ urlpatterns = [
 
     # Test File
     path('productionline/create', views.production_line_create, name='linecreate'),
+    path('download', views.document_create1, name='download_docx'),
     path('test/', views.test)
 
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

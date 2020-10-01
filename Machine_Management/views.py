@@ -9,11 +9,58 @@ from .filters import MachineFilter
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from django.http import HttpResponse
 
 # Create your views here.
 
 # GLOBAL var
 User_login, UserRole, List_user_Screen, dict_menu_level, User_org_machine_line, List_user_Screen = None, None, [], {}, None, None  # User Login for use all pages
+
+
+def document_create():
+    from docx import Document
+
+    list_production_line = Production_line.objects.filter(pk=1)
+    document = Document()
+    for line in list_production_line:
+        document.add_heading(f'Production Line {line.production_line}', 0)
+
+        document.add_paragraph(
+            f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
+        document.add_paragraph('ผลิตภัณฑ์ที่ผลิต')
+
+        for product in Product.objects.filter(line_id=line.pk):
+            document.add_paragraph(f'ชื่อสินค้า : {product.product_name} รหัสสินค้า : {product.product_code}',
+                                   style='List Bullet')
+
+        document.add_heading('เครื่องจักร', level=1)
+
+        for mch in Machine.objects.filter(line__in=list_production_line):
+
+            document.add_paragraph(f'{mch.machine_name}', style='Intense Quote')
+            document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
+
+            records = (
+                ('ประเภทเครื่องจักร', mch.mch_type),
+                ('ชนิดเครื่องจักร', mch.sub_type),
+                ('ชื่อเครื่องจักร', mch.machine_name)
+            )
+
+            table = document.add_table(rows=1, cols=2)
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = 'สเปค'
+            hdr_cells[1].text = 'ข้อมูล'
+            for title, data in records:
+                row_cells = table.add_row().cells
+                row_cells[0].text = title
+                row_cells[1].text = str(data)
+
+    try:
+        document.save('Machine_Management\\document\\demo1.docx')
+    except:
+        import os
+        os.remove("Machine_Management\\document\\demo1.docx")
+        document.save('Machine_Management\\document\\demo1.docx')
 
 
 def signin(request):
@@ -60,7 +107,7 @@ def usermanage(request):
             username = request.POST['set_username']  # Get var('username') from HTML
             update_role = request.POST['select_role']  # Get var('role') from HTML
             update_org = request.POST['select_org']
-            now = datetime.datetime.now()   # Call Datetime now
+            now = datetime.datetime.now()  # Call Datetime now
             user = User.objects.get(username=username)  # Query user
             user.user_active = request.POST.get('set_user_status', False)
             user.update_date = now  # Update UpdateDate to now
@@ -312,7 +359,8 @@ def role_screen(request):
                 role_screen.permission_update = rs_update
                 role_screen.permission_delete = rs_delete
                 role_screen.save()
-            elif not Role_Screen.objects.filter(role_id=request.POST['set_rs_role'], screen_id=request.POST['set_rs_screen']).exists():
+            elif not Role_Screen.objects.filter(role_id=request.POST['set_rs_role'],
+                                                screen_id=request.POST['set_rs_screen']).exists():
                 rs_id = request.POST['Edit_rs']
                 rs_role_id = request.POST['set_rs_role']
                 rs_screen_id = request.POST['set_rs_screen']
@@ -329,7 +377,8 @@ def role_screen(request):
             else:
                 messages.info(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
         elif 'Addrolescreen' in request.POST:
-            if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'], screen_id=request.POST['add_rs_screen']).exists():
+            if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'],
+                                              screen_id=request.POST['add_rs_screen']).exists():
                 rs_role_id = request.POST['add_rs_role']
                 rs_screen_id = request.POST['add_rs_screen']
                 rs_insert = request.POST.get('add_rs_insert', "N")
@@ -415,21 +464,24 @@ def machine_data(request):
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     context = {
         'User_login': User_login, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org
+        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line,
+        'line_of_user': user_org
     }
     return render(request, 'machine_data.html', context)
 
 
 def test(request):
-    mch = Machine.objects.all()
+    mch = Machine.objects.filter(mch_type_id=1).order_by('line_id').values_list('line_id', flat=True).distinct()
+    print(mch)
+    for i in mch:
+        print(i)
     # form = UserForm(request.POST or None)
     form = ProductLineForm(request.POST or None)
-    if 'toggle' in request.POST:
-        a = request.POST.get('toggle', False)
-        print(type(a),a)
-    if form.is_valid():
-        form.save()
-        form = UserForm()
+
+    if request.method == "POST":
+        a = request.FILES['myfile']
+        print(a.name, " ", a.size)
+
     context = {'form': form, 'mch': mch}
     return render(request, 'test.html', context)
 
@@ -641,10 +693,12 @@ def production_line(request):
         if 'Addprodline' in request.POST:
             try:
                 if not Production_line.objects.filter(production_line=request.POST['add_prodline'],
-                                                      location_site=Site.objects.get(id=request.POST['add_select_site']),
+                                                      location_site=Site.objects.get(
+                                                          id=request.POST['add_select_site']),
                                                       location_building=Building.objects.get(
                                                           id=request.POST['add_select_building']),
-                                                      location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
+                                                      location_floor=Floor.objects.get(
+                                                          id=request.POST['add_select_floor'])
                                                       ).exists():
                     pline = Production_line.objects.create(
                         production_line=request.POST['add_prodline'],
@@ -880,8 +934,10 @@ def machine_searching(request):
         elif "searching_mch_code" in request.POST:
             machine_line_code = request.POST["machine_line_code"] or None
             if machine_line_code is not None:
-                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code, line__in=User_org)
-    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level": dict_menu_level.items(), "machines": user_org_machine_line,
+                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code,
+                                                               line__in=User_org)
+    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level": dict_menu_level.items(),
+               "machines": user_org_machine_line,
                "lines": User_org, "filter_mch_type": filter_mch_type, "filter_sub_type": filter_sub_type}
 
     return render(request, 'machine_searching.html', context)
@@ -974,11 +1030,26 @@ def machine_manage(request):
             edit_mch.sub_type_id = request.POST['select_subtype']
             edit_mch.last_update_by = str(User_login.username)
             edit_mch.last_update_date = datetime.date.today()
-            edit_mch.machine_active = request.POST['set_mch_status']
+            edit_mch.machine_active = request.POST.get('set_mch_status', False)
             edit_mch.machine_hour = request.POST['set_hour'] if request.POST['set_hour'] != '' else None
             edit_mch.machine_minute = request.POST['set_minute'] if request.POST['set_minute'] != '' else None
+            if edit_mch.machine_document1 != request.FILES.get('set_documentFile1', "") and request.FILES.get('set_documentFile1', False):
+                edit_mch.machine_document1.delete()
+                edit_mch.machine_document1 = request.FILES['set_documentFile1']
+            if edit_mch.machine_document2 != request.FILES.get('set_documentFile2', "") and request.FILES.get('set_documentFile2', False):
+                edit_mch.machine_document2.delete()
+                edit_mch.machine_document2 = request.FILES['set_documentFile2']
+            if edit_mch.machine_document3 != request.FILES.get('set_documentFile3', "") and request.FILES.get('set_documentFile3', False):
+                edit_mch.machine_document3.delete()
+                edit_mch.machine_document3 = request.FILES['set_documentFile3']
+            if edit_mch.machine_document4 != request.FILES.get('set_documentFile4', "") and request.FILES.get('set_documentFile4', False):
+                edit_mch.machine_document4.delete()
+                edit_mch.machine_document4 = request.FILES['set_documentFile2']
+            if edit_mch.machine_document5 != request.FILES.get('set_documentFile5', "") and request.FILES.get('set_documentFile5', False):
+                edit_mch.machine_document5.delete()
+                edit_mch.machine_document5 = request.FILES['set_documentFile5']
             edit_mch.save()
-            messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
+            # messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
         elif 'deletemachine' in request.POST:
             del_machine = request.POST['deletemachine']
@@ -1062,10 +1133,12 @@ def machine_type(request):
             edit_type.last_update_by = User_login.username
             now = datetime.datetime.now()
             edit_type.last_update_date = now.date()
-            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code, mtype_name=edit_type.mtype_name).exists():
+            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code,
+                                               mtype_name=edit_type.mtype_name).exists():
                 edit_type.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Type สำเร็จ')
-            elif edit_type.mtype_code == request.POST['set_type_code'] and edit_type.line_id == request.POST['select_line']:
+            elif edit_type.mtype_code == request.POST['set_type_code'] and edit_type.line_id == request.POST[
+                'select_line']:
                 messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Type ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
@@ -1116,7 +1189,6 @@ def check_machine_type_code(request):
 
 
 def machine_subtype(request):
-
     global User_login
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_sub_type')
     if not role_and_screen.exists():
@@ -1158,7 +1230,8 @@ def machine_subtype(request):
                                                   mch_type_id=request.POST['select_type']).exists():
                 edit_subtype.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Subtype สำเร็จ')
-            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST['select_type']:
+            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST[
+                'select_type']:
                 messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Subtype ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
@@ -1166,7 +1239,8 @@ def machine_subtype(request):
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
             subtypeid.delete()
-    context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login, 'role_and_screen': role_and_screen}
+    context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login,
+               'role_and_screen': role_and_screen}
     return render(request, 'machine_subtype.html', context)
 
 
@@ -1243,7 +1317,6 @@ def check_menu_id(request):
 
 @csrf_exempt
 def check_org_code(request):
-
     if request.method == 'POST':
         response_data = {}
         org_code = request.POST["org_code"]
@@ -1280,7 +1353,6 @@ def check_org_code(request):
 
 @csrf_exempt
 def check_machine_subtype_code(request):
-
     if request.method == 'POST':
         response_data = {}
         add_subtype_code = request.POST["add_subtype_code"]
@@ -1366,7 +1438,7 @@ def spare_part_manage(request):
             spare_part.service_plan_life = request.POST['set_service_plan_life']
             spare_part.last_update_by = User_login.username
             spare_part.last_update_date = datetime.date.today()
-            spare_part.spare_part_active = request.POST.get('set_sp_status',False)
+            spare_part.spare_part_active = request.POST.get('set_sp_status', False)
             spare_part.save()
         elif 'delete_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
@@ -1397,11 +1469,12 @@ def spare_part_subtype(request):
     spare_part_type_all = Spare_part_type.objects.all()
     if request.method == 'POST':
         if 'add_spare_part_subtype' in request.POST:
-            sp_subtype = Spare_part_sub_type.objects.create(spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
-                                                            spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
-                                                            spare_part_type_id=request.POST['select_sp_type'],
-                                                            create_by=User_login.username,
-                                                            create_date=datetime.date.today())
+            sp_subtype = Spare_part_sub_type.objects.create(
+                spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
+                spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
+                spare_part_type_id=request.POST['select_sp_type'],
+                create_by=User_login.username,
+                create_date=datetime.date.today())
             sp_subtype.save()
         elif 'edit_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['edit_spare_part_subtype'])
@@ -1412,7 +1485,8 @@ def spare_part_subtype(request):
         elif 'delete_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
-    context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_type_all': spare_part_type_all}
+    context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all,
+               'spare_part_type_all': spare_part_type_all}
     return render(request, 'spare_part_subtype.html', context)
 
 
@@ -1551,7 +1625,8 @@ def machine_and_spare_part(request):
 
     context = {'User_login': User_login,
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
-               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all, 'role_and_screen': role_and_screen}
+               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all,
+               'role_and_screen': role_and_screen}
     return render(request, 'machine&spare_part.html', context)
 
 
@@ -1582,7 +1657,8 @@ def machine_capacity(request):
         return redirect('/')
     if request.method == "POST":
         if 'Add_machine_capacity' in request.POST:
-            mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'], product=request.POST['add_product'])
+            mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'],
+                                                           product=request.POST['add_product'])
             if not mch_capacity.exists():
                 create_mch_capacity = Machine_capacity.objects.create(
                     machine_id=request.POST['add_mch'],
@@ -1629,12 +1705,14 @@ def load_product(request):
     context = {'product_all': product_all}
     return render(request, 'ajax_product.html', context)
 
+
 @csrf_exempt
 def check_machine_product(request):
     if request.method == 'POST':
         try:
             response_data = {}
-            machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'], product_id=request.POST['product_id'])
+            machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'],
+                                                              product_id=request.POST['product_id'])
             machine_product_code = None
             try:
                 if machine_product.count():
@@ -1657,3 +1735,107 @@ def check_machine_product(request):
         except ValueError:
             pass
         return JsonResponse(response_data)
+
+
+def document_create1(request):
+    from docx import Document
+    from docx.shared import Pt
+
+    list_production_line = Production_line.objects.filter(pk=1)
+    document = Document()
+    for line in list_production_line:
+        document.add_heading(f'Production Line {line.production_line}', 0)
+
+        document.add_paragraph(
+            f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
+        document.add_paragraph('ผลิตภัณฑ์ที่ผลิต')
+
+        for product in Product.objects.filter(line_id=line.pk):
+            document.add_paragraph(f'ชื่อสินค้า : {product.product_name} รหัสสินค้า : {product.product_code}',
+                                   style='List Bullet')
+
+        document.add_heading('เครื่องจักร', level=1)
+
+        for mch in Machine.objects.filter(line__in=list_production_line):
+
+            run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
+            font = run.font
+            font.size = Pt(20)
+            document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
+
+            records = (
+                ('Machine Brand', mch.machine_brand),
+                ('Machine Model', mch.machine_model),
+                ('Machine Serial', mch.serial_id),
+                ('Machine Type', mch.mch_type),
+                ('Machine Subtype', mch.sub_type),
+                ('Machine Production Line', mch.line),
+                ('Machine Line Code', mch.machine_production_line_code),
+                ('Machine Name', mch.machine_name),
+                ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
+                ('Machine Power(KWatt/Hour)', mch.machine_power_use_kwatt_per_hour),
+                ('Machine Installed Date', mch.machine_installed_datetime),
+                ('Machine Start Date', mch.machine_start_use_datetime),
+                ('Machine Hours', str(mch.machine_hour)),
+                ('Machine Supplier', mch.machine_supplier_code),
+                ('Machine Person in Charge', mch.machine_emp_id_response)
+            )
+
+            table = document.add_table(rows=1, cols=2)
+            table.style = 'Light List Accent 1'
+            hdr_cells = table.rows[0].cells
+            hdr_cells[0].text = 'Title'
+            hdr_cells[1].text = 'Specification'
+            for title, data in records:
+                row_cells = table.add_row().cells
+                row_cells[0].text = title
+                row_cells[1].text = str(data)
+
+            mch_and_spare = Machine_and_spare_part.objects.filter(machine_id=mch.machine_id)
+            if mch_and_spare.exists():
+                document.add_paragraph(' ')
+                document.add_paragraph('ข้อมูลอะไหล่', style='List Bullet')
+                list_table = []
+                for mch_spare_part in mch_and_spare:
+                    list_table.append([str(mch_spare_part.spare_part), str(mch_spare_part.spare_part.spare_part_code), str(mch_spare_part.spare_part.spare_part_model)])
+                table = document.add_table(rows=1, cols=3)
+                table.style = 'Light List Accent 2'
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = 'Spare Part Name'
+                hdr_cells[1].text = 'Spare Part Code'
+                hdr_cells[2].text = 'Spare Part Model'
+                for name, code, model in list_table:
+                    row_cells = table.add_row().cells
+                    row_cells[0].text = name
+                    row_cells[1].text = code
+                    row_cells[2].text = model
+
+            mch_capacity = Machine_capacity.objects.filter(machine_id=mch.machine_id)
+            if mch_capacity.exists():
+                document.add_paragraph(' ')
+                document.add_paragraph('ข้อมูลกำลังการผลิต', style='List Bullet')
+                list_table = []
+                for mch_cap in mch_capacity:
+                    list_table.append([str(mch_cap.product.product_name), str(mch_cap.product.product_code), str(int(mch_cap.fg_capacity))])
+                table = document.add_table(rows=1, cols=3)
+                table.style = 'Light List Accent 3'
+                hdr_cells = table.rows[0].cells
+                hdr_cells[0].text = 'Product Name'
+                hdr_cells[1].text = 'Product Code'
+                hdr_cells[2].text = 'FG Capacity(Batch/Hour)'
+                for name, code, capacity in list_table:
+                    row_cells = table.add_row().cells
+                    row_cells[0].text = name
+                    row_cells[1].text = code
+                    row_cells[2].text = capacity
+
+            document.add_paragraph(' ')
+
+        if line not in list_production_line.reverse()[:1]:
+            document.add_page_break()
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = 'attachment; filename=machine_data.docx'
+    document.save(response)
+
+    return response

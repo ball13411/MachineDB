@@ -4,24 +4,34 @@
 <head>
     <meta charset="utf-8">
     <title>id demo</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="/resources/demos/style.css">
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-</head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"></head>
 
 
 <body>
-    <form>
-        <input type="date"  class="form-control" id='date' name='date' autocomplete="off" >
-         <input type='submit'>
-
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="customFile" name="customFile">
+          <label class="custom-file-label" for="customFile">Choose file</label>
+          <label for="myfile">Select files:</label>
+          <input type="file" id="myfile" name="myfile" multiple>
+        </div>
+        <input type="date" id="myfile" name="myfile" multiple>
+        <input type="date" class="form-control" id="date">
+        <input type='submit'>
     </form>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+<script>
+    $(document).ready(function () {
+      bsCustomFileInput.init()
+    })
+</script>
 </body>
 
-<!--<script>-->
-<!--    $('#date').datepicker({ dateFormat: 'dd-mm-yy' }).val();-->
-<!--</script>-->
 
 </html>
 
