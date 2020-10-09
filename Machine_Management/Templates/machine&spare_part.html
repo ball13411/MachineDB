@@ -128,29 +128,35 @@
                                     <input type="text" id="set_machine{{forloop.counter}}" class="form-control" value="{{machine.machine_production_line_code}} ({{machine.machine_name}})" name="set_machine" readonly>
                                 </div>
                                 <div class="form-group">
-                                    <label>Select Spare Part Type</label>
-                                    <select class="form-control" id="select_sp_type{{forloop.counter}}" name="select_sp_type">
-                                        <option value="0">--------------------</option>
-                                        {% for sp_type in spare_part_type_all %}
-                                        <option value="{{sp_type.pk}}">{{sp_type.spare_part_type_name}}</option>
+                                    <label>Select Spare Part Group</label>
+                                    <select class="form-control" id="select_sp_group{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="">-------กรุณาเลือกกลุ่มอะไหล่-------</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label>Select Spare Part Type</label>
+                                    <select class="form-control" id="select_sp_type{{forloop.counter}}" name="select_sp_type" required="True">
+                                        <option value="0">-------กรุณาเลือกประเภทอะไหล่-------</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Select Spare Part Subtype</label>
-                                    <select class="form-control" id="select_sp_subtype{{forloop.counter}}" name="select_sp_subtype">
-                                        <option value="0">--------------------</option>
+                                    <select class="form-control" id="select_sp_subtype{{forloop.counter}}" name="select_sp_subtype" required="True">
+                                        <option value="">-------กรุณาเลือกชนิดอะไหล่-------</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Select Spare Part Name</label>
                                     <select class="form-control" id="select_sp_name{{forloop.counter}}" name="select_sp_name" required="True">
-                                        <option value="">--------------------</option>
-                                        {% for spare_part in spare_part_all %}
-                                        {% if spare_part not in spare_part_of_machine %}
-                                        <option value="{{spare_part.pk}}">{{spare_part.spare_part_name}} ({{spare_part.spare_part_type}})</option>
-                                        {% endif %}
-                                        {% endfor %}
+                                        <option value="">-------กรุณาเลือกอะไหล่-------</option>
+<!--                                        {% for spare_part in spare_part_all %}-->
+<!--                                        {% if spare_part not in spare_part_of_machine %}-->
+<!--                                        <option value="{{spare_part.pk}}">{{spare_part.spare_part_type}} } {{spare_part.spare_part_name}}</option>-->
+<!--                                        {% endif %}-->
+<!--                                        {% endfor %}-->
                                         {% if spare_part_of_machine|length == spare_part_all|length %}
                                         <option value="">#Note: Machine have all spare part</option>
                                         {% endif %}
@@ -178,7 +184,7 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label>Machine</label>
-                                <input type="text" id="del_mch" class="form-control" value="Machine Code : {{machine.machine_production_line_code}} ({{machine.machine_name}})" name="del_mch" readonly>
+                                <input type="text" id="del_mch{{forloop.counter}}" class="form-control" value="Machine Code : {{machine.machine_production_line_code}} ({{machine.machine_name}})" name="del_mch" readonly>
                             </div>
                             <div class="form-group">
                                 <label>Select Spare Part</label>
@@ -216,25 +222,30 @@
 } );
 </script>
 <script>
-
     var i;
     for (i = 0; i <= {{dict_mch_sp.keys|length}}; i++) {
         $("#select_sp_type"+i).change(function () {
             var numID = this.id.substring(14,);
             const url = $("#add_sp"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
             const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
-            console.log(sp_typeID)
-
-            $.ajax({                       // initialize an AJAX request
-                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-                data: {
-                    'sp_type_id': sp_typeID       // add the country id to the GET parameters
-                },
-                success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#select_sp_subtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
-                }
-            });
-
+            if (sp_typeID != 0) {
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'sp_type_id': sp_typeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {
+                        $("#select_sp_subtype"+numID).html(data);
+                    }
+                });
+            } else {
+                $("#select_sp_subtype"+numID).empty();
+                var select_type = document.getElementById('select_sp_subtype'+numID);
+                var option_first = document.createElement('option');
+                option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทอะไหล่-------"));
+                option_first.value = 0;
+                select_type.appendChild(option_first);
+            }
         });
     }
 </script>
@@ -245,7 +256,6 @@
             var numID = this.id.substring(17,);
             const url = $("#add_sp"+numID).attr("data-sp-subtype-url");  // get the url of the `load_cities` view
             const sp_subtypeID = $(this).val();  // get the selected country ID from the HTML input
-            console.log(sp_subtypeID)
 
             $.ajax({                       // initialize an AJAX request
                 url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
@@ -259,6 +269,42 @@
 
         });
     }
+</script>
+<script>
+        function ajax_dropdown_type(element) {
+            var filter_sp_type = $(element).val();
+            var numID = element.id.substr(15);
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : filter_sp_type,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#select_sp_type'+numID).empty();
+                        var select_type = document.getElementById('select_sp_type'+numID);
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("---------กรุณาเลือกประเภทของอะไหล่---------"));
+                        option_first.value = 0;
+                        select_type.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            var code = data[model].fields.spare_part_type_code;
+                            var name = data[model].fields.spare_part_type_name;
+                            options.appendChild(document.createTextNode(code+" | "+name));
+                            options.value = data[model].pk;
+                            select_type.appendChild(options);
+                        }
+                    } else {
+                        $('#select_sp_type'+numID).empty();
+                    }
+                }
+            });
+        }
 </script>
 </body>
 </html>

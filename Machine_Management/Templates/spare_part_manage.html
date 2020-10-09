@@ -90,6 +90,7 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'spare_part_manage' %}" class="nav-item nav-link active"><b>Spare Part</b></a>
+                <a href="{% url 'spare_part_group' %}" class="nav-item nav-link">Spare Part Group</a>
                 <a href="{% url 'spare_part_type' %}" class="nav-item nav-link">Spare Part Type</a>
                 <a href="{% url 'spare_part_subtype' %}" class="nav-item nav-link">Spare Part Subtype</a>
             </div>
@@ -157,7 +158,7 @@
 
             <!-- Modal Setting -->
             <div id="setting{{spare_part.pk}}" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="spare_part_edit{{forloop.counter}}" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}">
                             {% csrf_token %}
@@ -168,13 +169,17 @@
 
                             <div class="modal-body">
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-4 form-group">
+                                        <label>Spare Part Group</label>
+                                        <input type="text" class="form-control" name="set_sp_group" id="set_sp_group{{forloop.counter}}" value="{{spare_part.spare_part_group}}" readonly/>
+                                    </div>
+                                    <div class="col-4">
                                         <div class="form-group">
                                             <label>Spare Part Type</label>
                                             <input type="text" class="form-control" name="set_sp_type" id="set_sp_type{{forloop.counter}}" value="{{spare_part.spare_part_type}}" readonly/>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="form-group">
                                             <label>Spare Part Subtype</label>
                                             <input type="text" class="form-control" name="set_sp_subtype" id="set_sp_subtype{{forloop.counter}}" value="{{spare_part.spare_part_sub_type}}" readonly/>
@@ -256,7 +261,7 @@
             {% endfor %}
             <!-- Modal Add Machine -->
             <div id="create_spare_part" class="modal fade" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <form method="POST" id="add_sp" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}" >
                             {% csrf_token %}
@@ -266,20 +271,28 @@
                             </div>
 
                             <div class="modal-body">
-                                <div class="form-group">
-                                    <label>Select Spare Part Type</label>
-                                    <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
-                                        <option value="" selected>กรุณาเลือกประเภทอะไหล่</option>
-                                        {% for sp_type in spare_part_type_all %}
-                                        <option value="{{sp_type.pk}}">{{sp_type.spare_part_type_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Select Spare Part Subtype</label>
-                                    <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
-                                        <option value="" selected>กรุณาเลือกชนิดอะไหล่</option>
-                                    </select>
+                                <div class="row">
+                                    <div class="col-4 form-group">
+                                        <label>Select Group</label>
+                                        <select class="form-control" id="id_sp_group" name="id_sp_group" required="True" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                            <option value="" selected>-------กรุณาเลือกกลุ่มอะไหล่-------</option>
+                                            {% for sp_group in spare_part_group_all %}
+                                            <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label>Select Type</label>
+                                        <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
+                                            <option value="" selected>-------กรุณาเลือกประเภทของอะไหล่-------</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <label>Select Subtype</label>
+                                        <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
+                                            <option value="" selected>-------กรุณาเลือกชนิดอะไหล่-------</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Spare Part Code</label>
@@ -327,6 +340,39 @@
     $('#myTable').DataTable();
 } );
 </script>
+<script>
+        function ajax_dropdown_type(element) {
+            var filter_sp_type = $(element).val();
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : filter_sp_type,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    console.log(data);
+                    if (data) {
+                        $('#id_sp_type').empty();
+                        var select_type = document.getElementById('id_sp_type');
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทของอะไหล่-------"));
+                        select_type.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            options.appendChild( document.createTextNode(data[model].fields.spare_part_type_name));
+                            options.value = data[model].pk;
+                            select_type.appendChild(options);
+                        }
+                    } else {
+                        $('#add_sp_type').empty();
+                    }
+                }
+            });
+        }
+    </script>
 <script>
     $("#id_sp_type").change(function () {
         const url = $("#add_sp").attr("data-sp-type-url");  // get the url of the `load_cities` view

@@ -167,10 +167,27 @@ class Machine_subtype(models.Model):
         db_table = "Machine_subtype"
 
 
+class Spare_part_group(models.Model):
+    spare_part_group_id = models.AutoField(primary_key=True)
+    spare_part_group_code = models.CharField(max_length=30)
+    spare_part_group_name = models.CharField(max_length=40)
+    create_by = models.CharField(max_length=20)
+    create_date = models.DateField()
+    last_update_by = models.CharField(max_length=20, default=None, null=True)
+    last_update_date = models.DateField(default=None, null=True)
+
+    def __str__(self):
+        return self.spare_part_group_name
+
+    class Meta:
+        db_table = "Spare_part_group"
+
+
 class Spare_part_type(models.Model):
     spare_part_type_id = models.AutoField(primary_key=True)
     spare_part_type_code = models.CharField(max_length=30)
     spare_part_type_name = models.CharField(max_length=40)
+    spare_part_group = models.ForeignKey(Spare_part_group, on_delete=models.CASCADE)
     create_by = models.CharField(max_length=20)
     create_date = models.DateField()
     last_update_by = models.CharField(max_length=20, default=None, null=True)
@@ -215,6 +232,7 @@ class Spare_part(models.Model):
     last_update_by = models.CharField(max_length=20, default=None, null=True)
     last_update_date = models.DateField(default=None, null=True)
     spare_part_active = models.BooleanField()
+    spare_part_group = models.ForeignKey(Spare_part_group, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.spare_part_name
@@ -231,8 +249,14 @@ class Machine(models.Model):
     machine_brand = models.CharField(max_length=50, blank=True)
     machine_model = models.CharField(max_length=50, blank=True)
     machine_supplier_code = models.CharField(max_length=50, blank=True)
-    machine_emp_id_response = models.CharField(max_length=50, blank=True)
-    machine_emp_contact = models.CharField(max_length=50, blank=True)
+    machine_supplier_name = models.CharField(max_length=50, blank=True)
+    machine_supplier_contact = models.CharField(max_length=50, blank=True)
+    machine_eng_emp_id = models.CharField(max_length=50, blank=True)
+    machine_eng_emp_name = models.CharField(max_length=50, blank=True)
+    machine_eng_emp_contact = models.CharField(max_length=50, blank=True)
+    machine_pro_emp_id = models.CharField(max_length=50, blank=True)
+    machine_pro_emp_name = models.CharField(max_length=50, blank=True)
+    machine_pro_emp_contact = models.CharField(max_length=50, blank=True)
     machine_load_capacity = models.CharField(max_length=10, blank=True)
     machine_load_capacity_unit = models.CharField(max_length=10, blank=True)
     machine_power_use_kwatt_per_hour = models.FloatField(max_length=10, blank=True,)
@@ -247,11 +271,11 @@ class Machine(models.Model):
     line = models.ForeignKey(Production_line, on_delete=models.CASCADE)
     sub_type = models.ForeignKey(Machine_subtype, on_delete=models.CASCADE)
     mch_type = models.ForeignKey(Machine_type, on_delete=models.CASCADE)
-    machine_image1 = models.CharField(max_length=50, blank=True)
-    machine_image2 = models.CharField(max_length=50, blank=True)
-    machine_image3 = models.CharField(max_length=50, blank=True)
-    machine_image4 = models.CharField(max_length=50, blank=True)
-    machine_image5 = models.CharField(max_length=50, blank=True)
+    machine_image1 = models.FileField(upload_to='pictures/', blank=True, null=True)
+    machine_image2 = models.FileField(upload_to='pictures/', blank=True, null=True)
+    machine_image3 = models.FileField(upload_to='pictures/', blank=True, null=True)
+    machine_image4 = models.FileField(upload_to='pictures/', blank=True, null=True)
+    machine_image5 = models.FileField(upload_to='pictures/', blank=True, null=True)
     machine_document1 = models.FileField(upload_to='documents/', blank=True, null=True)
     machine_document2 = models.FileField(upload_to='documents/', blank=True, null=True)
     machine_document3 = models.FileField(upload_to='documents/', blank=True, null=True)
@@ -259,6 +283,7 @@ class Machine(models.Model):
     machine_document5 = models.FileField(upload_to='documents/', blank=True, null=True)
     machine_details = models.CharField(max_length=256, blank=True)
     machine_active = models.BooleanField()
+    machine_core = models.BooleanField()
 
     class Meta:
         db_table = "Machine_master"
@@ -273,7 +298,7 @@ class Machine_capacity(models.Model):
     rm_name = models.CharField(max_length=30)
     rm_batch_size = models.IntegerField(default=None, null=True, blank=True)
     rm_unit = models.CharField(max_length=20)
-    fg_capacity = models.FloatField(default=None, null=True, blank=True)
+    fg_capacity = models.IntegerField(default=None, null=True, blank=True)
 
     class Meta:
         db_table = "Machine_capacity"

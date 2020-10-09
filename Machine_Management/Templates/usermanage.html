@@ -131,9 +131,11 @@
     });
     </script>
     {% load static %}
+    <script src="{% static 'javascript/moment.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'style/input_date.css' %}">
 </head>
 <body>
 
@@ -356,7 +358,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Start date</label>
-                                            <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2000-01-01" required="True" data-date-format="YYYY/MM/DD">
+                                            <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2000-01-01" required="True" >
                                         </div>
                                     </div>
                                 </div>
@@ -421,6 +423,7 @@
     $('#myTable').DataTable();
 } );
 </script>
+<script src="{% static 'javascript/input_date.js'%}"></script>
 
 </body>
 </html>

@@ -165,11 +165,11 @@ table.table .avatar {
     margin-top: 10px;
     font-size: 13px;
 }
-.alert {
-    padding: 20px;
-    background-color: #C0392B;
-    color: white;
-}
+//.alert {
+    //padding: 20px;
+    //background-color: #C0392B;
+    //color: white;
+//}
 .closebtn {
     margin-left: 15px;
     color: white;
@@ -191,4 +191,40 @@ hr {
 }
 .permission-label {
    padding-left: 45px;
+}
+
+/* Semantic UI */
+#clear-button.ui.button {
+    position : absolute;
+    bottom   : 0;
+    padding: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-left: -15px;
+    background: #e0e1e2 none;
+    color: rgba(0,0,0,.6);
+    font-size: 15px;
+    border-radius: .28571429rem;
+}
+
+#dropdown-semantic a.ui.label.transition.visible {
+    display: inline-block;
+    line-height: 1;
+    vertical-align: baseline;
+    margin: 0 .14285714em;
+    background-image: none;
+    padding: .5833em .833em;
+    color: rgba(0,0,0,.6);
+    font-weight: 400;
+    text-transform: none;
+    border: 0 solid transparent;
+    border-radius: .28571429rem;
+    -webkit-transition: background .1s ease;
+    transition: background .1s ease;
+    background-color: #e8e8e8;
+}
+
+/* multiselect */
+#ms-machines_choices {
+    margin-top: 15px;
 }

@@ -1,4 +1,4 @@
-<option value="">--------------------</option>
+<option value="0">-------กรุณาเลือกชนิดอะไหล่-------</option>
 {% for sp in spare_part %}
-<option value="{{sp.pk}}">{{sp.spare_part_name}} ({{sp.spare_part_type}})</option>
+<option value="{{sp.pk}}">{{sp.spare_part_type}} | {{sp.spare_part_name}}</option>
 {% endfor %}

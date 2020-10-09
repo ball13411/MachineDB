@@ -10,57 +10,14 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import HttpResponse
+from django.core import serializers
+import xlwt
+import ast
 
 # Create your views here.
 
 # GLOBAL var
 User_login, UserRole, List_user_Screen, dict_menu_level, User_org_machine_line, List_user_Screen = None, None, [], {}, None, None  # User Login for use all pages
-
-
-def document_create():
-    from docx import Document
-
-    list_production_line = Production_line.objects.filter(pk=1)
-    document = Document()
-    for line in list_production_line:
-        document.add_heading(f'Production Line {line.production_line}', 0)
-
-        document.add_paragraph(
-            f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
-        document.add_paragraph('ผลิตภัณฑ์ที่ผลิต')
-
-        for product in Product.objects.filter(line_id=line.pk):
-            document.add_paragraph(f'ชื่อสินค้า : {product.product_name} รหัสสินค้า : {product.product_code}',
-                                   style='List Bullet')
-
-        document.add_heading('เครื่องจักร', level=1)
-
-        for mch in Machine.objects.filter(line__in=list_production_line):
-
-            document.add_paragraph(f'{mch.machine_name}', style='Intense Quote')
-            document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
-
-            records = (
-                ('ประเภทเครื่องจักร', mch.mch_type),
-                ('ชนิดเครื่องจักร', mch.sub_type),
-                ('ชื่อเครื่องจักร', mch.machine_name)
-            )
-
-            table = document.add_table(rows=1, cols=2)
-            hdr_cells = table.rows[0].cells
-            hdr_cells[0].text = 'สเปค'
-            hdr_cells[1].text = 'ข้อมูล'
-            for title, data in records:
-                row_cells = table.add_row().cells
-                row_cells[0].text = title
-                row_cells[1].text = str(data)
-
-    try:
-        document.save('Machine_Management\\document\\demo1.docx')
-    except:
-        import os
-        os.remove("Machine_Management\\document\\demo1.docx")
-        document.save('Machine_Management\\document\\demo1.docx')
 
 
 def signin(request):
@@ -472,7 +429,6 @@ def machine_data(request):
 
 def test(request):
     mch = Machine.objects.filter(mch_type_id=1).order_by('line_id').values_list('line_id', flat=True).distinct()
-    print(mch)
     for i in mch:
         print(i)
     # form = UserForm(request.POST or None)
@@ -791,14 +747,11 @@ def location(request):
             locations = Floor.objects.get(pk=request.POST['delete_location'])
             if Floor.objects.filter(site_id=locations.site_id).count() == 1:
                 site = Site.objects.get(pk=locations.site_id)
-                print('site : ', site)
                 site.delete()
             if Floor.objects.filter(building_id=locations.building_id).count() == 1:
                 building = Building.objects.get(pk=locations.building_id)
-                print('building : ', building)
                 building.delete()
             if Floor.objects.filter(pk=locations.pk).count() == 1:
-                print('location : ', locations)
                 locations.delete()
 
     sites = Site.objects.all()
@@ -962,6 +915,9 @@ def machine_manage(request):
     mch_subtype_all = Machine_subtype.objects.all()
     pd_line = Production_line.objects.all()
 
+    filter_mch_line = Machine.objects.order_by('line').values_list('line', flat=True).distinct()
+    select_line_export = Production_line.objects.filter(pid__in=filter_mch_line)
+
     if request.method == "POST":
         if 'Addmachine' in request.POST:
             add_production_line = request.POST['add_production_line']
@@ -969,19 +925,30 @@ def machine_manage(request):
             add_subtype = request.POST['add_subtype']
             add_serial = request.POST['add_serial']
             add_machine_production_line_code = request.POST['add_mpc']
-            add_machine_name = request.POST['add_machinename']
-            add_machine_model = request.POST['add_machinemodel']
-            add_machine_brand = request.POST['add_machinebrand']
-            add_supplier = request.POST['add_supplier']
-            add_person_in_change = request.POST['add_pic']
-            add_machine_emp_contact = request.POST['add_contact']
+            add_machine_name = request.POST['add_machine_name']
+            add_machine_model = request.POST['add_machine_model']
+            add_machine_brand = request.POST['add_machine_brand']
+            add_supplier = request.POST['add_supplier_code']
+            add_supplier_name = request.POST['add_supplier_name']
+            add_supplier_contact = request.POST['add_supplier_contact']
+            add_eng_emp_id = request.POST['add_eng_emp_id']
+            add_eng_emp_name = request.POST['add_eng_emp_name']
+            add_eng_emp_contact = request.POST['add_eng_emp_contact']
+            add_pro_emp_id = request.POST['add_pro_emp_id']
+            add_pro_emp_name = request.POST['add_pro_emp_name']
+            add_pro_emp_contact = request.POST['add_pro_emp_contact']
             add_capacity_per_min = request.POST['add_cpm']
             add_capacity = request.POST['add_capacity']
             add_power = request.POST['add_power']
             add_install_date = request.POST['add_installdate']
             add_start_date = request.POST['add_startdate']
-            add_hour = request.POST['add_hour'] if request.POST['add_hour'] != '' else None
-            add_minute = request.POST['add_minute'] if request.POST['add_minute'] != '' else None
+            add_hour = request.POST['add_hour'] if request.POST['add_hour'] != '' else 0
+            add_minute = request.POST['add_minute'] if request.POST['add_minute'] != '' else 0
+            add_core = request.POST.get('add_mch_core', False)
+            if request.POST.get('add_mch_core', False):
+                if Machine.objects.filter(line_id=add_production_line, machine_core=True).exists():
+                    messages.error(request, 'ในไลน์ผลิตนี้มี Machine Core แล้วไม่สามารถทำรายการได้')
+                    return redirect('/machinemanage/machine/')
             if not Machine.objects.filter(serial_id=add_serial,
                                           machine_production_line_code=add_machine_production_line_code).exists():
                 add_new_machine = Machine.objects.create(
@@ -991,8 +958,14 @@ def machine_manage(request):
                     machine_brand=add_machine_brand,
                     machine_model=add_machine_model,
                     machine_supplier_code=add_supplier,
-                    machine_emp_id_response=add_person_in_change,
-                    machine_emp_contact=add_machine_emp_contact,
+                    machine_supplier_name=add_supplier_name,
+                    machine_supplier_contact=add_supplier_contact,
+                    machine_eng_emp_id=add_eng_emp_id,
+                    machine_eng_emp_name=add_eng_emp_name,
+                    machine_eng_emp_contact=add_eng_emp_contact,
+                    machine_pro_emp_id=add_pro_emp_id,
+                    machine_pro_emp_name=add_pro_emp_name,
+                    machine_pro_emp_contact=add_pro_emp_contact,
                     machine_load_capacity=add_capacity_per_min,
                     machine_load_capacity_unit=add_capacity,
                     machine_power_use_kwatt_per_hour=add_power,
@@ -1005,7 +978,8 @@ def machine_manage(request):
                     create_date=datetime.date.today(),
                     machine_hour=add_hour,
                     machine_minute=add_minute,
-                    machine_active=True
+                    machine_active=True,
+                    machine_core=add_core
                 )
                 add_new_machine.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
@@ -1013,13 +987,20 @@ def machine_manage(request):
                 messages.error(request, 'การเพิ่มข้อมูล Machine ล้มเหลว กรุณากด Add New Machine Type ใหม่อีกครั้ง')
         elif 'EditMch' in request.POST:
             edit_mch = Machine.objects.get(machine_id=request.POST['EditMch'])
-            edit_mch.machine_code = request.POST['set_mch_code']
+            edit_mch.machine_production_line_code = request.POST['set_mch_code']
             edit_mch.machine_name = request.POST['set_mch_name']
-            edit_mch.machine_brand = request.POST['set_machinebrand']
-            edit_mch.machine_model = request.POST['set_machinemodel']
-            edit_mch.machine_supplier_code = request.POST['set_supplier']
-            edit_mch.machine_emp_id_response = request.POST['set_pic']
-            edit_mch.machine_emp_contact = request.POST['set_contact']
+            # edit_mch.machine_brand = request.POST['set_machine_brand']
+            # edit_mch.machine_model = request.POST['set_machine_model']
+            # edit_mch.serial_id = request.POST['set_serial']
+            edit_mch.machine_supplier_code = request.POST['set_supplier_code']
+            edit_mch.machine_supplier_name = request.POST['set_supplier_name']
+            edit_mch.machine_supplier_contact = request.POST['set_supplier_contact']
+            edit_mch.machine_eng_emp_id = request.POST['set_eng_emp_id']
+            edit_mch.machine_eng_emp_name = request.POST['set_eng_emp_name']
+            edit_mch.machine_eng_emp_contact = request.POST['set_eng_emp_contact']
+            edit_mch.machine_pro_emp_id = request.POST['set_pro_emp_id']
+            edit_mch.machine_pro_emp_name = request.POST['set_pro_emp_name']
+            edit_mch.machine_pro_emp_contact = request.POST['set_pro_emp_contact']
             edit_mch.machine_load_capacity = request.POST['set_cpm']
             edit_mch.machine_load_capacity_unit = request.POST['set_capacity']
             edit_mch.machine_power_use_kwatt_per_hour = request.POST['set_power']
@@ -1031,8 +1012,13 @@ def machine_manage(request):
             edit_mch.last_update_by = str(User_login.username)
             edit_mch.last_update_date = datetime.date.today()
             edit_mch.machine_active = request.POST.get('set_mch_status', False)
-            edit_mch.machine_hour = request.POST['set_hour'] if request.POST['set_hour'] != '' else None
-            edit_mch.machine_minute = request.POST['set_minute'] if request.POST['set_minute'] != '' else None
+            if request.POST.get('set_mch_core', False):
+                if Machine.objects.filter(line_id=edit_mch.line_id, machine_core=True).exists():
+                    messages.error(request, 'ในไลน์ผลิตนี้มี Machine Core แล้วไม่สามารถทำรายการได้')
+                    return redirect('/machinemanage/machine/')
+            edit_mch.machine_core = request.POST.get('set_mch_core', False)
+            edit_mch.machine_hour = request.POST.get('set_hour', 0)
+            edit_mch.machine_minute = request.POST.get('set_minute', 0)
             if edit_mch.machine_document1 != request.FILES.get('set_documentFile1', "") and request.FILES.get('set_documentFile1', False):
                 edit_mch.machine_document1.delete()
                 edit_mch.machine_document1 = request.FILES['set_documentFile1']
@@ -1048,17 +1034,62 @@ def machine_manage(request):
             if edit_mch.machine_document5 != request.FILES.get('set_documentFile5', "") and request.FILES.get('set_documentFile5', False):
                 edit_mch.machine_document5.delete()
                 edit_mch.machine_document5 = request.FILES['set_documentFile5']
+            if edit_mch.machine_image1 != request.FILES.get('set_pictureFile1', "") and request.FILES.get('set_pictureFile1', False):
+                edit_mch.machine_image1.delete()
+                edit_mch.machine_image1 = request.FILES['set_pictureFile1']
             edit_mch.save()
-            # messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
+            messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
         elif 'deletemachine' in request.POST:
             del_machine = request.POST['deletemachine']
             machine_id = Machine.objects.get(machine_id=del_machine)
             machine_id.delete()
+
+        elif 'Export_machine' in request.POST:
+            # Prepare exporting
+            response = HttpResponse(content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
+
+            wb = xlwt.Workbook(encoding='utf-8')
+            ws = wb.add_sheet('Machines Data')  # this will make a sheet named Machines Data
+
+            # Sheet header, first row
+            row_num = 0
+
+            font_style = xlwt.XFStyle()
+            font_style.font.bold = True
+
+            columns = ['Machine_id', 'Serial_id', 'Machine_production_line_code', 'Machine_name']
+            # , 'Machine_brand', 'Machine_model',
+            #             'Machine_supplier_code', 'Machine_emp_id_response', 'Machine_capacity_per_minute', 'Machine_capacity_measure_unit',
+            #             'Machine_power_use_watt_per_hour', 'Machine_installed_datetime', 'Machine_start_use_datetime', 'Machine_hour', 'Machine_minute','Create_by'
+            #             'Create_date', 'Last_update_by', 'Last_update_date', 'Line', 'Sub_type', 'Mch_type', 'Machine_image1', 'Machine_image2', 'Machine_image3',
+            #             'Machine_image4', 'Machine_image5', 'Machine_document1', 'Machine_document2', 'Machine_document3', 'Machine_document4', 'Machine_document5',
+            #             'Machine_details', 'Machine_active']
+            for col_num in range(len(columns)):
+                ws.write(row_num, col_num, columns[col_num], font_style)    # at 0 row 0 column
+
+            # Sheet body, remaining rows
+            font_style = xlwt.XFStyle()
+            machine_submit = request.POST.get('Export_machine')
+            if machine_submit:
+                for i in machine_submit.split(','):
+                    mch_id = Machine.objects.filter(machine_id=i)
+                    rows = mch_id.values_list('machine_id', 'serial_id', 'machine_production_line_code', 'machine_name')
+                    for row in rows:
+                        row_num += 1
+                        for col_num in range(len(row)):
+                            ws.write(row_num, col_num, row[col_num], font_style)
+                wb.save(response)
+                return response
+            else:
+                messages.error(request, 'การทำรายการไม่สำเร็จ กรุณาเลือก Machine ที่ต้องการ')
+
     context = {
         'User_login': User_login,
         'machine': machine, 'mch_subtype_all': mch_subtype_all,
-        'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen}
+        'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen,
+        'select_line_export': select_line_export, 'filter_mch_line': filter_mch_line}
     return render(request, 'machine_manage.html', context)
 
 
@@ -1416,7 +1447,7 @@ def spare_part_manage(request):
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage').exists():
         return redirect('/')
     spare_part_all = Spare_part.objects.all()
-    spare_part_type_all = Spare_part_type.objects.all()
+    spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
         if 'add_spare_part' in request.POST:
             spare_part = Spare_part.objects.create(spare_part_name=request.POST['add_sp_name'],
@@ -1424,6 +1455,7 @@ def spare_part_manage(request):
                                                    spare_part_model=request.POST['add_sp_model'],
                                                    service_life=request.POST['add_service_life'],
                                                    service_plan_life=request.POST['add_service_plan_life'],
+                                                   spare_part_group_id=request.POST['id_sp_group'],
                                                    spare_part_type_id=request.POST['id_sp_type'],
                                                    spare_part_sub_type_id=request.POST['id_sp_subtype'],
                                                    create_by=User_login.username,
@@ -1443,7 +1475,7 @@ def spare_part_manage(request):
         elif 'delete_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
             spare_part.delete()
-    context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_type_all': spare_part_type_all}
+    context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_group_all': spare_part_group_all}
     return render(request, 'spare_part_manage.html', context)
 
 
@@ -1466,7 +1498,7 @@ def spare_part_subtype(request):
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype').exists():
         return redirect('/')
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
-    spare_part_type_all = Spare_part_type.objects.all()
+    spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
         if 'add_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.create(
@@ -1486,7 +1518,7 @@ def spare_part_subtype(request):
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
     context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all,
-               'spare_part_type_all': spare_part_type_all}
+               'spare_part_group_all': spare_part_group_all}
     return render(request, 'spare_part_subtype.html', context)
 
 
@@ -1494,13 +1526,15 @@ def spare_part_type(request):
     global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type').exists():
         return redirect('/')
+    spare_part_group_all = Spare_part_group.objects.all()
     sp_type_all = Spare_part_type.objects.all()
     if request.method == "POST":
         if 'add_spare_part_type' in request.POST:
             spare_type = Spare_part_type.objects.create(spare_part_type_code=request.POST['add_sp_type_code'],
                                                         spare_part_type_name=request.POST['add_sp_type_name'],
                                                         create_by=User_login.username,
-                                                        create_date=datetime.date.today())
+                                                        create_date=datetime.date.today(),
+                                                        spare_part_group_id=request.POST['select_sp_group'])
             spare_type.save()
         elif 'edit_spare_part_type' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['edit_spare_part_type'])
@@ -1511,8 +1545,71 @@ def spare_part_type(request):
         elif 'delete_spare_part' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['delete_spare_part'])
             spare_type.delete()
-    context = {'User_login': User_login, 'sp_type_all': sp_type_all}
+    context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all}
     return render(request, 'spare_part_type.html', context)
+
+
+def spare_part_group(request):
+    global User_login
+    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_group').exists():
+        return redirect('/')
+    sp_group_all = Spare_part_group.objects.all()
+    if request.method == "POST":
+        if 'add_spare_part_group' in request.POST:
+            spare_group = Spare_part_group.objects.create(spare_part_group_code=request.POST['add_sp_group_code'],
+                                                        spare_part_group_name=request.POST['add_sp_group_name'],
+                                                        create_by=User_login.username,
+                                                        create_date=datetime.date.today())
+            spare_group.save()
+        elif 'edit_spare_part_group' in request.POST:
+            spare_group = Spare_part_group.objects.get(pk=request.POST['edit_spare_part_group'])
+            spare_group.spare_part_group_name = request.POST['set_sp_group_name']
+            spare_group.last_update_by = User_login.username
+            spare_group.last_update_date = datetime.date.today()
+            spare_group.save()
+        elif 'delete_spare_part' in request.POST:
+            spare_group = Spare_part_group.objects.get(pk=request.POST['delete_spare_part'])
+            spare_group.delete()
+    context = {'User_login': User_login, 'sp_group_all': sp_group_all}
+    return render(request, 'spare_part_group.html', context)
+
+
+@csrf_exempt
+def ajax_dropdown_sp_type(request):
+    if request.method == 'POST':
+        if request.POST['filter_sp_type'] != "":
+            sp_type = Spare_part_type.objects.filter(spare_part_group_id=request.POST['filter_sp_type'])
+            data = serializers.serialize('json', sp_type)
+        else:
+            data = [{}]
+    return HttpResponse(data, content_type="application/json")
+
+
+@csrf_exempt
+def check_spare_part_group_code(request):
+    if request.method == 'POST':
+        response_data = {}
+        spare_group = Spare_part_group.objects.filter(spare_part_group_code=request.POST['add_code'])
+        spare_group_code = None
+        try:
+            if spare_group.count():
+                spare_group_code = True  # alredy exist
+            elif len(request.POST['add_code']) == 0:
+                spare_group_code = None  # empty input
+            else:
+                spare_group_code = False  # avialble
+
+        except ObjectDoesNotExist:
+            pass
+        except Exception as e:
+            raise e
+        if not spare_group_code:
+            response_data["spare_group_code_success"] = True
+        else:
+            response_data["spare_group_code_success"] = False
+        if spare_group_code is None:
+            response_data["spare_group_code_empty"] = True
+        return JsonResponse(response_data)
 
 
 @csrf_exempt
@@ -1605,6 +1702,7 @@ def machine_and_spare_part(request):
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
     mch_and_sp_all = Machine_and_spare_part.objects.filter(machine__in=machine)
+    spare_part_group_all = Spare_part_group.objects.all()
     spare_part_type_all = Spare_part_type.objects.all()
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_all = Spare_part.objects.all()
@@ -1626,7 +1724,7 @@ def machine_and_spare_part(request):
     context = {'User_login': User_login,
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
                'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all,
-               'role_and_screen': role_and_screen}
+               'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all}
     return render(request, 'machine&spare_part.html', context)
 
 
@@ -1741,26 +1839,44 @@ def document_create1(request):
     from docx import Document
     from docx.shared import Pt
 
-    list_production_line = Production_line.objects.filter(pk=1)
+    # machine_id = ['1', '2', '16']
+    machine_id = range(2, 17)
+    line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
+    list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
     document = Document()
     for line in list_production_line:
         document.add_heading(f'Production Line {line.production_line}', 0)
 
         document.add_paragraph(
             f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
-        document.add_paragraph('ผลิตภัณฑ์ที่ผลิต')
+        document.add_paragraph('ผลิตภัณฑ์ที่ผลิต', style='List Bullet')
 
+        list_product = []
         for product in Product.objects.filter(line_id=line.pk):
-            document.add_paragraph(f'ชื่อสินค้า : {product.product_name} รหัสสินค้า : {product.product_code}',
-                                   style='List Bullet')
+            capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
+            list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
 
-        document.add_heading('เครื่องจักร', level=1)
+        table = document.add_table(rows=1, cols=3)
+        table.style = 'Light List Accent 3'
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Product Name'
+        hdr_cells[1].text = 'Product Code'
+        hdr_cells[2].text = 'Product Capacity'
+        for name, code, capacity in list_product:
+            row_cells = table.add_row().cells
+            row_cells[0].text = str(name)
+            row_cells[1].text = str(code)
+            row_cells[2].text = str(capacity)
 
-        for mch in Machine.objects.filter(line__in=list_production_line):
+        # document.add_heading('เครื่องจักร', level=1)
+        machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=machine_id).order_by('machine_production_line_code')
+        for mch in machine_in_line:
 
-            run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
-            font = run.font
-            font.size = Pt(20)
+            document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
+            document.add_paragraph(' ')
+            # run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
+            # font = run.font
+            # font.size = Pt(20)
             document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
 
             records = (
@@ -1773,12 +1889,14 @@ def document_create1(request):
                 ('Machine Line Code', mch.machine_production_line_code),
                 ('Machine Name', mch.machine_name),
                 ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
-                ('Machine Power(KWatt/Hour)', mch.machine_power_use_kwatt_per_hour),
+                ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
                 ('Machine Installed Date', mch.machine_installed_datetime),
                 ('Machine Start Date', mch.machine_start_use_datetime),
                 ('Machine Hours', str(mch.machine_hour)),
                 ('Machine Supplier', mch.machine_supplier_code),
-                ('Machine Person in Charge', mch.machine_emp_id_response)
+                ('Machine Supplier Name', str(mch.machine_supplier_name)+" (ติดต่อ : "+str(mch.machine_supplier_contact)+" )"),
+                ('Engineer Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_eng_emp_id)+" ชื่อ: "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
+                ('Production Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_pro_emp_id)+" ชื่อ: "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
             )
 
             table = document.add_table(rows=1, cols=2)
@@ -1791,25 +1909,25 @@ def document_create1(request):
                 row_cells[0].text = title
                 row_cells[1].text = str(data)
 
-            mch_and_spare = Machine_and_spare_part.objects.filter(machine_id=mch.machine_id)
-            if mch_and_spare.exists():
-                document.add_paragraph(' ')
-                document.add_paragraph('ข้อมูลอะไหล่', style='List Bullet')
-                list_table = []
-                for mch_spare_part in mch_and_spare:
-                    list_table.append([str(mch_spare_part.spare_part), str(mch_spare_part.spare_part.spare_part_code), str(mch_spare_part.spare_part.spare_part_model)])
-                table = document.add_table(rows=1, cols=3)
-                table.style = 'Light List Accent 2'
-                hdr_cells = table.rows[0].cells
-                hdr_cells[0].text = 'Spare Part Name'
-                hdr_cells[1].text = 'Spare Part Code'
-                hdr_cells[2].text = 'Spare Part Model'
-                for name, code, model in list_table:
-                    row_cells = table.add_row().cells
-                    row_cells[0].text = name
-                    row_cells[1].text = code
-                    row_cells[2].text = model
-
+            # mch_and_spare = Machine_and_spare_part.objects.filter(machine_id=mch.machine_id)
+            # if mch_and_spare.exists():
+            #     document.add_paragraph(' ')
+            #     document.add_paragraph('ข้อมูลอะไหล่', style='List Bullet')
+            #     list_table = []
+            #     for mch_spare_part in mch_and_spare:
+            #         list_table.append([str(mch_spare_part.spare_part), str(mch_spare_part.spare_part.spare_part_code), str(mch_spare_part.spare_part.spare_part_model)])
+            #     table = document.add_table(rows=1, cols=3)
+            #     table.style = 'Light List Accent 2'
+            #     hdr_cells = table.rows[0].cells
+            #     hdr_cells[0].text = 'Spare Part Name'
+            #     hdr_cells[1].text = 'Spare Part Code'
+            #     hdr_cells[2].text = 'Spare Part Model'
+            #     for name, code, model in list_table:
+            #         row_cells = table.add_row().cells
+            #         row_cells[0].text = name
+            #         row_cells[1].text = code
+            #         row_cells[2].text = model
+            #
             mch_capacity = Machine_capacity.objects.filter(machine_id=mch.machine_id)
             if mch_capacity.exists():
                 document.add_paragraph(' ')
@@ -1822,16 +1940,17 @@ def document_create1(request):
                 hdr_cells = table.rows[0].cells
                 hdr_cells[0].text = 'Product Name'
                 hdr_cells[1].text = 'Product Code'
-                hdr_cells[2].text = 'FG Capacity(Batch/Hour)'
+                hdr_cells[2].text = 'FG Capacity/Hour'
                 for name, code, capacity in list_table:
                     row_cells = table.add_row().cells
                     row_cells[0].text = name
                     row_cells[1].text = code
                     row_cells[2].text = capacity
 
-            document.add_paragraph(' ')
+            if mch != machine_in_line.last():
+                document.add_page_break()
 
-        if line not in list_production_line.reverse()[:1]:
+        if line != list_production_line.last():
             document.add_page_break()
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
@@ -1839,3 +1958,12 @@ def document_create1(request):
     document.save(response)
 
     return response
+
+
+def load_selected_lines(request):
+    input_line = request.GET['selected_lines']
+    change_type = ast.literal_eval(input_line)
+    machine_list = Machine.objects.filter(line__in=change_type)
+    data = serializers.serialize('json', machine_list)
+
+    return HttpResponse(data, content_type="application/json")

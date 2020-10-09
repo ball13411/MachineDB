@@ -122,7 +122,7 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Machine Capacity <b>Management</b></h2>
+                        <h2>Machine <b>Capacity</b></h2>
                     </div>
                     <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#create_mch_capacity" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Capacity</span></a>
@@ -136,9 +136,9 @@
                         <th>Production Line</th>
                         <th>Machine</th>
                         <th>Product</th>
-                        <th>FG Size</th>
-                        <th>FG Time</th>
-                        <th>FG Capacity</th>
+                        <th>FG Batch Size</th>
+                        <th>FG Batch Time</th>
+                        <th>FG Capacity/Hour</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
@@ -223,7 +223,7 @@
                                         <input type="number" id="set_fg_batch_size{{forloop.counter}}" class="form-control batch" name="set_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="cal_capacity1(this.id,'set_fg_batch_time{{forloop.counter}}','set_fg_capacity{{forloop.counter}}')" required="True" value="{{mch_capacity.fg_batch_size}}">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label class="form-label">Time/Batch (Minute)</label>
+                                        <label class="form-label">Batch Time (Minute)</label>
                                         <input type="number" id="set_fg_batch_time{{forloop.counter}}" class="form-control batch" name="set_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="cal_capacity(this.id);" required="True" value="{{mch_capacity.fg_batch_time}}">
                                     </div>
                                 </div>
@@ -331,7 +331,7 @@
                                         <input type="number" id="add_fg_batch_size" class="form-control batch" name="add_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="fg_capacity()" required="True">
                                     </div>
                                     <div class="form-group col-md-4">
-                                        <label class="form-label">Time/Batch (Minute)</label>
+                                        <label class="form-label">Batch Time (Minute)</label>
                                         <input type="number" id="add_fg_batch_time" class="form-control batch" name="add_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="fg_capacity()" required="True">
                                     </div>
                                 </div>

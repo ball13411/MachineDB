@@ -1,0 +1,25 @@
+input[type="date"] {
+    position: relative;
+}
+
+input[type="date"]::before {
+    position: absolute;
+    top: 20%; left: 5%;
+    content: attr(value);
+    display: inline-block;
+    color: #495057;
+}
+
+
+
+input[type="date"]::-webkit-datetime-edit, input[type="date"]::-webkit-inner-spin-button, input[type="date"]::-webkit-clear-button {
+    display: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 20%;
+    right: 0;
+    color: black;
+    opacity: 1;
+}
