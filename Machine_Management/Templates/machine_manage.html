@@ -634,7 +634,6 @@
                                                 <option value="{{line.pid}}">{{line}}</option>
                                                 {% endfor %}
                                             </select>
-
                                         </div>
                                         <div class="col-2">
                                             <button type="button" class="ui button btn" id="clear-button">Clear</button>
@@ -643,7 +642,15 @@
                                     <div id="machines_choices">
                                         <select multiple="multiple" id="machines_choices" name="my-select[]"></select>
                                     </div>
-
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label">File Export :</label>
+                                        <select class="col-7 form-control" name="file_type">
+                                            <option value="docx">word report</option>
+                                            <option value="excel">excel report</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="modal-footer">

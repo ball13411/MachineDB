@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.core import serializers
 import xlwt
 import ast
+from docx import Document
 
 # Create your views here.
 
@@ -1046,44 +1047,146 @@ def machine_manage(request):
             machine_id.delete()
 
         elif 'Export_machine' in request.POST:
-            # Prepare exporting
-            response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
+            file_report = request.POST['file_type']
+            if file_report == 'docx':
+                machine_id = request.POST.get('Export_machine').split(',')
+                line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
+                list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
+                document = Document()
+                for line in list_production_line:
+                    document.add_heading(f'Production Line {line.production_line}', 0)
 
-            wb = xlwt.Workbook(encoding='utf-8')
-            ws = wb.add_sheet('Machines Data')  # this will make a sheet named Machines Data
+                    document.add_paragraph(
+                        f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
+                    document.add_paragraph('ผลิตภัณฑ์ที่ผลิต', style='List Bullet')
 
-            # Sheet header, first row
-            row_num = 0
+                    list_product = []
+                    for product in Product.objects.filter(line_id=line.pk):
+                        capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
+                        list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
 
-            font_style = xlwt.XFStyle()
-            font_style.font.bold = True
+                    table = document.add_table(rows=1, cols=3)
+                    table.style = 'Light List Accent 3'
+                    hdr_cells = table.rows[0].cells
+                    hdr_cells[0].text = 'Product Name'
+                    hdr_cells[1].text = 'Product Code'
+                    hdr_cells[2].text = 'Product Capacity'
+                    for name, code, capacity in list_product:
+                        row_cells = table.add_row().cells
+                        row_cells[0].text = str(name)
+                        row_cells[1].text = str(code)
+                        row_cells[2].text = str(capacity)
 
-            columns = ['Machine_id', 'Serial_id', 'Machine_production_line_code', 'Machine_name']
-            # , 'Machine_brand', 'Machine_model',
-            #             'Machine_supplier_code', 'Machine_emp_id_response', 'Machine_capacity_per_minute', 'Machine_capacity_measure_unit',
-            #             'Machine_power_use_watt_per_hour', 'Machine_installed_datetime', 'Machine_start_use_datetime', 'Machine_hour', 'Machine_minute','Create_by'
-            #             'Create_date', 'Last_update_by', 'Last_update_date', 'Line', 'Sub_type', 'Mch_type', 'Machine_image1', 'Machine_image2', 'Machine_image3',
-            #             'Machine_image4', 'Machine_image5', 'Machine_document1', 'Machine_document2', 'Machine_document3', 'Machine_document4', 'Machine_document5',
-            #             'Machine_details', 'Machine_active']
-            for col_num in range(len(columns)):
-                ws.write(row_num, col_num, columns[col_num], font_style)    # at 0 row 0 column
+                    # document.add_heading('เครื่องจักร', level=1)
+                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=machine_id).order_by('machine_production_line_code')
+                    for mch in machine_in_line:
 
-            # Sheet body, remaining rows
-            font_style = xlwt.XFStyle()
-            machine_submit = request.POST.get('Export_machine')
-            if machine_submit:
-                for i in machine_submit.split(','):
-                    mch_id = Machine.objects.filter(machine_id=i)
-                    rows = mch_id.values_list('machine_id', 'serial_id', 'machine_production_line_code', 'machine_name')
-                    for row in rows:
-                        row_num += 1
-                        for col_num in range(len(row)):
-                            ws.write(row_num, col_num, row[col_num], font_style)
-                wb.save(response)
+                        document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
+                        document.add_paragraph(' ')
+                        # run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
+                        # font = run.font
+                        # font.size = Pt(20)
+                        document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
+
+                        records = (
+                            ('Machine Brand', mch.machine_brand),
+                            ('Machine Model', mch.machine_model),
+                            ('Machine Serial', mch.serial_id),
+                            ('Machine Type', mch.mch_type),
+                            ('Machine Subtype', mch.sub_type),
+                            ('Machine Production Line', mch.line),
+                            ('Machine Line Code', mch.machine_production_line_code),
+                            ('Machine Name', mch.machine_name),
+                            ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
+                            ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
+                            ('Machine Installed Date', mch.machine_installed_datetime),
+                            ('Machine Start Date', mch.machine_start_use_datetime),
+                            ('Machine Hours', str(mch.machine_hour)),
+                            ('Machine Supplier', mch.machine_supplier_code),
+                            ('Machine Supplier Name', str(mch.machine_supplier_name)+" (ติดต่อ : "+str(mch.machine_supplier_contact)+" )"),
+                            ('Engineer Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_eng_emp_id)+" ชื่อ: "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
+                            ('Production Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_pro_emp_id)+" ชื่อ: "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
+                        )
+
+                        table = document.add_table(rows=1, cols=2)
+                        table.style = 'Light List Accent 1'
+                        hdr_cells = table.rows[0].cells
+                        hdr_cells[0].text = 'Title'
+                        hdr_cells[1].text = 'Specification'
+                        for title, data in records:
+                            row_cells = table.add_row().cells
+                            row_cells[0].text = title
+                            row_cells[1].text = str(data)
+
+                        mch_capacity = Machine_capacity.objects.filter(machine_id=mch.machine_id)
+                        if mch_capacity.exists():
+                            document.add_paragraph(' ')
+                            document.add_paragraph('ข้อมูลกำลังการผลิต', style='List Bullet')
+                            list_table = []
+                            for mch_cap in mch_capacity:
+                                list_table.append([str(mch_cap.product.product_name), str(mch_cap.product.product_code), str(int(mch_cap.fg_capacity))])
+                            table = document.add_table(rows=1, cols=3)
+                            table.style = 'Light List Accent 2'
+                            hdr_cells = table.rows[0].cells
+                            hdr_cells[0].text = 'Product Name'
+                            hdr_cells[1].text = 'Product Code'
+                            hdr_cells[2].text = 'FG Capacity/Hour'
+                            for name, code, capacity in list_table:
+                                row_cells = table.add_row().cells
+                                row_cells[0].text = name
+                                row_cells[1].text = code
+                                row_cells[2].text = capacity
+
+                        if mch != machine_in_line.last():
+                            document.add_page_break()
+
+                    if line != list_production_line.last():
+                        document.add_page_break()
+
+                response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                response['Content-Disposition'] = 'attachment; filename=machine_data.docx'
+                document.save(response)
                 return response
-            else:
-                messages.error(request, 'การทำรายการไม่สำเร็จ กรุณาเลือก Machine ที่ต้องการ')
+
+            elif file_report == 'excel':
+                # Prepare exporting
+                response = HttpResponse(content_type='application/ms-excel')
+                response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
+
+                wb = xlwt.Workbook(encoding='utf-8')
+                ws = wb.add_sheet('Machines Data')  # this will make a sheet named Machines Data
+
+                # Sheet header, first row
+                row_num = 0
+
+                font_style = xlwt.XFStyle()
+                font_style.font.bold = True
+
+                columns = ['Machine_id', 'Serial_id', 'Machine_production_line_code', 'Machine_name']
+                # , 'Machine_brand', 'Machine_model',
+                #             'Machine_supplier_code', 'Machine_emp_id_response', 'Machine_capacity_per_minute', 'Machine_capacity_measure_unit',
+                #             'Machine_power_use_watt_per_hour', 'Machine_installed_datetime', 'Machine_start_use_datetime', 'Machine_hour', 'Machine_minute','Create_by'
+                #             'Create_date', 'Last_update_by', 'Last_update_date', 'Line', 'Sub_type', 'Mch_type', 'Machine_image1', 'Machine_image2', 'Machine_image3',
+                #             'Machine_image4', 'Machine_image5', 'Machine_document1', 'Machine_document2', 'Machine_document3', 'Machine_document4', 'Machine_document5',
+                #             'Machine_details', 'Machine_active']
+                for col_num in range(len(columns)):
+                    ws.write(row_num, col_num, columns[col_num], font_style)    # at 0 row 0 column
+
+                # Sheet body, remaining rows
+                font_style = xlwt.XFStyle()
+                machine_submit = request.POST.get('Export_machine')
+                if machine_submit:
+                    for i in machine_submit.split(','):
+                        mch_id = Machine.objects.filter(machine_id=i)
+                        rows = mch_id.values_list('machine_id', 'serial_id', 'machine_production_line_code', 'machine_name')
+                        for row in rows:
+                            row_num += 1
+                            for col_num in range(len(row)):
+                                ws.write(row_num, col_num, row[col_num], font_style)
+                    wb.save(response)
+                    return response
+                else:
+                    messages.error(request, 'การทำรายการไม่สำเร็จ กรุณาเลือก Machine ที่ต้องการ')
 
     context = {
         'User_login': User_login,
@@ -1191,8 +1294,6 @@ def check_machine_type_code(request):
 
         try:
             try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
                 if typeid.count():
                     typecode = True  # alredy exist
                 elif len(add_type_code) == 0:
@@ -1261,8 +1362,7 @@ def machine_subtype(request):
                                                   mch_type_id=request.POST['select_type']).exists():
                 edit_subtype.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Subtype สำเร็จ')
-            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST[
-                'select_type']:
+            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST['select_type']:
                 messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Subtype ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
@@ -1616,26 +1716,15 @@ def check_spare_part_group_code(request):
 def check_spare_part_type_code(request):
     if request.method == 'POST':
         response_data = {}
-        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'])
-        spare_type_code = None
-        try:
-            if spare_type.count():
-                spare_type_code = True  # alredy exist
-            elif len(request.POST['add_code']) == 0:
-                spare_type_code = None  # empty input
-            else:
-                spare_type_code = False  # avialble
-
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
+        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'], spare_part_group_id=request.POST['group_code'])
+        if spare_type.count():
+            spare_type_code = True  # alredy exist
+        else:
+            spare_type_code = False  # avialble
         if not spare_type_code:
             response_data["spare_type_code_success"] = True
         else:
             response_data["spare_type_code_success"] = False
-        if spare_type_code is None:
-            response_data["spare_type_code_empty"] = True
         return JsonResponse(response_data)
 
 

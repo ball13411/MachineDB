@@ -33,21 +33,17 @@
         function check_spare_part_type_code(element) {
             add_code = $(element).val();
             var button = document.getElementById("add_spare_part_type");
-            if (add_code == "") {
-                $('#add_sp_type_code').parent().removeClass();
-                $('#add_sp_type_code').parent().addClass('form-group');
-            }
+            var group_code = document.getElementById("add_group");
             $.ajax({
                 url : $(element).attr("data-url"),
                 data : {
                     "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
                     "add_code" : add_code,
-
+                    "group_code" : group_code.value,
                 },
                 method: "POST",
                 dataType : "json",
                 success : function (data) {
-
                     if (data.spare_type_code_success) {
                         $('#add_sp_type_code').parent().removeClass();
                         $('#add_sp_type_code').parent().addClass('form-group success');
@@ -57,7 +53,7 @@
                         $('#add_sp_type_code').parent().addClass('form-group error');
                         button.disabled = true;
                     }
-                    if (data.spare_type_code_empty) {
+                    if (add_code == "") {
                         $('#add_sp_type_code').parent().removeClass();
                         $('#add_sp_type_code').parent().addClass('form-group');
                         button.disabled = true;
@@ -222,7 +218,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Spare Part Group</label>
-                                    <select class="form-control" id="add_sp_type{{forloop.counter}}" name="select_sp_group" required="True">
+                                    <select class="form-control" id="add_group" name="select_sp_group" required="True">
                                         <option value="">---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
                                         {% for sp_group in spare_part_group_all %}
                                         <option value="{{sp_group.pk}}" >{{sp_group.spare_part_group_name}}</option>
