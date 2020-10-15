@@ -13,9 +13,10 @@ body {
     font-size: 16px;
 }
 .table-wrapper {
-    min-width: 1000px;
+    //min-width: 1000px;
     background: #fff;
-    margin: 0px 80px;
+    //margin: 0px 80px;
+    margin: 0px 5%;
     padding: 20px 25px;
     border-radius: 3px;
     box-shadow: 0 1px 1px rgba(0,0,0,.05);
@@ -170,6 +171,11 @@ table.table .avatar {
     //background-color: #C0392B;
     //color: white;
 //}
+
+.alert{
+    margin: 0.7% 5%
+}
+
 .closebtn {
     margin-left: 15px;
     color: white;

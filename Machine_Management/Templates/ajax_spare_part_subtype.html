@@ -1,4 +1,4 @@
-<option value="">-------กรุณาเลือกชนิดอะไหล่-------</option>
+<option value="0">-------กรุณาเลือกชนิดอะไหล่-------</option>
 {% for sp_subtype in spare_part_subtype %}
 <option value="{{sp_subtype.pk}}">{{sp_subtype.spare_part_sub_type_code}} | {{sp_subtype.spare_part_sub_type_name}}</option>
 {% endfor %}

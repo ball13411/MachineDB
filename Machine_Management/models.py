@@ -104,7 +104,7 @@ class Production_line(models.Model):
 
     class Meta:
         db_table = "Production_line"
-        ordering = ["location_site", "location_building"]
+        ordering = ["location_site", "location_building","production_line"]
 
 
 class Product(models.Model):
@@ -223,6 +223,8 @@ class Spare_part(models.Model):
     spare_part_name = models.CharField(max_length=40, blank=True)
     spare_part_code = models.CharField(max_length=40, blank=True)
     spare_part_model = models.CharField(max_length=40, blank=True)
+    spare_part_brand = models.CharField(max_length=40, blank=True)
+    spare_part_serial = models.CharField(max_length=40, blank=True)
     service_life = models.IntegerField()
     service_plan_life = models.IntegerField()
     spare_part_type = models.ForeignKey(Spare_part_type, on_delete=models.CASCADE)

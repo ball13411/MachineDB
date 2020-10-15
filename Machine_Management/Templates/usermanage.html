@@ -168,10 +168,10 @@
 <div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
-          <div class="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            การสร้าง User ล้มเหลว กรุณากด Add New User ใหม่อีกครั้งเพื่อทราบปัญหาการสร้างผู้ใช้งาน
-          </div>
+        <div class="alert {{ message.tags }} ">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+            {{ message }}
+        </div>
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">

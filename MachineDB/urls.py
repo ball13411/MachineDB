@@ -61,10 +61,6 @@ urlpatterns = [
     path('machine/data/', views.machine_data, name='machinedata'),
     path('home/line-<int:line>', views.home_machine, name='machine_data_line'),
     path('home/line-<int:line>/machine-<int:machine>', views.machine_details, name='machine_data_machine'),
-    path('machine/register/', views.machine_register, name='machineregister'),
-    path('machine/search', views.machine_search, name='machinesearch'),
-    path('machine/update', views.machine_update, name='machineupdate'),
-    path('machine/update/edit', views.machine_edit, name='machineedit'),
     path('machine/searching/', views.machine_searching, name='machine_searching'),
 
     # AJAX Script
@@ -92,9 +88,9 @@ urlpatterns = [
     path('check_spare_part_group_code/', views.check_spare_part_group_code, name='check_spare_part_group_code'),
     path('ajax_dropdown_sp_type/', views.ajax_dropdown_sp_type, name='ajax_dropdown_sp_type'),
     path('ajax/load_selected_lines/', views.load_selected_lines, name='ajax_selected_lines'),
+    path('ajax/load_role_screen/', views.load_role_screen, name='load_role_screen'),
 
     # Test File
-    path('productionline/create', views.production_line_create, name='linecreate'),
     path('download', views.document_create1, name='download_docx'),
     path('test/', views.test)
 

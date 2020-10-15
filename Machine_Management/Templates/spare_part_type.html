@@ -29,39 +29,6 @@
             });
         });
     </script>
-    <script>
-        function check_spare_part_type_code(element) {
-            add_code = $(element).val();
-            var button = document.getElementById("add_spare_part_type");
-            var group_code = document.getElementById("add_group");
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_code" : add_code,
-                    "group_code" : group_code.value,
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-                    if (data.spare_type_code_success) {
-                        $('#add_sp_type_code').parent().removeClass();
-                        $('#add_sp_type_code').parent().addClass('form-group success');
-                        button.disabled = false;
-                    } else {
-                        $('#add_sp_type_code').parent().removeClass();
-                        $('#add_sp_type_code').parent().addClass('form-group error');
-                        button.disabled = true;
-                    }
-                    if (add_code == "") {
-                        $('#add_sp_type_code').parent().removeClass();
-                        $('#add_sp_type_code').parent().addClass('form-group');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
-    </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
     $(document).ready(function(){
@@ -113,7 +80,7 @@
                     <div class="col-sm-5">
                         <h2>Spare part Type <b>Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#create_spare_part_type" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
                     </div>
                 </div>
@@ -122,20 +89,20 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Spare Part Type Group</th>
                         <th>Spare Part Type Code</th>
                         <th>Spare Part Type Name</th>
-                        <th>Spare Part Type Group</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
             {% for sp_type in sp_type_all %}
                     <tr>
                         <td>{{forloop.counter}}</td>
+                        <td>{{sp_type.spare_part_group.spare_part_group_code}} ({{sp_type.spare_part_group.spare_part_group_name}})</td>
                         <td>{{sp_type.spare_part_type_code}}</td>
                         <td>{{sp_type.spare_part_type_name}}</td>
-                        <td>{{sp_type.spare_part_group}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{sp_type.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{sp_type.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
@@ -218,8 +185,8 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Spare Part Group</label>
-                                    <select class="form-control" id="add_group" name="select_sp_group" required="True">
-                                        <option value="">---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
+                                    <select class="form-control" id="add_group" name="select_sp_group" required="True" onchange="check_spare_part_type_code();">
+                                        <option value="0">---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
                                         {% for sp_group in spare_part_group_all %}
                                         <option value="{{sp_group.pk}}" >{{sp_group.spare_part_group_name}}</option>
                                         {% endfor %}
@@ -227,7 +194,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Spare Part Type Code</label>
-                                    <input type="text" class="form-control" name="add_sp_type_code" id="add_sp_type_code" placeholder="รหัสประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_type_code(this);return false;" data-url="{% url 'check_spare_part_type_code' %}"/>
+                                    <input type="text" class="form-control" name="add_sp_type_code" id="add_sp_type_code" placeholder="รหัสประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_type_code();"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Spare part type code is already exists</small>
@@ -253,10 +220,46 @@
     </div>
 </div>
 <script>
+        function check_spare_part_type_code() {
+            var button = document.getElementById("add_spare_part_type");
+            var group_code = document.getElementById("add_group");
+            var add_code = document.getElementById("add_sp_type_code");
+            $.ajax({
+                url : "{% url 'check_spare_part_type_code' %}",
+                data : {
+                    "csrfmiddlewaretoken" : $(add_code).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_code" : add_code.value,
+                    "group_code" : group_code.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    console.log("{% url 'check_spare_part_type_code' %}");
+                    if (data.spare_type_code_success && group_code.value != 0) {
+                        $('#add_sp_type_code').parent().removeClass();
+                        $('#add_sp_type_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_sp_type_code').parent().removeClass();
+                        $('#add_sp_type_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_code.value == "") {
+                        $('#add_sp_type_code').parent().removeClass();
+                        $('#add_sp_type_code').parent().addClass('form-group');
+                        button.disabled = true;
+                    }
+
+                }
+            });
+        }
+</script>
+
+
+<script>
     $(document).ready( function () {
     $('#myTable').DataTable();
 } );
 </script>
-
 </body>
 </html>

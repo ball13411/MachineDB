@@ -29,43 +29,6 @@
             });
         });
     </script>
-    <script>
-        function check_spare_part_code(element) {
-            add_sp_code= $(element).val();
-            var button = document.getElementById("add_spare_part");
-            if (add_sp_code == "") {
-                $('#add_sp_code').parent().removeClass();
-                $('#add_sp_code').parent().addClass('form-group');
-            }
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_sp_code" : add_sp_code,
-
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-                    //console.log(data);
-                    if (data.spare_part_code_success) {
-                        $('#add_sp_code').parent().removeClass();
-                        $('#add_sp_code').parent().addClass('form-group success');
-                        button.disabled = false;
-                    } else {
-                        $('#add_sp_code').parent().removeClass();
-                        $('#add_sp_code').parent().addClass('form-group error');
-                        button.disabled = true;
-                    }
-                    if (data.spare_part_code_empty) {
-                        $('#add_sp_code').parent().removeClass();
-                        $('#add_sp_code').parent().addClass('form-group');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
-    </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
     $(document).ready(function(){
@@ -118,7 +81,7 @@
                     <div class="col-sm-5">
                         <h2>Spare Part <b>Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#create_spare_part" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
                     </div>
                 </div>
@@ -275,7 +238,7 @@
                                     <div class="col-4 form-group">
                                         <label>Select Group</label>
                                         <select class="form-control" id="id_sp_group" name="id_sp_group" required="True" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                            <option value="" selected>-------กรุณาเลือกกลุ่มอะไหล่-------</option>
+                                            <option value="0" selected>-------กรุณาเลือกกลุ่มอะไหล่-------</option>
                                             {% for sp_group in spare_part_group_all %}
                                             <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_name}}</option>
                                             {% endfor %}
@@ -284,30 +247,44 @@
                                     <div class="col-4 form-group">
                                         <label>Select Type</label>
                                         <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
-                                            <option value="" selected>-------กรุณาเลือกประเภทของอะไหล่-------</option>
+                                            <option value="0" selected>-------กรุณาเลือกประเภทของอะไหล่-------</option>
                                         </select>
                                     </div>
                                     <div class="col-4 form-group">
                                         <label>Select Subtype</label>
                                         <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
-                                            <option value="" selected>-------กรุณาเลือกชนิดอะไหล่-------</option>
+                                            <option value="0" selected>-------กรุณาเลือกชนิดของอะไหล่-------</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Spare Part Code</label>
-                                    <input type="text" class="form-control" name="add_sp_code" id="add_sp_code" placeholder="รหัสอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_code(this);return false;" data-url="{% url 'check_spare_part_code' %}"/>
-                                    <i class="fas fa-check-circle"></i>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <small>Spare part code is already exists</small>
+                                <div class="row">
+                                    <div class="form-group col-4">
+                                        <label>Spare Part Brand</label>
+                                        <input type="text" class="form-control" name="add_sp_brand" id="add_sp_brand" placeholder="ยี่ห้ออะไหล่" required="True" autocomplete="off" maxlength="40" />
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Spare Part Model</label>
+                                        <input type="text" class="form-control" name="add_sp_model" id="add_sp_model" placeholder="โมเดลอะไหล่" required="True" autocomplete="off" maxlength="40" />
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Spare Part Serial</label>
+                                        <input type="text" class="form-control" name="add_sp_serial" id="add_sp_serial" placeholder="ซีเรียลอะไหล่" required="True" autocomplete="off" maxlength="40" />
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Spare Part Name</label>
-                                    <input type="text" class="form-control" name="add_sp_name" id="add_sp_name" placeholder="ชื่ออะไหล่" required="True" autocomplete="off" maxlength="40" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Spare Part Model</label>
-                                    <input type="text"  class="form-control" name="add_sp_model" id="add_sp_model" placeholder="โมเดลอะไหล่" autocomplete="off" maxlength="40" />
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <label>Spare Part Code</label>
+                                            <input type="text" class="form-control" name="add_sp_code" id="add_sp_code" placeholder="รหัสอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_code(this);return false;" data-url="{% url 'check_spare_part_code' %}"/>
+                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <small>Spare part code is already exists</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label>Spare Part Name</label>
+                                        <input type="text" class="form-control" name="add_sp_name" id="add_sp_name" placeholder="ชื่ออะไหล่" required="True" autocomplete="off" maxlength="40" />
+                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="col-md-6">
@@ -336,6 +313,19 @@
     </div>
 </div>
 <script>
+    $(document).ready(function(){
+        $("#id_sp_group").change(function(){
+            check_spare_part_code('#add_sp_code');
+        });
+        $("#id_sp_type").change(function(){
+            check_spare_part_code('#add_sp_code');
+        });
+        $("#id_sp_subtype").change(function(){
+            check_spare_part_code('#add_sp_code');
+        });
+    });
+</script>
+<script>
     $(document).ready( function () {
     $('#myTable').DataTable();
 } );
@@ -353,12 +343,12 @@
                 method: "POST",
                 dataType : "json",
                 success : function (data) {
-                    console.log(data);
                     if (data) {
                         $('#id_sp_type').empty();
                         var select_type = document.getElementById('id_sp_type');
                         var option_first = document.createElement('option');
                         option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทของอะไหล่-------"));
+                        option_first.value = 0;
                         select_type.appendChild(option_first);
                         for (model in data) {
                             var options = document.createElement('option');
@@ -368,6 +358,46 @@
                         }
                     } else {
                         $('#add_sp_type').empty();
+                    }
+                    if(select_type.value == 0) {
+                        $('#id_sp_subtype').empty();
+                        var select_subtype = document.getElementById('id_sp_subtype');
+                        var option_sub_first = document.createElement('option');
+                        option_sub_first.appendChild(document.createTextNode("-------กรุณาเลือกชนิดของอะไหล่-------"));
+                        option_sub_first.value = 0;
+                        select_subtype.appendChild(option_sub_first);
+                    }
+                }
+            });
+        }
+    </script>
+<script>
+        function check_spare_part_code(element) {
+            add_sp_code= $(element).val();
+            var button = document.getElementById("add_spare_part");
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_sp_code" : add_sp_code,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data.spare_part_code_success) {
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_sp_code == "" || $(id_sp_group).val() == 0  || $(id_sp_type).val() == 0 || $(id_sp_subtype).val() == 0 ) {
+                        $('#add_sp_code').parent().removeClass();
+                        $('#add_sp_code').parent().addClass('form-group');
+                        button.disabled = true;
                     }
                 }
             });

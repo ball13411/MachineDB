@@ -4,17 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Machine Management</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pridi&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" ></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" ></script>
 
     <script>
         $(document).ready(function(){
@@ -27,43 +24,6 @@
                 $(this).find(".modal-title").text(titleData);
             });
         });
-    </script>
-    <script>
-        function check_serial(element) {
-            add_serial= $(element).val();
-            var button = document.getElementById("AddmachineButton");
-            if (add_serial == "") {
-                $('#add_serial').parent().removeClass();
-                $('#add_serial').parent().addClass('form-group');
-            }
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_serial" : add_serial,
-
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-                    //console.log(data);
-                    if (data.serial_success) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group success');
-                        button.disabled = false;
-                    } else {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group error');
-                        button.disabled = true;
-                    }
-                    if (data.serial_empty) {
-                        $('#add_serial').parent().removeClass();
-                        $('#add_serial').parent().addClass('form-group');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
     </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
@@ -79,6 +39,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/transition.min.css" integrity="sha512-5StPzJo8hFyTvXfJ31FMB37EXRMVeUg+J3yvUNOJcL83MEMr7VrhZSNsoL3GDmUDBGBBhoTjnJx0Ql7cH9LY7g==" crossorigin="anonymous" />
     {% load static %}
+    <!-- Bootstrap 4.5.3 -->
+    <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap.min.css' %}">
+    <script src="{% static 'javascript/bootstrap.min.js' %}"></script>
     <!-- Multiselect -->
     <link href="{% static 'style/multi-select.css' %}" media="screen" rel="stylesheet" type="text/css">
     <!--  Input Date Format  DD/MM/YYYY -->
@@ -527,7 +490,7 @@
                                         <div class="col-md-2">
                                             <label>Machine Core</label>
                                             <div class="activeswitch">
-                                                <input type="checkbox" class="activeswitch-checkbox" id="add_mch_core" name="add_mch_core">
+                                                <input type="checkbox" class="activeswitch-checkbox" id="add_mch_core" name="add_mch_core" value="True">
                                                 <label class="activeswitch-label" for="add_mch_core">
                                                   <span class="activeswitch-inner"></span>
                                                   <span class="activeswitch-switch"></span>
@@ -560,15 +523,15 @@
                                     <div class="row">
                                         <div class="col-4">
                                             <label>Supplier</label>
-                                            <input type="text" class="form-control" name="add_supplier_code" id="add_supplier_code" placeholder="บริษัทผู้ขายเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                            <input type="text" class="form-control" name="add_supplier_code" id="add_supplier_code" placeholder="บริษัทผู้ขายเครื่องจักร" autocomplete="off" maxlength="20" />
                                         </div>
                                         <div class="col-4">
                                             <label>Supplier Emp In Charge</label>
-                                            <input type="text" class="form-control" name="add_supplier_name" id="add_supplier_name" placeholder="ชื่อผู้ขายเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_supplier_name" id="add_supplier_name" placeholder="ชื่อผู้ขายเครื่องจักร" autocomplete="off" maxlength="50" />
                                         </div>
                                         <div class="col-4">
                                             <label>Supplier Contact (Email,PhoneNo)</label>
-                                            <input type="text" class="form-control" name="add_supplier_contact" id="add_supplier_contact" placeholder="เบอร์หรืออีเมลติดต่อผู้ขายเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_supplier_contact" id="add_supplier_contact" placeholder="เบอร์หรืออีเมลติดต่อผู้ขายเครื่องจักร" autocomplete="off" maxlength="50" />
                                         </div>
                                     </div>
                                 </div>
@@ -576,15 +539,15 @@
                                     <div class="row">
                                         <div class="col-4">
                                             <label>Engineer Emp ID</label>
-                                            <input type="text" class="form-control" name="add_eng_emp_id" id="add_eng_emp_id" placeholder="รหัสพนักงานวิศะวผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="20" />
+                                            <input type="text" class="form-control" name="add_eng_emp_id" id="add_eng_emp_id" placeholder="รหัสพนักงานวิศะวผู้รับผิดชอบ" autocomplete="off" maxlength="20" />
                                         </div>
                                         <div class="col-4">
                                             <label>Engineer Emp In Charge Name</label>
-                                            <input type="text" class="form-control" name="add_eng_emp_name" id="add_eng_emp_name" placeholder="ชื่อผพนักงานวิศะวผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_eng_emp_name" id="add_eng_emp_name" placeholder="ชื่อผพนักงานวิศะวผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
                                         </div>
                                         <div class="col-4">
                                             <label>Engineer contact (Email,PhoneNo)</label>
-                                            <input type="text" class="form-control" name="add_eng_emp_contact" id="add_eng_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อวิศะวผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_eng_emp_contact" id="add_eng_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อวิศะวผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
                                         </div>
                                     </div>
                                 </div>
@@ -592,15 +555,15 @@
                                     <div class="row">
                                         <div class="col-4">
                                             <label>Production Emp ID</label>
-                                            <input type="text" class="form-control" name="add_pro_emp_id" id="add_pro_emp_id" placeholder="รหัสพนักงานไลน์ผลิตผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="20" />
+                                            <input type="text" class="form-control" name="add_pro_emp_id" id="add_pro_emp_id" placeholder="รหัสพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="20" />
                                         </div>
                                         <div class="col-4">
                                             <label>Production Emp In Charge Name</label>
-                                            <input type="text" class="form-control" name="add_pro_emp_name" id="add_pro_emp_name" placeholder="ชื่อพนักงานไลน์ผลิตผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_pro_emp_name" id="add_pro_emp_name" placeholder="ชื่อพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
                                         </div>
                                         <div class="col-4">
                                             <label>Production Contact (Email,PhoneNo)</label>
-                                            <input type="text" class="form-control" name="add_pro_emp_contact" id="add_pro_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อผพนักงานไลน์ผลิตผู้รับผิดชอบ" required="True" autocomplete="off" maxlength="50" />
+                                            <input type="text" class="form-control" name="add_pro_emp_contact" id="add_pro_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อผพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
                                         </div>
                                     </div>
                                 </div>
@@ -670,9 +633,58 @@
     </div>
 </div>
 <script>
+    $(document).ready(function(){
+        $("#add_machine_brand").keyup(function(){
+            check_serial('#add_serial');
+        });
+        $("#add_machine_model").keyup(function(){
+            check_serial('#add_serial');
+        });
+    });
+</script>
+<script>
+        function check_serial(element) {
+            add_serial= $(element).val();
+            var add_brand = document.getElementById("add_machine_brand");
+            var add_model = document.getElementById("add_machine_model");
+            var button = document.getElementById("AddmachineButton");
+
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_serial" : add_serial,
+                    "add_brand" : add_brand.value,
+                    "add_model" : add_model.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data.serial_success) {
+                        $('#add_serial').parent().removeClass();
+                        $('#add_serial').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_serial').parent().removeClass();
+                        $('#add_serial').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_serial == "") {
+                        $('#add_serial').parent().removeClass();
+                        $('#add_serial').parent().addClass('form-group');
+                        button.disabled = true;
+                    }
+                }
+            });
+        }
+</script>
+<script>
     $(document).ready( function () {
-    $('#myTable').DataTable();
-} );
+        $('#myTable').DataTable({
+
+        });
+    });
 </script>
 <script>
     $("#id_mch_type").change(function () {
