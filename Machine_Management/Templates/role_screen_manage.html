@@ -151,7 +151,7 @@
                                         <div class="col-sm-4 permission-label">Insert</div>
                                         <div class="col-sm-4">
                                             <div class="onoffswitch">
-                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert" value="{{rs.permission_insert}}" {% if rs.permission_insert == 'Y' %}checked{% endif %}>
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert" value="Y" {% if rs.permission_insert == 'Y' %}checked{% endif %}>
                                                 <label class="onoffswitch-label" for="set_rs_insert{{forloop.counter}}">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -228,12 +228,6 @@
                                 <h5 class="modal-title">Add new RoleScreen</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                            {% for message in messages %}
-                              <div class="alert">
-                                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                                {{message}}
-                              </div>
-                            {% endfor %}
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Role ID</label>

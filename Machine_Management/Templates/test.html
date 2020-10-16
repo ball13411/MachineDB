@@ -4,34 +4,49 @@
 <head>
     <meta charset="utf-8">
     <title>id demo</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"></head>
-
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'Semantic-UI-CSS-master/semantic.min.css' %}">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    dropdown
+    <link rel="stylesheet" type="text/css" href="{% static 'Semantic-UI-CSS-master/components/dropdown.min.css' %}">
 
 <body>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="custom-file">
-          <input type="file" class="custom-file-input" id="customFile" name="customFile">
-          <label class="custom-file-label" for="customFile">Choose file</label>
-          <label for="myfile">Select files:</label>
-          <input type="file" id="myfile" name="myfile" multiple>
-        </div>
-        <input type="date" id="myfile" name="myfile" multiple>
-        <input type="date" class="form-control" id="date">
-        <input type='submit'>
-    </form>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-<script>
-    $(document).ready(function () {
-      bsCustomFileInput.init()
-    })
-</script>
-</body>
+    <form method="POST">
+    {% csrf_token %}
+            <div class="ui fluid dropdown selection multiple active visible" tabindex="0">
+                  <select name="skills" multiple="">
+                  <option value="">Skills</option>
+                  <option value="angular">Angular</option>
+                  <option value="css">CSS</option>
+                  <option value="design">Graphic Design</option>
+                  <option value="ember">Ember</option>
+                  <option value="html">HTML</option>
+                  <option value="ia">Information Architecture</option>
+                  <option value="javascript">Javascript</option>
+                  <option value="mech">Mechanical Engineering</option>
+                  <option value="meteor">Meteor</option>
+                  <option value="node">NodeJS</option>
+                  <option value="plumbing">Plumbing</option>
+                  <option value="python">Python</option>
+                  <option value="rails">Rails</option>
+                  <option value="react">React</option>
+                  <option value="repair">Kitchen Repair</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="ui">UI Design</option>
+                  <option value="ux">User Experience</option>
+                  </select><i class="dropdown icon">
 
+            </i><a class="ui label transition visible" data-value="angular" style="display: inline-block !important;">Angular<i class="delete icon"></i></a><div class="default text">Skills</div><div class="menu transition visible" tabindex="-1" style="display: block !important;"><div class="item active filtered" data-value="angular">Angular</div><div class="item selected" data-value="css">CSS</div><div class="item" data-value="design">Graphic Design</div><div class="item" data-value="ember">Ember</div><div class="item" data-value="html">HTML</div><div class="item" data-value="ia">Information Architecture</div><div class="item" data-value="javascript">Javascript</div><div class="item" data-value="mech">Mechanical Engineering</div><div class="item" data-value="meteor">Meteor</div><div class="item" data-value="node">NodeJS</div><div class="item" data-value="plumbing">Plumbing</div><div class="item" data-value="python">Python</div><div class="item" data-value="rails">Rails</div><div class="item" data-value="react">React</div><div class="item" data-value="repair">Kitchen Repair</div><div class="item" data-value="ruby">Ruby</div><div class="item" data-value="ui">UI Design</div><div class="item" data-value="ux">User Experience</div></div></div>
+    </form>
+
+</body>
+<script src="{% static 'Semantic-UI-CSS-master/semantic.min.js' %}"></script>
+<script src="{% static 'Semantic-UI-CSS-master/components/dropdown.min.js' %}"></script>
+<script>
+      $('#multi select')
+        .dropdown()
+      ;
+</script>
 
 </html>
 

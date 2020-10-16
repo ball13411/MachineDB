@@ -999,8 +999,12 @@ def machine_manage(request):
 
                     list_product = []
                     for product in Product.objects.filter(line_id=line.pk):
-                        capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
-                        list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
+                        try:
+                            capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
+                            list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
+                        except Machine_Management.models.Machine.DoesNotExist:
+                            capacity_core = "-"
+                            list_product.append([str(product.product_name), str(product.product_code), capacity_core])
 
                     table = document.add_table(rows=1, cols=3)
                     table.style = 'Light List Accent 3'
@@ -1086,44 +1090,79 @@ def machine_manage(request):
                 return response
 
             elif file_report == 'excel':
-                # Prepare exporting
+                ## Prepare exporting
                 response = HttpResponse(content_type='application/ms-excel')
                 response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
 
                 wb = xlwt.Workbook(encoding='utf-8')
-                ws = wb.add_sheet('Machines Data')  # this will make a sheet named Machines Data
+                ws = wb.add_sheet('Machines Data', cell_overwrite_ok=True)      # this will make a sheet named Machines Data
 
                 # Sheet header, first row
                 row_num = 0
+                ws.row(0).height_mismatch = True
+                ws.row(0).height = 200*2
+                style = xlwt.easyxf('pattern: pattern solid, fore_colour gray25;''font: colour black, bold True;''align: vert centre, horiz centre')
 
-                font_style = xlwt.XFStyle()
-                font_style.font.bold = True
+                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
+                           'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date','Start Date']
 
-                columns = ['Machine_id', 'Serial_id', 'Machine_production_line_code', 'Machine_name']
-                # , 'Machine_brand', 'Machine_model',
-                #             'Machine_supplier_code', 'Machine_emp_id_response', 'Machine_capacity_per_minute', 'Machine_capacity_measure_unit',
-                #             'Machine_power_use_watt_per_hour', 'Machine_installed_datetime', 'Machine_start_use_datetime', 'Machine_hour', 'Machine_minute','Create_by'
-                #             'Create_date', 'Last_update_by', 'Last_update_date', 'Line', 'Sub_type', 'Mch_type', 'Machine_image1', 'Machine_image2', 'Machine_image3',
-                #             'Machine_image4', 'Machine_image5', 'Machine_document1', 'Machine_document2', 'Machine_document3', 'Machine_document4', 'Machine_document5',
-                #             'Machine_details', 'Machine_active']
                 for col_num in range(len(columns)):
-                    ws.write(row_num, col_num, columns[col_num], font_style)    # at 0 row 0 column
+                    ws.col(col_num).width = 4500
+                    ws.write(row_num, col_num, columns[col_num], style)             # at 0 row
 
                 # Sheet body, remaining rows
-                font_style = xlwt.XFStyle()
+                styles = ['pattern: pattern solid, fore_colour ice_blue;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour ivory;''align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour light_green;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour lavender;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour light_turquoise;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour tan;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour rose;' 'align: vert centre, horiz centre']
+
                 machine_submit = request.POST.get('Export_machine')
-                if machine_submit:
-                    for i in machine_submit.split(','):
-                        mch_id = Machine.objects.filter(machine_id=i)
-                        rows = mch_id.values_list('machine_id', 'serial_id', 'machine_production_line_code', 'machine_name')
-                        for row in rows:
-                            row_num += 1
-                            for col_num in range(len(row)):
-                                ws.write(row_num, col_num, row[col_num], font_style)
-                    wb.save(response)
-                    return response
-                else:
-                    messages.error(request, 'การทำรายการไม่สำเร็จ กรุณาเลือก Machine ที่ต้องการ')
+                queryset = Machine.objects.filter(machine_id__in=machine_submit.split(',')).order_by('line__production_line', 'machine_production_line_code')
+
+                rows = queryset.values_list('line__production_line', 'mch_type__mtype_name', 'sub_type__subtype_name', 'machine_name',
+                                            'machine_production_line_code', 'machine_brand', 'machine_model', 'serial_id', 'machine_load_capacity',
+                                            'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour', 'machine_hour', 'machine_installed_datetime',
+                                            'machine_start_use_datetime')
+
+                get_lines = rows.values('line__production_line')
+
+                lines = []
+                for l in get_lines:
+                    lines.append(l.get('line__production_line'))
+
+                for row in rows:
+                    row_num += 1
+                    for col_num in range(len(row)):
+                        if col_num == 0:
+                            for l in range(len(lines)):
+                                if l == 0:
+                                    findex = lines.index(lines[l])
+                                    # Get last index of item in list
+                                    lindex = len(lines) - lines[::-1].index(lines[l]) - 1
+                                    style = xlwt.easyxf(styles[0])
+                                    ws.write_merge(findex+1, lindex+1, 0, 0, lines[l], style)
+
+                                elif lines[l] != lines[l-1]:
+                                    styles = styles[1:]+styles[0:1]
+                                    findex = lines.index(lines[l])
+                                    # Get last index of item in list
+                                    lindex = len(lines) - lines[::-1].index(lines[l]) - 1
+                                    style = xlwt.easyxf(styles[0])
+                                    ws.write_merge(findex+1, lindex+1, 0, 0, lines[l], style)
+                        else:
+                            if isinstance(row[col_num], datetime.date):
+                                date_format = xlwt.XFStyle()
+                                date_format.num_format_str = 'dd/mm/yyyy'
+                                ws.write(row_num, col_num, row[col_num], date_format)
+                            else:
+                                ws.write(row_num, col_num, row[col_num])
+
+                wb.save(response)
+
+                return response
 
     context = {
         'User_login': User_login,
@@ -1843,8 +1882,6 @@ def document_create1(request):
     from docx import Document
     from docx.shared import Pt
 
-    # machine_id = ['1', '2', '16']
-    machine_id = range(2, 17)
     line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
     list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
     document = Document()
