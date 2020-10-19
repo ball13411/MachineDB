@@ -106,6 +106,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Line</th>
                         <th>mBrand</th>
                         <th>mModel</th>
                         <th>mSerial</th>
@@ -113,7 +114,6 @@
                         <th>mName</th>
                         <th>mType</th>
                         <th>mSubtype</th>
-                        <th>Line</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
@@ -121,6 +121,7 @@
             {% for mch in machine %}
                     <tr>
                         <td>{{forloop.counter}}</td>
+                        <td>{{mch.line}}</td>
                         <td>{{mch.machine_brand}}</td>
                         <td>{{mch.machine_model}}</td>
                         <td>{{mch.serial_id}}</td>
@@ -128,7 +129,6 @@
                         <td>{{mch.machine_name}}</td>
                         <td>{{mch.mch_type}}</td>
                         <td>{{mch.sub_type}}</td>
-                        <td>{{mch.line}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{mch.machine_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>

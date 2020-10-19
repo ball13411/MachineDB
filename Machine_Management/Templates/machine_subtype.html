@@ -100,7 +100,7 @@
             {% for subtype in subtypes %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{subtype.mch_type.mtype_code}} ({{subtype.mch_type.mtype_name}})</td>
+                        <td>{{subtype.mch_type.mtype_code}} | {{subtype.mch_type.mtype_name}}</td>
                         <td>{{subtype.subtype_code}}</td>
                         <td>{{subtype.subtype_name}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
