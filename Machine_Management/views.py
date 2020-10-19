@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.core import serializers
 import xlwt
 import ast
+from docx import Document
 
 # Create your views here.
 
@@ -30,25 +31,24 @@ def signin(request):
         if 'signin' in request.POST:
             username = request.POST['inputUser']  # Get var('username') from HTML
             password = request.POST['inputPassword']  # Get var('password') from HTML
-            try:  # Try connect username and passwd on Model
+            try:                                                                                    # Try connect username and passwd on Model
                 user = User.objects.get(username=username, password=password)
                 now = datetime.datetime.now()  # Call Datetime now
-                datenow = datetime.date.today()  # Call Date now
-                user.last_login_date = now  # Update last_login to now
-                user.save()  # Save Update
-                if user.start_date > datenow:  # Check StartDate and DateNow
-                    messages.info(request,
-                                  f'ชื่อผู้ใช้นี้ยังไม่สามารถเข้าสู่ระบบได้ สามารถเข้าได้ในวันที่ {user.start_date}')
+                datenow = datetime.date.today()                                                                         # Call Date now
+                user.last_login_date = now                                                                              # Update last_login to now
+                user.save()                                                                                             # Save Update
+                if user.start_date > datenow:                                                                           # Check StartDate and DateNow
+                    messages.error(request, f'ชื่อผู้ใช้นี้ยังไม่สามารถเข้าสู่ระบบได้ สามารถเข้าได้ในวันที่ {user.start_date}')
                     return redirect('/')
-                elif datenow > user.expired_date:  # Check Expired Date if expired link to resetpassword
+                elif datenow > user.expired_date:                                                   # Check Expired Date if expired link to resetpassword
                     messages.info(request, 'รหัสผ่านหมดอายุแล้ว กรุณาทำการ Reset Password')
                     return redirect('/')
-                if user is not None:  # Check login User                    # Set user login
+                if user is not None:                                                                # Check login User   # Set user login
                     User_login = user
                     UserRole = str(User_login.role)
                     return redirect('/home')
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
-                messages.info(request, "username หรือ password ไม่ถูกต้อง")
+                messages.error(request, "username หรือ password ไม่ถูกต้อง")
     return render(request, 'signin.html')
 
 
@@ -74,6 +74,7 @@ def usermanage(request):
             role = Role.objects.get(role_id=update_role)  # Get RoleID of UserSelect
             user.role = role  # Update Role of UserSelect
             user.save()  # Save all Update
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         # Form Add User (Add New User)
         elif 'Adduser' in request.POST:
             username = request.POST['add_username']  # Get var('username') form HTML
@@ -90,9 +91,9 @@ def usermanage(request):
             role = Role.objects.get(role_id=create_role)
             if passwd == conpasswd:  # Check password and confirm password
                 if User.objects.filter(username=username).exists():  # Query username is exists in model(DB)
-                    messages.info(request, "มีผู้ใช้ชื่อ Username นี้แล้ว")  # Show Message Username is exists
+                    messages.error(request, "มีผู้ใช้ชื่อ Username นี้แล้ว")  # Show Message Username is exists
                 elif User.objects.filter(email=email).exists():  # Query email is exists in model(DB)
-                    messages.info(request, "มีผู้ใช้ Email นี้แล้ว")  # Show Message Email is exists
+                    messages.error(request, "มีผู้ใช้ Email นี้แล้ว")  # Show Message Email is exists
                 else:
                     user = User.objects.create(
                         username=username,
@@ -112,18 +113,22 @@ def usermanage(request):
                         org=org,
                         user_active=True
                     )
-                    user.save()  # Save User
+                    user.save()                                                                 # Save User
+                    messages.success(request, "สร้างรายการสำเร็จ")
                     # return redirect('/usermanage')
             else:
-                messages.info(request, "รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบใหม่")  # Show Message Password != ConPassword
+                messages.error(request, "รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบใหม่")  # Show Message Password != ConPassword
+
         # Button Sign Out
         elif 'signout' in request.POST:
             User_login = None  # Set User_login is None
+
         # Form DeleteUser (icon delete)
         elif 'deleteuser' in request.POST:
-            username = request.POST['deleteuser']  # get var('username') from HTML
-            user = User.objects.get(username=username)  # Query Username
-            user.delete()  # Delete User from Model(DB)
+            username = request.POST['deleteuser']                               # get var('username') from HTML
+            user = User.objects.get(username=username)                          # Query Username
+            user.delete()                                                       # Delete User from Model(DB)
+            messages.success(request, "สร้างรายการสำเร็จ")
     # return var to HTML
     roles = Role.objects.all()
     users = User.objects.all()
@@ -209,13 +214,14 @@ def reset_password(request):
                     now = datetime.date.today()
                     user.expired_date = now + datetime.timedelta(90)
                     user.save()
+                    messages.success(request, "สร้างรายการสำเร็จ")
                     return redirect('/')
                 else:  # NewPassword != ConPassword
-                    messages.info(request, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
+                    messages.error(request, 'รหัสผ่านใหม่และรหัสผ่านยืนยันไม่ตรงกัน')
             else:  # OldPassword != NewPassword
-                messages.info(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
+                messages.error(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
         except Machine_Management.models.User.DoesNotExist:  # Failed Connect User in model(DB)
-            messages.info(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
+            messages.error(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
     return render(request, 'resetpassword.html')
 
 
@@ -230,18 +236,21 @@ def rolemanage(request):
             role = Role.objects.get(role_id=role_id)
             role.role_name = role_name
             role.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'Addrole' in request.POST:
             role_id = request.POST['add_roleid']  # Get var('role id') from HTML
             role_name = request.POST['add_rolename']  # Get var('role name') from HTML
             try:
                 role = Role.objects.create(role_id=role_id, role_name=role_name)
                 role.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             except django.db.utils.IntegrityError:
-                messages.info(request, "มีชื่อ Role ID นี้แล้ว กรุณาตั้งใหม่")
+                messages.error(request, "มีชื่อ Role ID นี้แล้ว กรุณาตั้งใหม่")
         elif 'deleterole' in request.POST:
             role_id = request.POST['deleterole']  # Get var('role id') from HTML
             role = Role.objects.get(role_id=role_id)
             role.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
         elif 'signout' in request.POST:
             User_login = None  # Set User_login is None
     roles = Role.objects.all()
@@ -268,12 +277,14 @@ def screenmanage(request):
                     file_html=file_html
                 )
                 screen.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             else:
                 messages.info(request, "มีชื่อ Screen ID นี้แล้ว กรุณาตั้งใหม่")
         elif 'deletescreen' in request.POST:
             del_screen_id = request.POST['deletescreen']
             screen = Screen.objects.get(screen_id=del_screen_id)
             screen.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
         elif 'Editscreen' in request.POST:
             set_screen_id = request.POST['set_screenid']
             set_screen_name = request.POST['set_screenname']
@@ -285,6 +296,7 @@ def screenmanage(request):
             screen.file_py = set_file_py
             screen.file_html = set_file_html
             screen.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
     screens = Screen.objects.all()
     context = {'User_logined': User_login,
                'screens': screens}
@@ -300,6 +312,7 @@ def role_screen(request):
             rs_id = request.POST['delete_rs']
             role_screen = Role_Screen.objects.get(id=rs_id)
             role_screen.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
         elif 'Edit_rs' in request.POST:
             rs = Role_Screen.objects.get(id=request.POST['Edit_rs'])
             if rs.role_id == request.POST['set_rs_role'] and rs.screen_id == request.POST['set_rs_screen']:
@@ -316,6 +329,7 @@ def role_screen(request):
                 role_screen.permission_update = rs_update
                 role_screen.permission_delete = rs_delete
                 role_screen.save()
+                messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
             elif not Role_Screen.objects.filter(role_id=request.POST['set_rs_role'],
                                                 screen_id=request.POST['set_rs_screen']).exists():
                 rs_id = request.POST['Edit_rs']
@@ -331,8 +345,9 @@ def role_screen(request):
                 role_screen.permission_update = rs_update
                 role_screen.permission_delete = rs_delete
                 role_screen.save()
+                messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
             else:
-                messages.info(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
+                messages.error(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
         elif 'Addrolescreen' in request.POST:
             if not Role_Screen.objects.filter(role_id=request.POST['add_rs_role'],
                                               screen_id=request.POST['add_rs_screen']).exists():
@@ -349,8 +364,9 @@ def role_screen(request):
                     permission_delete=rs_delete
                 )
                 role_screen.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             else:
-                messages.info(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
+                messages.error(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
@@ -393,24 +409,6 @@ def home(request):
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org}
     return render(request, 'home.html', context)
-
-
-def machine_register(request):
-    global User_login, UserRole, dict_menu_level
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_register').exists():
-        return redirect('/')
-    user_org = User_login.org.org_line.all()
-    form = MachineForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        form = MachineForm()
-        messages.info(request, 'Register Success')
-    UserRole = str(User_login.role)
-    context = {
-        'form': form, 'User_login': User_login, 'UserRole': UserRole, 'List_user_Screen': List_user_Screen,
-        'dict_menu_level': dict_menu_level.items(), 'lines': user_org
-    }
-    return render(request, 'machine_register.html', context)
 
 
 def machine_data(request):
@@ -467,8 +465,9 @@ def menumanage(request):
                     path_url=add_menu_path
                 )
                 menu.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             else:
-                messages.info(request, "มีการใช้ Menu ID นี้แล้ว กรุณาตั้งชื่อใหม่")
+                messages.error(request, "มีการใช้ Menu ID นี้แล้ว กรุณาตั้งชื่อใหม่")
         elif 'Editmenu' in request.POST:
             old_menu_id = request.POST['Editmenu']
             set_menu_id = request.POST['set_menu_id']
@@ -488,6 +487,7 @@ def menumanage(request):
                 set_menu.index = set_menu_index
                 set_menu.path_url = set_menu_path
                 set_menu.save()
+                messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
             else:
                 old_menu = Menu.objects.get(menu_id=old_menu_id)
                 old_menu.delete()
@@ -501,10 +501,12 @@ def menumanage(request):
                     path_url=set_menu_path
                 )
                 set_menu.save()
+                messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'deletemenu' in request.POST:
             del_menu_id = request.POST['deletemenu']
             menu_del = Menu.objects.get(menu_id=del_menu_id)
             menu_del.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
     list_menu = Menu.objects.order_by('level')
     list_screen = Screen.objects.all()
     screen_of_menu = []
@@ -533,97 +535,25 @@ def organizemanage(request):
                     org_name=add_org_name
                 )
                 organize.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             else:
-                messages.info(request, 'มีชื่อ Organize Code นี้แล้ว ไม่สามารถเพิ่มได้ กรุณาทำรายการใหม่')
+                messages.error(request, 'มีชื่อ Organize Code นี้แล้ว ไม่สามารถเพิ่มได้ กรุณาทำรายการใหม่')
         elif 'delete_org' in request.POST:
             organize = Organization.objects.get(org_id=request.POST['delete_org'])
             organize.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
         elif 'Editorg' in request.POST:
             organize = Organization.objects.get(org_id=request.POST['set_org_id'])
             organize.org_code = request.POST['set_org_code']
             organize.org_name = request.POST['set_org_name']
             organize.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
     orgs = Organization.objects.all()
     context = {
         'orgs': orgs, 'User_login': User_login
     }
     return render(request, 'organizemanage.html', context)
 
-
-def machine_search(request):
-    global User_login, dict_menu_level, UserRole, User_org_machine_line
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_search').exists():
-        return redirect('/')
-    User_org = User_login.org.org_line.all()
-    User_org_machine_line = Machine.objects.filter(line__in=User_org)
-    filtered_machine = MachineFilter(request.GET, queryset=User_org_machine_line)
-    context = {
-        'User_login': User_login, 'dict_menu_level': dict_menu_level.items(), 'UserRole': UserRole,
-        'filtered_machine': filtered_machine
-    }
-    return render(request, 'machine_search.html', context)
-
-
-def machine_update(request):
-    global User_login, UserRole, User_org_machine_line, dict_menu_level
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_update').exists():
-        return redirect('/')
-    User_org = User_login.org.org_line.all()
-    User_org_machine_line = Machine.objects.filter(line__in=User_org)
-    context = {
-        'User_login': User_login, 'UserRole': UserRole, 'User_org_machine_line': User_org_machine_line,
-        'dict_menu_level': dict_menu_level.items()
-    }
-    return render(request, 'machine_update.html', context)
-
-
-def machine_edit(request):
-    global User_login, UserRole, dict_menu_level
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_update').exists():
-        return redirect('/')
-    get_machine = None
-    list_mtype = Machine_type.objects.all()
-    list_stype = Machine_subtype.objects.all()
-    list_line = Production_line.objects.all()
-    if request.method == "POST":
-        if 'edit_mch_id' in request.POST:
-            machine_id = request.POST['edit_mch_id']
-            get_machine = Machine.objects.filter(machine_id=machine_id)
-        elif 'mch_update' in request.POST:
-            machine = Machine.objects.get(machine_id=request.POST['edit_machine_id'])
-            machine.serial_id = request.POST['edit_serial_id']
-            machine.machine_production_line_code = request.POST['edit_machine_code']
-            machine.machine_name = request.POST['edit_machine_name']
-            machine.sub_type_id = request.POST['select_stype']
-            machine.mch_type_id = request.POST['select_mtype']
-            machine.machine_brand = request.POST['edit_machine_brand']
-            machine.machine_model = request.POST['edit_machine_model']
-            machine.machine_supplier_code = request.POST['edit_machine_supplier_code']
-            machine.machine_location_id = request.POST['edit_machine_location_id']
-            machine.machine_emp_id_response = request.POST['edit_machine_emp_id_response']
-            machine.machine_capacity_per_minute = request.POST['edit_machine_capacity_per_minute']
-            machine.machine_capacity_measure_unit = request.POST['edit_machine_capacity_measure_unit']
-            machine.machine_power_use_watt_per_hour = request.POST['edit_machine_power_use_watt_per_hour']
-            machine.machine_installed_datetime = request.POST['edit_machine_installed_datetime']
-            machine.machine_start_use_datetime = request.POST['edit_machine_start_use_datetime']
-            machine.line_id = request.POST['select_pline']
-            machine.save()
-    context = {
-        'User_login': User_login, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'get_machine': get_machine, 'list_mtype': list_mtype,
-        'list_line': list_line, 'list_stype': list_stype
-    }
-    return render(request, 'machine_edit.html', context)
-
-
-def production_line_create(request):
-    form = ProductLineForm()
-    if request.method == "POST":
-        form = ProductLineForm(request.POST)
-        if form.is_valid():
-            form.save()
-    context = {'form': form}
-    return render(request, 'line_create.html', context)
 
 
 def load_building(request):
@@ -663,12 +593,13 @@ def production_line(request):
                         location_floor=Floor.objects.get(id=request.POST['add_select_floor'])
                     )
                     pline.save()
+                    messages.success(request, "สร้างรายการสำเร็จ")
                 else:
-                    messages.info(request, "มี Production Line นี้แล้วอยู่ในระบบ")
+                    messages.error(request, "มี Production Line นี้แล้วอยู่ในระบบ")
             except Machine_Management.models.Floor.DoesNotExist:
-                messages.info(request, "คุณกรอกข้อมูลบางส่วนไม่สมบูรณ์ กรุณากรอกข้อมูลให้สมบูรณ์")
+                messages.error(request, "คุณกรอกข้อมูลบางส่วนไม่สมบูรณ์ กรุณากรอกข้อมูลให้สมบูรณ์")
 
-        elif 'Editprodline' in request.POST:
+        elif 'Edit_prod_line' in request.POST:
             if not Production_line.objects.filter(production_line=request.POST['set_production_line'],
                                                   location_site=Site.objects.get(id=request.POST['select_site']),
                                                   location_building=Building.objects.get(
@@ -682,10 +613,11 @@ def production_line(request):
                 pline.location_floor = Floor.objects.get(id=request.POST['select_floor'])
                 pline.save()
             else:
-                messages.info(request, "มี Production Line นี้แล้วอยู่ในระบบ")
+                messages.error(request, "มี Production Line นี้แล้วอยู่ในระบบ")
         elif 'delete_line' in request.POST:
             pline = Production_line.objects.get(pid=request.POST['delete_line'])
             pline.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
     lines = Production_line.objects.all()
     sites = Site.objects.all()
     buildings = Building.objects.all()
@@ -713,10 +645,11 @@ def location(request):
                 building = Building.objects.create(building=request.POST['add_building'], site=site)
                 building.save()
             if Floor.objects.filter(floor=request.POST['add_floor'], site=site, building=building).exists():
-                messages.info(request, "มี Location นี้แล้ว")
+                messages.error(request, "มี Location นี้แล้ว")
             else:
                 floor = Floor.objects.create(floor=request.POST['add_floor'], site=site, building=building)
                 floor.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
         elif 'Editlocation' in request.POST:
             floor = Floor.objects.get(id=request.POST['set_location_id'])
             if floor.site.site != request.POST['set_site']:
@@ -739,10 +672,11 @@ def location(request):
                 building = floor.building
             if floor.floor != request.POST['set_floor']:
                 if Floor.objects.filter(floor=request.POST['set_floor'], site=site, building=building).exists():
-                    messages.info(request, "มี Location นี้แล้ว")
+                    messages.error(request, "มี Location นี้แล้ว")
                 else:
                     floor.floor = request.POST['set_floor']
                     floor.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_location' in request.POST:
             locations = Floor.objects.get(pk=request.POST['delete_location'])
             if Floor.objects.filter(site_id=locations.site_id).count() == 1:
@@ -753,13 +687,12 @@ def location(request):
                 building.delete()
             if Floor.objects.filter(pk=locations.pk).count() == 1:
                 locations.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
 
     sites = Site.objects.all()
     buildings = Building.objects.all()
     floors = Floor.objects.all()
-    context = {
-        'User_login': User_login, 'sites': sites, 'buildings': buildings, 'floors': floors
-    }
+    context = {'User_login': User_login, 'sites': sites, 'buildings': buildings, 'floors': floors}
     return render(request, 'location.html', context)
 
 
@@ -773,11 +706,13 @@ def org_productline(request):
             line = Production_line.objects.get(pid=request.POST["select_line"])
             org.org_line.add(line)
             org.save()
+            messages.success(request, "เพิ่มรายการสำเร็จ")
         elif "delete_org" in request.POST:
             org = Organization.objects.get(org_id=request.POST["delete_org"])
             line = Production_line.objects.get(pid=request.POST["select_del_line"])
             org.org_line.remove(line)
             org.save()
+            messages.success(request, "ลบรายการสำเร็จ")
     org_lines = Organization.objects.all()
     prod_lines = Production_line.objects.all()
     context = {
@@ -836,6 +771,7 @@ def productmanage(request):
                     line=line
                 )
                 product.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
             else:
                 messages.info(request, "มีเลขรหัสผลิตภัณฑ์นี้แล้วนในไลน์การผลิต")
         elif 'Editproduct' in request.POST:
@@ -847,14 +783,14 @@ def productmanage(request):
             product.labour = request.POST['set_product_labour']
             product.line = line
             product.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_line' in request.POST:
             product = Product.objects.get(pk=request.POST['delete_line'])
             product.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
     products = Product.objects.all()
     plines = Production_line.objects.all()
-    context = {
-        "User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines
-    }
+    context = {"User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines}
     return render(request, 'productmanage.html', context)
 
 
@@ -1014,8 +950,9 @@ def machine_manage(request):
             edit_mch.machine_active = request.POST.get('set_mch_status', False)
             if request.POST.get('set_mch_core', False):
                 if Machine.objects.filter(line_id=edit_mch.line_id, machine_core=True).exists():
-                    messages.error(request, 'ในไลน์ผลิตนี้มี Machine Core แล้วไม่สามารถทำรายการได้')
-                    return redirect('/machinemanage/machine/')
+                    if edit_mch != Machine.objects.get(line_id=edit_mch.line_id, machine_core=True):
+                        messages.error(request, 'ในไลน์ผลิตนี้มี Machine Core แล้วไม่สามารถทำรายการได้')
+                        return redirect('/machinemanage/machine/')
             edit_mch.machine_core = request.POST.get('set_mch_core', False)
             edit_mch.machine_hour = request.POST.get('set_hour', 0)
             edit_mch.machine_minute = request.POST.get('set_minute', 0)
@@ -1044,46 +981,188 @@ def machine_manage(request):
             del_machine = request.POST['deletemachine']
             machine_id = Machine.objects.get(machine_id=del_machine)
             machine_id.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
 
         elif 'Export_machine' in request.POST:
-            # Prepare exporting
-            response = HttpResponse(content_type='application/ms-excel')
-            response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
+            file_report = request.POST['file_type']
+            if file_report == 'docx':
+                machine_id = request.POST.get('Export_machine').split(',')
+                line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
+                list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
+                document = Document()
+                for line in list_production_line:
+                    document.add_heading(f'Production Line {line.production_line}', 0)
 
-            wb = xlwt.Workbook(encoding='utf-8')
-            ws = wb.add_sheet('Machines Data')  # this will make a sheet named Machines Data
+                    document.add_paragraph(
+                        f'สถานที่ตั้งโรงงาน {line.location_site} อาคารที่ {line.location_building} ชั้นที่ {line.location_floor}')
+                    document.add_paragraph('ผลิตภัณฑ์ที่ผลิต', style='List Bullet')
 
-            # Sheet header, first row
-            row_num = 0
+                    list_product = []
+                    for product in Product.objects.filter(line_id=line.pk):
+                        try:
+                            capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
+                            list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
+                        except Machine_Management.models.Machine.DoesNotExist:
+                            capacity_core = "-"
+                            list_product.append([str(product.product_name), str(product.product_code), capacity_core])
 
-            font_style = xlwt.XFStyle()
-            font_style.font.bold = True
+                    table = document.add_table(rows=1, cols=3)
+                    table.style = 'Light List Accent 3'
+                    hdr_cells = table.rows[0].cells
+                    hdr_cells[0].text = 'Product Name'
+                    hdr_cells[1].text = 'Product Code'
+                    hdr_cells[2].text = 'Product Capacity'
+                    for name, code, capacity in list_product:
+                        row_cells = table.add_row().cells
+                        row_cells[0].text = str(name)
+                        row_cells[1].text = str(code)
+                        row_cells[2].text = str(capacity)
 
-            columns = ['Machine_id', 'Serial_id', 'Machine_production_line_code', 'Machine_name']
-            # , 'Machine_brand', 'Machine_model',
-            #             'Machine_supplier_code', 'Machine_emp_id_response', 'Machine_capacity_per_minute', 'Machine_capacity_measure_unit',
-            #             'Machine_power_use_watt_per_hour', 'Machine_installed_datetime', 'Machine_start_use_datetime', 'Machine_hour', 'Machine_minute','Create_by'
-            #             'Create_date', 'Last_update_by', 'Last_update_date', 'Line', 'Sub_type', 'Mch_type', 'Machine_image1', 'Machine_image2', 'Machine_image3',
-            #             'Machine_image4', 'Machine_image5', 'Machine_document1', 'Machine_document2', 'Machine_document3', 'Machine_document4', 'Machine_document5',
-            #             'Machine_details', 'Machine_active']
-            for col_num in range(len(columns)):
-                ws.write(row_num, col_num, columns[col_num], font_style)    # at 0 row 0 column
+                    # document.add_heading('เครื่องจักร', level=1)
+                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=machine_id).order_by('machine_production_line_code')
+                    for mch in machine_in_line:
 
-            # Sheet body, remaining rows
-            font_style = xlwt.XFStyle()
-            machine_submit = request.POST.get('Export_machine')
-            if machine_submit:
-                for i in machine_submit.split(','):
-                    mch_id = Machine.objects.filter(machine_id=i)
-                    rows = mch_id.values_list('machine_id', 'serial_id', 'machine_production_line_code', 'machine_name')
-                    for row in rows:
-                        row_num += 1
-                        for col_num in range(len(row)):
-                            ws.write(row_num, col_num, row[col_num], font_style)
-                wb.save(response)
+                        document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
+                        document.add_paragraph(' ')
+                        # run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
+                        # font = run.font
+                        # font.size = Pt(20)
+                        document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
+
+                        records = (
+                            ('Machine Brand', mch.machine_brand),
+                            ('Machine Model', mch.machine_model),
+                            ('Machine Serial', mch.serial_id),
+                            ('Machine Type', mch.mch_type),
+                            ('Machine Subtype', mch.sub_type),
+                            ('Machine Production Line', mch.line),
+                            ('Machine Line Code', mch.machine_production_line_code),
+                            ('Machine Name', mch.machine_name),
+                            ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
+                            ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
+                            ('Machine Installed Date', mch.machine_installed_datetime),
+                            ('Machine Start Date', mch.machine_start_use_datetime),
+                            ('Machine Hours', str(mch.machine_hour)),
+                            ('Machine Supplier', mch.machine_supplier_code),
+                            ('Machine Supplier Name', str(mch.machine_supplier_name)+" (ติดต่อ : "+str(mch.machine_supplier_contact)+" )"),
+                            ('Engineer Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_eng_emp_id)+" ชื่อ: "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
+                            ('Production Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_pro_emp_id)+" ชื่อ: "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
+                        )
+
+                        table = document.add_table(rows=1, cols=2)
+                        table.style = 'Light List Accent 1'
+                        hdr_cells = table.rows[0].cells
+                        hdr_cells[0].text = 'Title'
+                        hdr_cells[1].text = 'Specification'
+                        for title, data in records:
+                            row_cells = table.add_row().cells
+                            row_cells[0].text = title
+                            row_cells[1].text = str(data)
+
+                        mch_capacity = Machine_capacity.objects.filter(machine_id=mch.machine_id)
+                        if mch_capacity.exists():
+                            document.add_paragraph(' ')
+                            document.add_paragraph('ข้อมูลกำลังการผลิต', style='List Bullet')
+                            list_table = []
+                            for mch_cap in mch_capacity:
+                                list_table.append([str(mch_cap.product.product_name), str(mch_cap.product.product_code), str(int(mch_cap.fg_capacity))])
+                            table = document.add_table(rows=1, cols=3)
+                            table.style = 'Light List Accent 2'
+                            hdr_cells = table.rows[0].cells
+                            hdr_cells[0].text = 'Product Name'
+                            hdr_cells[1].text = 'Product Code'
+                            hdr_cells[2].text = 'FG Capacity/Hour'
+                            for name, code, capacity in list_table:
+                                row_cells = table.add_row().cells
+                                row_cells[0].text = name
+                                row_cells[1].text = code
+                                row_cells[2].text = capacity
+
+                        if mch != machine_in_line.last():
+                            document.add_page_break()
+
+                    if line != list_production_line.last():
+                        document.add_page_break()
+
+                response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                response['Content-Disposition'] = 'attachment; filename=machine_data.docx'
+                document.save(response)
                 return response
-            else:
-                messages.error(request, 'การทำรายการไม่สำเร็จ กรุณาเลือก Machine ที่ต้องการ')
+
+            elif file_report == 'excel':
+                ## Prepare exporting
+                response = HttpResponse(content_type='application/ms-excel')
+                response['Content-Disposition'] = 'attachment; filename="Machines.xls"'
+
+                wb = xlwt.Workbook(encoding='utf-8')
+                ws = wb.add_sheet('Machines Data', cell_overwrite_ok=True)      # this will make a sheet named Machines Data
+
+                # Sheet header, first row
+                row_num = 0
+                ws.row(0).height_mismatch = True
+                ws.row(0).height = 200*2
+                style = xlwt.easyxf('pattern: pattern solid, fore_colour gray25;''font: colour black, bold True;''align: vert centre, horiz centre')
+
+                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
+                           'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date','Start Date']
+
+                for col_num in range(len(columns)):
+                    ws.col(col_num).width = 4500
+                    ws.write(row_num, col_num, columns[col_num], style)             # at 0 row
+
+                # Sheet body, remaining rows
+                styles = ['pattern: pattern solid, fore_colour ice_blue;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour ivory;''align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour light_green;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour lavender;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour light_turquoise;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour tan;' 'align: vert centre, horiz centre',
+                          'pattern: pattern solid, fore_colour rose;' 'align: vert centre, horiz centre']
+
+                machine_submit = request.POST.get('Export_machine')
+                queryset = Machine.objects.filter(machine_id__in=machine_submit.split(',')).order_by('line__production_line', 'machine_production_line_code')
+
+                rows = queryset.values_list('line__production_line', 'mch_type__mtype_name', 'sub_type__subtype_name', 'machine_name',
+                                            'machine_production_line_code', 'machine_brand', 'machine_model', 'serial_id', 'machine_load_capacity',
+                                            'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour', 'machine_hour', 'machine_installed_datetime',
+                                            'machine_start_use_datetime')
+
+                get_lines = rows.values('line__production_line')
+
+                lines = []
+                for l in get_lines:
+                    lines.append(l.get('line__production_line'))
+
+                for row in rows:
+                    row_num += 1
+                    for col_num in range(len(row)):
+                        if col_num == 0:
+                            for l in range(len(lines)):
+                                if l == 0:
+                                    findex = lines.index(lines[l])
+                                    # Get last index of item in list
+                                    lindex = len(lines) - lines[::-1].index(lines[l]) - 1
+                                    style = xlwt.easyxf(styles[0])
+                                    ws.write_merge(findex+1, lindex+1, 0, 0, lines[l], style)
+
+                                elif lines[l] != lines[l-1]:
+                                    styles = styles[1:]+styles[0:1]
+                                    findex = lines.index(lines[l])
+                                    # Get last index of item in list
+                                    lindex = len(lines) - lines[::-1].index(lines[l]) - 1
+                                    style = xlwt.easyxf(styles[0])
+                                    ws.write_merge(findex+1, lindex+1, 0, 0, lines[l], style)
+                        else:
+                            if isinstance(row[col_num], datetime.date):
+                                date_format = xlwt.XFStyle()
+                                date_format.num_format_str = 'dd/mm/yyyy'
+                                ws.write(row_num, col_num, row[col_num], date_format)
+                            else:
+                                ws.write(row_num, col_num, row[col_num])
+
+                wb.save(response)
+
+                return response
 
     context = {
         'User_login': User_login,
@@ -1098,36 +1177,19 @@ def check_serial(request):
     if request.method == 'POST':
         response_data = {}
         add_machine_serial = request.POST["add_serial"]
+        add_brand = request.POST['add_brand']
+        add_model = request.POST['add_model']
+        serial = Machine.objects.filter(serial_id=add_machine_serial, machine_model=add_model, machine_brand=add_brand)
 
-        serial = Machine.objects.filter(serial_id=add_machine_serial)
-        serial_status = None
+        if serial.count():
+            serial_status = True  # alredy exist
+        else:
+            serial_status = False  # avialble
 
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if serial.count():
-                    serial_status = True  # alredy exist
-                elif len(add_machine_serial) == 0:
-                    serial_status = None  # empty input
-                else:
-                    serial_status = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-
-            if not serial_status:
-                response_data["serial_success"] = True
-            else:
-                response_data["serial_success"] = False
-            if serial_status is None:
-                response_data["serial_empty"] = True
-
-        except Exception:
+        if not serial_status:
+            response_data["serial_success"] = True
+        else:
             response_data["serial_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
 
         return JsonResponse(response_data)
 
@@ -1177,6 +1239,7 @@ def machine_type(request):
             del_type = request.POST['Delete_type']
             typeid = Machine_type.objects.get(mtype_id=del_type)
             typeid.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
     context = {'mch_types': mch_types, 'User_login': User_login, 'role_and_screen': role_and_screen}
     return render(request, 'machine_type.html', context)
 
@@ -1191,8 +1254,6 @@ def check_machine_type_code(request):
 
         try:
             try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
                 if typeid.count():
                     typecode = True  # alredy exist
                 elif len(add_type_code) == 0:
@@ -1247,8 +1308,7 @@ def machine_subtype(request):
                 add_new_subtype.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine Subtype เรียบร้อยแล้ว')
             else:
-                messages.error(request,
-                               'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
+                messages.error(request,'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
 
         elif 'EditSubtype' in request.POST:
             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
@@ -1261,8 +1321,7 @@ def machine_subtype(request):
                                                   mch_type_id=request.POST['select_type']).exists():
                 edit_subtype.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Subtype สำเร็จ')
-            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST[
-                'select_type']:
+            elif edit_subtype.subtype_name == request.POST['set_subtype'] and edit_subtype.mch_type_id == request.POST['select_type']:
                 messages.success(request, 'ไม่มีการ Update รายการใหม่')
             else:
                 messages.error(request, 'การแก้ข้อมูล Machine Subtype ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
@@ -1387,34 +1446,18 @@ def check_machine_subtype_code(request):
     if request.method == 'POST':
         response_data = {}
         add_subtype_code = request.POST["add_subtype_code"]
-        subtypeid = Machine_subtype.objects.filter(subtype_code=add_subtype_code)
-        subtypecode = None
+        add_mch_type = request.POST['add_mch_type']
+        subtype_id = Machine_subtype.objects.filter(subtype_code=add_subtype_code, mch_type_id=add_mch_type)
 
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if subtypeid.count():
-                    subtypecode = True  # alredy exist
-                elif len(add_subtype_code) == 0:
-                    subtypecode = None  # empty input
-                else:
-                    subtypecode = False  # avialble
+        if subtype_id.count():
+            subtype_code = True  # alredy exist
+        else:
+            subtype_code = False  # avialble
 
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-            if not subtypecode:
-                response_data["subtypecode_success"] = True
-            else:
-                response_data["subtypecode_success"] = False
-            if subtypecode is None:
-                response_data["subtypecode_empty"] = True
-
-        except Exception:
-            response_data["subtypecode_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
+        if not subtype_code:
+            response_data["subtype_code_success"] = True
+        else:
+            response_data["subtype_code_success"] = False
 
         return JsonResponse(response_data)
 
@@ -1444,7 +1487,8 @@ def machine_details(request, line, machine):
 
 def spare_part_manage(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage').exists():
+    role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage')
+    if not role_and_screen.exists():
         return redirect('/')
     spare_part_all = Spare_part.objects.all()
     spare_part_group_all = Spare_part_group.objects.all()
@@ -1462,6 +1506,7 @@ def spare_part_manage(request):
                                                    create_date=datetime.date.today(),
                                                    spare_part_active=True)
             spare_part.save()
+            messages.success(request, "สร้างรายการสำเร็จ")
         elif 'edit_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['edit_spare_part'])
             spare_part.spare_part_name = request.POST['set_sp_name']
@@ -1472,10 +1517,13 @@ def spare_part_manage(request):
             spare_part.last_update_date = datetime.date.today()
             spare_part.spare_part_active = request.POST.get('set_sp_status', False)
             spare_part.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
             spare_part.delete()
-    context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_group_all': spare_part_group_all}
+            messages.success(request, "ลบรายการสำเร็จ")
+    context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_group_all': spare_part_group_all,
+               'role_and_screen': role_and_screen}
     return render(request, 'spare_part_manage.html', context)
 
 
@@ -1495,36 +1543,44 @@ def load_spare_part(request):
 
 def spare_part_subtype(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype').exists():
+    role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype')
+    if not role_and_screen.exists():
         return redirect('/')
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
         if 'add_spare_part_subtype' in request.POST:
-            sp_subtype = Spare_part_sub_type.objects.create(
-                spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
-                spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
-                spare_part_type_id=request.POST['select_sp_type'],
-                create_by=User_login.username,
-                create_date=datetime.date.today())
-            sp_subtype.save()
+            if request.POST['select_sp_type'] != "0":
+                sp_subtype = Spare_part_sub_type.objects.create(
+                    spare_part_sub_type_code=request.POST['add_sp_subtype_code'],
+                    spare_part_sub_type_name=request.POST['add_sp_subtype_name'],
+                    spare_part_type_id=request.POST['select_sp_type'],
+                    create_by=User_login.username,
+                    create_date=datetime.date.today())
+                sp_subtype.save()
+                messages.success(request, "การเพิ่มรายการชนิดอะไหล่เสร็จสมบูรณ์")
+            else:
+                messages.error(request, "การทำรายการไม่สำเร็จ เนื่องจากกรอกประเภทอะไหล่ไม่ถูกต้อง")
         elif 'edit_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['edit_spare_part_subtype'])
             sp_subtype.spare_part_sub_type_name = request.POST['set_sp_suptype_name']
             sp_subtype.last_update_by = User_login.username
             sp_subtype.last_update_date = datetime.date.today()
             sp_subtype.save()
+            messages.success(request, "การแก้ไขรายการชนิดอะไหล่เสร็จสมบูรณ์")
         elif 'delete_spare_part_subtype' in request.POST:
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
+            messages.success(request, "การลบรายการชนิดอะไหล่เสร็จสมบูรณ์")
     context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all,
-               'spare_part_group_all': spare_part_group_all}
+               'spare_part_group_all': spare_part_group_all, 'role_and_screen': role_and_screen}
     return render(request, 'spare_part_subtype.html', context)
 
 
 def spare_part_type(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type').exists():
+    role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type')
+    if not role_and_screen.exists():
         return redirect('/')
     spare_part_group_all = Spare_part_group.objects.all()
     sp_type_all = Spare_part_type.objects.all()
@@ -1536,22 +1592,27 @@ def spare_part_type(request):
                                                         create_date=datetime.date.today(),
                                                         spare_part_group_id=request.POST['select_sp_group'])
             spare_type.save()
+            messages.success(request, "สร้างรายการสำเร็จ")
         elif 'edit_spare_part_type' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['edit_spare_part_type'])
             spare_type.spare_part_type_name = request.POST['set_sp_name']
             spare_type.last_update_by = User_login.username
             spare_type.last_update_date = datetime.date.today()
             spare_type.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_spare_part' in request.POST:
             spare_type = Spare_part_type.objects.get(pk=request.POST['delete_spare_part'])
             spare_type.delete()
-    context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all}
+            messages.success(request, "ลบรายการสำเร็จ")
+    context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all,
+               'role_and_screen': role_and_screen}
     return render(request, 'spare_part_type.html', context)
 
 
 def spare_part_group(request):
     global User_login
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_group').exists():
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='spare_part_group')
+    if not role_and_screen.exists():
         return redirect('/')
     sp_group_all = Spare_part_group.objects.all()
     if request.method == "POST":
@@ -1561,16 +1622,19 @@ def spare_part_group(request):
                                                         create_by=User_login.username,
                                                         create_date=datetime.date.today())
             spare_group.save()
+            messages.success(request, "สร้างรายการสำเร็จ")
         elif 'edit_spare_part_group' in request.POST:
             spare_group = Spare_part_group.objects.get(pk=request.POST['edit_spare_part_group'])
             spare_group.spare_part_group_name = request.POST['set_sp_group_name']
             spare_group.last_update_by = User_login.username
             spare_group.last_update_date = datetime.date.today()
             spare_group.save()
+            messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_spare_part' in request.POST:
             spare_group = Spare_part_group.objects.get(pk=request.POST['delete_spare_part'])
             spare_group.delete()
-    context = {'User_login': User_login, 'sp_group_all': sp_group_all}
+            messages.success(request, "ลบรายการสำเร็จ")
+    context = {'User_login': User_login, 'sp_group_all': sp_group_all, 'role_and_screen': role_and_screen}
     return render(request, 'spare_part_group.html', context)
 
 
@@ -1616,26 +1680,15 @@ def check_spare_part_group_code(request):
 def check_spare_part_type_code(request):
     if request.method == 'POST':
         response_data = {}
-        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'])
-        spare_type_code = None
-        try:
-            if spare_type.count():
-                spare_type_code = True  # alredy exist
-            elif len(request.POST['add_code']) == 0:
-                spare_type_code = None  # empty input
-            else:
-                spare_type_code = False  # avialble
-
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
+        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'], spare_part_group_id=request.POST['group_code'])
+        if spare_type.count():
+            spare_type_code = True  # alredy exist
+        else:
+            spare_type_code = False  # avialble
         if not spare_type_code:
             response_data["spare_type_code_success"] = True
         else:
             response_data["spare_type_code_success"] = False
-        if spare_type_code is None:
-            response_data["spare_type_code_empty"] = True
         return JsonResponse(response_data)
 
 
@@ -1643,26 +1696,16 @@ def check_spare_part_type_code(request):
 def check_spare_part_subtype_code(request):
     if request.method == 'POST':
         response_data = {}
-        spare_subtype = Spare_part_sub_type.objects.filter(spare_part_sub_type_code=request.POST['add_subtype_code'])
-        spare_subtype_code = None
-        try:
-            if spare_subtype.count():
-                spare_subtype_code = True  # alredy exist
-            elif len(request.POST['add_subtype_code']) == 0:
-                spare_subtype_code = None  # empty input
-            else:
-                spare_subtype_code = False  # avialble
+        spare_subtype = Spare_part_sub_type.objects.filter(spare_part_sub_type_code=request.POST['add_subtype_code'], spare_part_type_id=request.POST['add_sp_type'])
+        if spare_subtype.count():
+            spare_subtype_code = True  # alredy exist
+        else:
+            spare_subtype_code = False  # avialble
 
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
         if not spare_subtype_code:
             response_data["spare_subtype_code_success"] = True
         else:
             response_data["spare_subtype_code_success"] = False
-        if spare_subtype_code is None:
-            response_data["spare_subtype_code_empty"] = True
         return JsonResponse(response_data)
 
 
@@ -1839,8 +1882,6 @@ def document_create1(request):
     from docx import Document
     from docx.shared import Pt
 
-    # machine_id = ['1', '2', '16']
-    machine_id = range(2, 17)
     line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
     list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
     document = Document()
@@ -1965,5 +2006,13 @@ def load_selected_lines(request):
     change_type = ast.literal_eval(input_line)
     machine_list = Machine.objects.filter(line__in=change_type)
     data = serializers.serialize('json', machine_list)
+    return HttpResponse(data, content_type="application/json")
 
+
+@csrf_exempt
+def load_role_screen(request):
+    role_id = request.POST['role_id']
+    rs = Role_Screen.objects.filter(role_id=role_id).values_list('screen_id', flat="True")
+    screen = Screen.objects.exclude(screen_id__in=rs)
+    data = serializers.serialize('json', screen)
     return HttpResponse(data, content_type="application/json")

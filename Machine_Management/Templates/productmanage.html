@@ -48,7 +48,7 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
-                <a href="{% url 'productionline' %}" class="nav-item nav-link">ProductionLine Manage</a>
+                <a href="{% url 'productionline' %}" class="nav-item nav-link">Production Line</a>
                 <a href="{% url 'location' %}" class="nav-item nav-link">Location</a>
                 <a href="{% url 'org_prodline' %}" class="nav-item nav-link">Organize&Line</a>
                 <a href="{% url 'productmanage' %}" class="nav-item nav-link active"><b>Product Manage</b></a>
@@ -66,10 +66,10 @@
 <div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
-          <div class="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            {{message}}
-          </div>
+        <div class="alert {{ message.tags }} ">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+            {{ message }}
+        </div>
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
@@ -137,7 +137,7 @@
                                     <input type="text" id="set_product_labour{{forloop.counter}}" class="form-control" value="{{product.labour}}" name="set_product_labour">
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Location Site (set : {{line.location_site}})</label>
+                                    <label class="control-label">Location Site</label>
                                     <select class="form-control" id="set_select_pline{{forloop.counter}}" name="set_select_pline">
                                         {% for pline in plines %}
                                         <option value="{{pline.pid}}" {% if pline.pid == product.line_id %} selected {% endif %}>โรงงาน : {{pline.location_site}}  ||  อาคาร : {{pline.location_building}}  ||  ชั้น : {{pline.production_line}}</option>
@@ -190,25 +190,25 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Production Name</label>
-                                    <input type="text" id="add_product_name" class="form-control" placeholder="ชื่อผลิตภัณฑ์" name="add_product_name" maxlength="30" required="True">
+                                    <input type="text" id="add_product_name" class="form-control" placeholder="ชื่อผลิตภัณฑ์" name="add_product_name" maxlength="30" required="True" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label>Product Code</label>
-                                    <input type="text" id="add_product_code" class="form-control" placeholder="รหัสผลิตภัณฑ์" name="add_product_code" maxlength="30" required="True">
+                                    <input type="text" id="add_product_code" class="form-control" placeholder="รหัสผลิตภัณฑ์" name="add_product_code" maxlength="30" required="True" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label>Capacity</label>
-                                    <input type="text" id="add_product_capacity" class="form-control" placeholder="กำลังการผลิตสินค้า" name="add_product_capacity" maxlength="15" required="True">
+                                    <input type="text" id="add_product_capacity" class="form-control" placeholder="กำลังการผลิตสินค้า" name="add_product_capacity" maxlength="15" required="True" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label>Labour</label>
-                                    <input type="text" id="add_product_labour" class="form-control" placeholder="กำลังคนการผลิต" name="add_product_labour" maxlength="10" required="True">
+                                    <input type="text" id="add_product_labour" class="form-control" placeholder="กำลังคนการผลิต" name="add_product_labour" maxlength="10" required="True" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <label>Production Line</label>
                                     <select class="form-control" id="add_select_pline" name="add_select_pline" required="True">
                                         {% for pline in plines %}
-                                        <option value="{{pline.pid}}">โรงงาน : {{pline.location_site}}  ||  อาคาร : {{pline.location_building}}  || ชั้น : {{pline.production_line}}</option>
+                                        <option value="{{pline.pid}}">โรงงาน : {{pline.location_site}}  |  อาคาร : {{pline.location_building}}  | ไลน์ผลิต : {{pline.production_line}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>

@@ -71,7 +71,11 @@
                 <div class="col-md-6 mb-4 mb-md-0">
                     <div class="row machine-pic mx-1">
                         <div class="col-12 mb-0">
+                            {% if machine.0.machine_image1 %}
+                            <img src="{{machine.0.machine_image1.url}}" class="img-fluid">
+                            {% else %}
                             <img src="{% static 'machine/img/machine-example-pic.jpg' %}" class="img-fluid">
+                            {% endif %}
                         </div>
 
                     </div>

@@ -117,8 +117,8 @@
                     <div class="col-sm-5">
                         <h2>Spare part Group <b>Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
-                        <a href="#create_spare_part_group" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
+                        <a href="#create_spare_part_group" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Group Spare Part</span></a>
                     </div>
                 </div>
             </div>
@@ -128,7 +128,7 @@
                         <th>#</th>
                         <th>Spare Part Group Code</th>
                         <th>Spare Part Group Name</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,7 +137,7 @@
                         <td>{{forloop.counter}}</td>
                         <td>{{sp_group.spare_part_group_code}}</td>
                         <td>{{sp_group.spare_part_group_name}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{sp_group.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{sp_group.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>

@@ -30,9 +30,9 @@
         });
     </script>
     <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
@@ -69,10 +69,10 @@
 <div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
-          <div class="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                {{message}}
-          </div>
+        <div class="alert {{ message.tags }} ">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+            {{ message }}
+        </div>
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
@@ -151,7 +151,7 @@
                                         <div class="col-sm-4 permission-label">Insert</div>
                                         <div class="col-sm-4">
                                             <div class="onoffswitch">
-                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert" value="{{rs.permission_insert}}" {% if rs.permission_insert == 'Y' %}checked{% endif %}>
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="set_rs_insert{{forloop.counter}}" name="set_rs_insert" value="Y" {% if rs.permission_insert == 'Y' %}checked{% endif %}>
                                                 <label class="onoffswitch-label" for="set_rs_insert{{forloop.counter}}">
                                                     <span class="onoffswitch-inner"></span>
                                                     <span class="onoffswitch-switch"></span>
@@ -228,27 +228,20 @@
                                 <h5 class="modal-title">Add new RoleScreen</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                            {% for message in messages %}
-                              <div class="alert">
-                                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                                {{message}}
-                              </div>
-                            {% endfor %}
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Role ID</label>
-                                    <select class="form-control" id="add_rs_role" name="add_rs_role">
-                                    {% for role in roles %}
-                                    <option value="{{role.role_id}}">{{role}}</option>
-                                    {% endfor %}
+                                    <select class="form-control" id="add_rs_role" name="add_rs_role" onchange="role_dropdown_screen(this)">
+                                        <option value="">------------กรุณาเลือกบทบาท----------</option>
+                                        {% for role in roles %}
+                                        <option value="{{role.role_id}}">{{role}}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Select Screen ID </label>
                                     <select class="form-control" id="add_rs_screen" name="add_rs_screen">
-                                    {% for screen in screens %}
-                                    <option value="{{screen.screen_id}}" >{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
-                                    {% endfor %}
+                                        <option value="">------------กรุณาเลือกหน้าจอ----------</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -309,6 +302,38 @@
         </div>
     </div>
 </div>
+<script>
+    function role_dropdown_screen(element) {
+        var role_id = $(element).val();
+        $.ajax({
+            url : "{% url 'load_role_screen' %}",
+            data : {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "role_id" : role_id,
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                if (data.length != 0) {
+                    $('#add_rs_screen').empty();
+                    var select_type = document.getElementById('add_rs_screen');
+                    for (model in data) {
+                        var options = document.createElement('option');
+                        options.appendChild( document.createTextNode(data[model].pk+" ("+data[model].fields.screen_name+")"));
+                        options.value = data[model].pk;
+                        select_type.appendChild(options);
+                    }
+                } else {
+                    $('#add_rs_screen').empty();
+                    var select_type = document.getElementById('add_rs_screen');
+                    var options = document.createElement('option');
+                    options.appendChild( document.createTextNode("*** บทบาทนี้มีครบทุกหน้าจอแล้ว ***"));
+                    select_type.appendChild(options);
+                }
+            }
+        });
+    }
+</script>
 <script>
     $(document).ready( function () {
     $('#myTable').DataTable();

@@ -29,43 +29,6 @@
             });
         });
     </script>
-    <script>
-        function check_spare_part_subtype_code(element) {
-            add_subtype_code = $(element).val();
-            var button = document.getElementById("add_spare_part_subtype");
-            if (add_subtype_code == "") {
-                $('#add_sp_subtype_code').parent().removeClass();
-                $('#add_sp_subtype_code').parent().addClass('form-group');
-            }
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_subtype_code" : add_subtype_code,
-
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-
-                    if (data.spare_subtype_code_success) {
-                        $('#add_sp_subtype_code').parent().removeClass();
-                        $('#add_sp_subtype_code').parent().addClass('form-group success');
-                        button.disabled = false;
-                    } else {
-                        $('#add_sp_subtype_code').parent().removeClass();
-                        $('#add_sp_subtype_code').parent().addClass('form-group error');
-                        button.disabled = true;
-                    }
-                    if (data.spare_subtype_code_empty) {
-                        $('#add_sp_subtype_code').parent().removeClass();
-                        $('#add_sp_subtype_code').parent().addClass('form-group');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
-    </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
     $(document).ready(function(){
@@ -106,10 +69,12 @@
 <div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+
+        <div class="alert {{ message.tags }} alert-dismissible " role="alert">
             <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
             {{ message }}
         </div>
+
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
@@ -117,7 +82,7 @@
                     <div class="col-sm-5">
                         <h2>Spare part Subtype <b>Management</b></h2>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
                         <a href="#create_spare_part_subtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
                     </div>
                 </div>
@@ -130,7 +95,7 @@
                         <th>Spare part Type</th>
                         <th>Spare Part Subtype Code</th>
                         <th>Spare Part Subtype Name</th>
-                        <th>Action</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -141,7 +106,7 @@
                         <td>{{sp_subtype.spare_part_type}}</td>
                         <td>{{sp_subtype.spare_part_sub_type_code}}</td>
                         <td>{{sp_subtype.spare_part_sub_type_name}}</td>
-                        <td>
+                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{sp_subtype.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{sp_subtype.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
@@ -223,8 +188,8 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Select Spare Part Group</label>
-                                    <select class="form-control" id="add_sp_group" name="select_sp_group" required="True" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value=''>---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
+                                    <select class="form-control" id="add_sp_group" name="select_sp_group" required="True" onchange="ajax_dropdown_type()" onchange="check_spare_part_subtype_code()">
+                                        <option value="0">---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
                                         {% for sp_group in spare_part_group_all %}
                                         <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_name}}</option>
                                         {% endfor %}
@@ -232,13 +197,13 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Spare Part Type</label>
-                                    <select class="form-control" id="add_sp_type" name="select_sp_type">
-                                        <option value="">---------กรุณาเลือกประเภทของอะไหล่---------</option>
+                                    <select class="form-control" id="add_sp_type" name="select_sp_type" onchange="check_spare_part_subtype_code()">
+                                        <option value="0">---------กรุณาเลือกประเภทของอะไหล่---------</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Spare Part Subtype Code</label>
-                                    <input type="text" class="form-control" name="add_sp_subtype_code" id="add_sp_subtype_code" placeholder="รหัสประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_subtype_code(this);return false;" data-url="{% url 'check_spare_part_subtype_code' %}"/>
+                                    <input type="text" class="form-control" name="add_sp_subtype_code" id="add_sp_subtype_code" placeholder="รหัสประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_subtype_code()" />
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Spare part type code is already exists</small>
@@ -269,24 +234,23 @@
 } );
 </script>
 <script>
-        function ajax_dropdown_type(element) {
-            var filter_sp_type = $(element).val();
+        function ajax_dropdown_type() {
+            var group_code = document.getElementById("add_sp_group");
             $.ajax({
-                url : $(element).attr("data-url"),
+                url : "{% url 'ajax_dropdown_sp_type' %}",
                 data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "filter_sp_type" : filter_sp_type,
-
+                    "csrfmiddlewaretoken" : $(group_code).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : group_code.value,
                 },
                 method: "POST",
                 dataType : "json",
                 success : function (data) {
-                    console.log(data);
                     if (data) {
                         $('#add_sp_type').empty();
                         var select_type = document.getElementById('add_sp_type');
                         var option_first = document.createElement('option');
                         option_first.appendChild(document.createTextNode("---------กรุณาเลือกประเภทของอะไหล่---------"));
+                        option_first.value = 0;
                         select_type.appendChild(option_first);
                         for (model in data) {
                             var options = document.createElement('option');
@@ -296,6 +260,41 @@
                         }
                     } else {
                         $('#add_sp_type').empty();
+                    }
+                }
+            });
+        }
+</script>
+<script>
+        function check_spare_part_subtype_code() {
+            add_subtype_code = document.getElementById("add_sp_subtype_code");
+            add_sp_type = document.getElementById("add_sp_type");
+            add_sp_group = document.getElementById("add_sp_group");
+            var button = document.getElementById("add_spare_part_subtype");
+            $.ajax({
+                url : "{% url 'check_spare_part_subtype_code' %}",
+                data : {
+                    "csrfmiddlewaretoken" : $(add_subtype_code).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_subtype_code" : add_subtype_code.value,
+                    "add_sp_type" : add_sp_type.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+
+                    if (data.spare_subtype_code_success && add_sp_type.value != 0) {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_subtype_code.value == "") {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group');
+                        button.disabled = true;
                     }
                 }
             });

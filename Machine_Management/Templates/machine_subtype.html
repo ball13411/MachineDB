@@ -29,42 +29,6 @@
             });
         });
     </script>
-    <script>
-        function check_machine_subtype_code(element) {
-            add_subtype_code= $(element).val();
-            var button = document.getElementById("AddSubtypeButton");
-            if (add_subtype_code == "") {
-                $('#add_subtype_code').parent().removeClass();
-                $('#add_subtype_code').parent().addClass('form-group');
-            }
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "add_subtype_code" : add_subtype_code,
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-                    //console.log(data);
-                    if (data.subtypecode_success) {
-                        $('#add_subtype_code').parent().removeClass();
-                        $('#add_subtype_code').parent().addClass('form-group success');
-                        button.disabled = false;
-                    } else {
-                        $('#add_subtype_code').parent().removeClass();
-                        $('#add_subtype_code').parent().addClass('form-group error');
-                        button.disabled = true;
-                    }
-                    if (data.subtypecode_empty) {
-                        $('#add_subtype_code').parent().removeClass();
-                        $('#add_subtype_code').parent().addClass('form-group');
-                        button.disabled = true;
-                    }
-                }
-            });
-        }
-    </script>
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <script>
     $(document).ready(function(){
@@ -126,9 +90,9 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>sType Code</th>
-                        <th>sType Name</th>
-                        <th>mType</th>
+                        <th>Machine Type</th>
+                        <th>Machine Subtype Code</th>
+                        <th>Machine Subtype Name</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
                     </tr>
                 </thead>
@@ -136,9 +100,9 @@
             {% for subtype in subtypes %}
                     <tr>
                         <td>{{forloop.counter}}</td>
+                        <td>{{subtype.mch_type.mtype_code}} | {{subtype.mch_type.mtype_name}}</td>
                         <td>{{subtype.subtype_code}}</td>
                         <td>{{subtype.subtype_name}}</td>
-                        <td>{{subtype.mch_type.mtype_name}} ({{subtype.mch_type.mtype_code}})</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
                             <a href="#setting{{subtype.subtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                             <a href="#delete{{subtype.subtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
@@ -259,6 +223,47 @@
     $('#myTable').DataTable();
 } );
 </script>
+<script>
+    $(document).ready(function(){
+        $("#add_type").change(function(){
+            check_machine_subtype_code('#add_subtype_code');
+        });
+    });
+</script>
+<script>
+        function check_machine_subtype_code(element) {
+            add_subtype_code= $(element).val();
+            var add_mch_type = document.getElementById("add_type");
+            var button = document.getElementById("AddSubtypeButton");
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_subtype_code" : add_subtype_code,
+                    "add_mch_type" : add_mch_type.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data.subtype_code_success) {
+                        $('#add_subtype_code').parent().removeClass();
+                        $('#add_subtype_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_subtype_code').parent().removeClass();
+                        $('#add_subtype_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_subtype_code == "") {
+                        $('#add_subtype_code').parent().removeClass();
+                        $('#add_subtype_code').parent().addClass('form-group');
+                        button.disabled = true;
+                    }
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>

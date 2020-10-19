@@ -48,7 +48,7 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'organization' %}" class="nav-item nav-link">Organize Manage</a>
-                <a href="{% url 'productionline' %}" class="nav-item nav-link">Productionfloor Manage</a>
+                <a href="{% url 'productionline' %}" class="nav-item nav-link">Production Line</a>
                 <a href="{% url 'location' %}" class="nav-item nav-link active"><b>Location</b></a>
                 <a href="{% url 'org_prodline' %}" class="nav-item nav-link">Organize&Line</a>
                 <a href="{% url 'productmanage' %}" class="nav-item nav-link ">Product Manage</a>
@@ -66,16 +66,16 @@
 <div class="container-fluid">
     <div class="table-responsive">
         {% for message in messages %}
-          <div class="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-              {{message}}
-          </div>
+        <div class="alert {{ message.tags }} ">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+            {{ message }}
+        </div>
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Location<b>Management</b></h2>
+                        <h2>Location <b>Management</b></h2>
                     </div>
                     <div class="col-sm-7">
                         <a href="#createlocation" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New location</span></a>
