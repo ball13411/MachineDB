@@ -974,6 +974,9 @@ def machine_manage(request):
             if edit_mch.machine_image1 != request.FILES.get('set_pictureFile1', "") and request.FILES.get('set_pictureFile1', False):
                 edit_mch.machine_image1.delete()
                 edit_mch.machine_image1 = request.FILES['set_pictureFile1']
+            if edit_mch.machine_image2 != request.FILES.get('set_pictureFile2', "") and request.FILES.get('set_pictureFile2', False):
+                edit_mch.machine_image2.delete()
+                edit_mch.machine_image2 = request.FILES['set_pictureFile2']
             edit_mch.save()
             messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 
@@ -1003,6 +1006,9 @@ def machine_manage(request):
                             capacity_core = Machine_capacity.objects.get(machine_id=Machine.objects.get(line_id=line, machine_core=1), product_id=product)
                             list_product.append([str(product.product_name), str(product.product_code), int(capacity_core.fg_capacity)])
                         except Machine_Management.models.Machine.DoesNotExist:
+                            capacity_core = "-"
+                            list_product.append([str(product.product_name), str(product.product_code), capacity_core])
+                        except Machine_Management.models.Machine_capacity.DoesNotExist:
                             capacity_core = "-"
                             list_product.append([str(product.product_name), str(product.product_code), capacity_core])
 
@@ -1104,7 +1110,7 @@ def machine_manage(request):
                 style = xlwt.easyxf('pattern: pattern solid, fore_colour gray25;''font: colour black, bold True;''align: vert centre, horiz centre')
 
                 columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
-                           'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date','Start Date']
+                           'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date', 'Start Date']
 
                 for col_num in range(len(columns)):
                     ws.col(col_num).width = 4500
@@ -1495,10 +1501,11 @@ def spare_part_manage(request):
     if request.method == 'POST':
         if 'add_spare_part' in request.POST:
             spare_part = Spare_part.objects.create(spare_part_name=request.POST['add_sp_name'],
-                                                   spare_part_code=request.POST['add_sp_code'],
                                                    spare_part_model=request.POST['add_sp_model'],
+                                                   spare_part_brand=request.POST['add_sp_brand'],
                                                    service_life=request.POST['add_service_life'],
                                                    service_plan_life=request.POST['add_service_plan_life'],
+                                                   spare_part_detail=request.POST['add_detail'],
                                                    spare_part_group_id=request.POST['id_sp_group'],
                                                    spare_part_type_id=request.POST['id_sp_type'],
                                                    spare_part_sub_type_id=request.POST['id_sp_subtype'],
@@ -1511,8 +1518,10 @@ def spare_part_manage(request):
             spare_part = Spare_part.objects.get(pk=request.POST['edit_spare_part'])
             spare_part.spare_part_name = request.POST['set_sp_name']
             spare_part.spare_part_model = request.POST['set_sp_model']
+            spare_part.spare_part_brand = request.POST['set_sp_brand']
             spare_part.service_life = request.POST['set_service_life']
             spare_part.service_plan_life = request.POST['set_service_plan_life']
+            spare_part.spare_part_detail = request.POST['set_detail']
             spare_part.last_update_by = User_login.username
             spare_part.last_update_date = datetime.date.today()
             spare_part.spare_part_active = request.POST.get('set_sp_status', False)
@@ -1706,33 +1715,6 @@ def check_spare_part_subtype_code(request):
             response_data["spare_subtype_code_success"] = True
         else:
             response_data["spare_subtype_code_success"] = False
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_spare_part_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        spare_part = Spare_part.objects.filter(spare_part_code=request.POST['add_sp_code'])
-        spare_part_code = None
-        try:
-            if spare_part.count():
-                spare_part_code = True  # alredy exist
-            elif len(request.POST['add_sp_code']) == 0:
-                spare_part_code = None  # empty input
-            else:
-                spare_part_code = False  # avialble
-
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
-        if not spare_part_code:
-            response_data["spare_part_code_success"] = True
-        else:
-            response_data["spare_part_code_success"] = False
-        if spare_part_code is None:
-            response_data["spare_part_code_empty"] = True
         return JsonResponse(response_data)
 
 
