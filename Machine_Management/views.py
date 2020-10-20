@@ -977,6 +977,15 @@ def machine_manage(request):
             if edit_mch.machine_image2 != request.FILES.get('set_pictureFile2', "") and request.FILES.get('set_pictureFile2', False):
                 edit_mch.machine_image2.delete()
                 edit_mch.machine_image2 = request.FILES['set_pictureFile2']
+            if edit_mch.machine_image3 != request.FILES.get('set_pictureFile3', "") and request.FILES.get('set_pictureFile3', False):
+                edit_mch.machine_image3.delete()
+                edit_mch.machine_image3 = request.FILES['set_pictureFile3']
+            if edit_mch.machine_image4 != request.FILES.get('set_pictureFile4', "") and request.FILES.get('set_pictureFile4', False):
+                edit_mch.machine_image4.delete()
+                edit_mch.machine_image4 = request.FILES['set_pictureFile4']
+            if edit_mch.machine_image5 != request.FILES.get('set_pictureFile5', "") and request.FILES.get('set_pictureFile5', False):
+                edit_mch.machine_image5.delete()
+                edit_mch.machine_image5 = request.FILES['set_pictureFile5']
             edit_mch.save()
             messages.success(request, 'แก้ไขข้อมูล Machine สำเร็จ')
 

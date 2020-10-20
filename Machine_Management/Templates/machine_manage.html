@@ -325,23 +325,23 @@
                                         <div class="group col-6">
                                             <div class="custom-file">
                                                 <input type="file" class="custom-file-input" id="set_pictureFile1_{{forloop.counter}}" name="set_pictureFile1">
-                                                <label class="custom-file-label" for="set_pictureFile1_{{forloop.counter}}">Choose Picture file 1</label>
+                                                <label class="custom-file-label" for="set_pictureFile1_{{forloop.counter}}">{% if mch.machine_image1 %}{{mch.machine_image1}}{% else %}Choose Picture file 1{% endif %}</label>
                                             </div>
                                             <div class="custom-file">
                                                 <input type="file" class="custom-file-input" id="set_pictureFile2_{{forloop.counter}}" name="set_pictureFile2">
-                                                <label class="custom-file-label" for="set_pictureFile2_{{forloop.counter}}">Choose Picture file 2</label>
+                                                <label class="custom-file-label" for="set_pictureFile2_{{forloop.counter}}">{% if mch.machine_image2 %}{{mch.machine_image2}}{% else %}Choose Picture file 2{% endif %}</label>
                                             </div>
                                             <div class="custom-file">
                                                 <input type="file" class="custom-file-input" id="set_pictureFile3_{{forloop.counter}}" name="set_pictureFile3">
-                                                <label class="custom-file-label" for="set_pictureFile3_{{forloop.counter}}">Choose Picture file 3</label>
+                                                <label class="custom-file-label" for="set_pictureFile3_{{forloop.counter}}">{% if mch.machine_image3 %}{{mch.machine_image3}}{% else %}Choose Picture file 3{% endif %}</label>
                                             </div>
                                             <div class="custom-file">
                                                 <input type="file" class="custom-file-input" id="set_pictureFile4_{{forloop.counter}}" name="set_pictureFile4">
-                                                <label class="custom-file-label" for="set_pictureFile4_{{forloop.counter}}">Choose Picture file 4</label>
+                                                <label class="custom-file-label" for="set_pictureFile4_{{forloop.counter}}">{% if mch.machine_image4 %}{{mch.machine_image4}}{% else %}Choose Picture file 4{% endif %}</label>
                                             </div>
                                             <div class="custom-file">
                                                 <input type="file" class="custom-file-input" id="set_pictureFile5_{{forloop.counter}}" name="set_pictureFile5">
-                                                <label class="custom-file-label" for="set_pictureFile5_{{forloop.counter}}">Choose Picture file 5</label>
+                                                <label class="custom-file-label" for="set_pictureFile5_{{forloop.counter}}">{% if mch.machine_image5 %}{{mch.machine_image5}}{% else %}Choose Picture file 5{% endif %}5</label>
                                             </div>
                                         </div>
                                     </div>
