@@ -52,6 +52,7 @@ urlpatterns = [
     path('sparepartmanage/subtype/', views.spare_part_subtype, name='spare_part_subtype'),
     path('sparepartmanage/type/', views.spare_part_type, name='spare_part_type'),
     path('sparepartmanage/group/', views.spare_part_group, name='spare_part_group'),
+    path('sparepartmanage/spare_pare_machine/', views.spare_part_and_machine, name='spare_part_and_machine'),
 
     # Preventive Data
     path('preventive/plan', views.maintenance_plan, name='maintenance_plan'),
@@ -89,9 +90,11 @@ urlpatterns = [
     path('ajax_dropdown_sp_type/', views.ajax_dropdown_sp_type, name='ajax_dropdown_sp_type'),
     path('ajax/load_selected_lines/', views.load_selected_lines, name='ajax_selected_lines'),
     path('ajax/load_role_screen/', views.load_role_screen, name='load_role_screen'),
+    path('ajax/load_machine', views.load_machine, name='load_machine'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),
+    path('download1', views.document2_excel, name='download_sp'),
     path('test/', views.test)
 
 

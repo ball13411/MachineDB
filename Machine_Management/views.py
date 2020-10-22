@@ -14,6 +14,7 @@ from django.core import serializers
 import xlwt
 import ast
 from docx import Document
+from collections import Counter
 
 # Create your views here.
 
@@ -1737,8 +1738,6 @@ def machine_and_spare_part(request):
     machine = Machine.objects.filter(line__in=user_org)
     mch_and_sp_all = Machine_and_spare_part.objects.filter(machine__in=machine)
     spare_part_group_all = Spare_part_group.objects.all()
-    spare_part_type_all = Spare_part_type.objects.all()
-    spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_all = Spare_part.objects.all()
 
     if request.method == "POST":
@@ -1756,8 +1755,7 @@ def machine_and_spare_part(request):
         dict_mch_sp[mch_sp.machine].append(mch_sp.spare_part)
 
     context = {'User_login': User_login,
-               'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_type_all': spare_part_type_all,
-               'spare_part_subtype_all': spare_part_subtype_all, 'spare_part_all': spare_part_all,
+               'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_all': spare_part_all,
                'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all}
     return render(request, 'machine&spare_part.html', context)
 
@@ -2006,4 +2004,95 @@ def load_role_screen(request):
     rs = Role_Screen.objects.filter(role_id=role_id).values_list('screen_id', flat="True")
     screen = Screen.objects.exclude(screen_id__in=rs)
     data = serializers.serialize('json', screen)
+    return HttpResponse(data, content_type="application/json")
+
+
+def document2_excel(request):
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Spare_Part.xls"'
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Machines Data', cell_overwrite_ok=True)
+    # Style
+    style_title = xlwt.easyxf('font: bold True; align: vert centre, horiz centre')
+    style_merge = xlwt.easyxf('align: vert top')
+
+    # Set column title
+    for i in range(9):
+        ws.col(i).width = 4600
+
+    ws.write_merge(1, 1, 0, 8, "รายงานข้อมูลอะไหล่", style_title)
+    ws.write_merge(3, 3, 0, 5, "อะไหล่", style_title)
+    ws.write_merge(3, 3, 6, 8, "เครื่องจักร", style_title)
+
+    cols = ["กลุ่ม", "ประเภท", "ชนิด", "ชื่อ", "แบรนด์", "โมเดล", "ไลน์ผลิต", "ชื่อ", "รหัสเครื่องจักร"]
+    for index, col in enumerate(cols):
+        ws.write(4, index, col, style_title)
+
+    query_sp = Spare_part.objects.all().order_by('spare_part_group_id', 'spare_part_type_id', 'spare_part_sub_type_id')
+    list_sp = query_sp.values_list('spare_part_group__spare_part_group_name', 'spare_part_type__spare_part_type_name',
+                                   'spare_part_sub_type__spare_part_sub_type_name', 'spare_part_name', 'spare_part_brand',
+                                   'spare_part_model')
+
+    list_sp_transpose = list(map(list, (zip(*list_sp))))
+    row_index = 5
+    for col_index, col_list_data in enumerate(list_sp_transpose):
+        row_reset = 0
+        for col_data, len_merge in dict(Counter(col_list_data)).items():
+            ws.write_merge(row_index, row_index+len_merge-1, col_index, col_index, col_data, style_merge)
+            row_index += len_merge
+            row_reset += len_merge
+        row_index -= row_reset
+
+    wb.save(response)
+
+    return response
+
+
+def spare_part_and_machine(request):
+    global User_login, UserRole
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_capacity')
+    if not role_and_screen.exists():
+        return redirect('/')
+    dict_mch_sp = {}
+    user_org = User_login.org.org_line.all()
+    machine = Machine.objects.filter(line__in=user_org)
+    sp_and_mch_all = Machine_and_spare_part.objects.filter(machine__in=machine)
+    spare_part_all = Spare_part.objects.all()
+    machine_type_all = Machine_type.objects.all()
+
+    if request.method == "POST":
+        if "add_sp_and_mch" in request.POST:
+            try:
+                sp_and_mch = Machine_and_spare_part.objects.create(machine_id=request.POST['select_mch'], spare_part_id=request.POST['add_sp_and_mch'])
+                sp_and_mch.save()
+                messages.success(request, 'บันทึกรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
+            except:
+                messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
+        elif "delete_machine" in request.POST:
+            try:
+                sp_and_mch = Machine_and_spare_part.objects.filter(machine_id=request.POST['select_delete_machine'], spare_part_id=request.POST['delete_machine'])
+                sp_and_mch.delete()
+                messages.success(request, 'ลบรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
+            except:
+                messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
+
+    for sp in spare_part_all:
+        dict_mch_sp[sp] = []
+    for sp_mch in sp_and_mch_all:
+        dict_mch_sp[sp_mch.spare_part].append(sp_mch.machine)
+
+    context = {'role_and_screen': role_and_screen, 'spare_part_all': spare_part_all, 'dict_mch_sp': dict_mch_sp, 'user_org': user_org,
+               'machine_type_all': machine_type_all}
+    return render(request, 'spare_and_machine.html', context)
+
+
+@csrf_exempt
+def load_machine(request):
+    sp_id = request.POST['spID']
+    line_id = request.POST['lineID']
+    sub_type_id = request.POST['subtypeID']
+    machine_spare = Machine_and_spare_part.objects.filter(spare_part_id=sp_id).values_list('machine')
+    machine = Machine.objects.filter(line_id=line_id, sub_type_id=sub_type_id).exclude(pk__in=machine_spare)
+    data = serializers.serialize('json', machine)
     return HttpResponse(data, content_type="application/json")
