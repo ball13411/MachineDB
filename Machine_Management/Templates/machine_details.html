@@ -154,12 +154,16 @@
                             <td><em>{{mch.machine_start_use_datetime}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier Code</th>
-                            <td><em>{{mch.machine_supplier_code}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier</th>
+                            <td><em>{{mch.machine_supplier_code}} | {{mch.machine_supplier_name}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine EMP ID</th>
-                            <td><em>{{mch.machine_emp_id_response}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Engineer Emp</th>
+                            <td><em>{{mch.machine_eng_emp_id}} | {{mch.machine_eng_emp_name}} </em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Production Emp</th>
+                            <td><em>{{mch.machine_pro_emp_id}} | {{mch.machine_pro_emp_name}} </em></td>
                         </tr>
                     {% endfor %}
                     </tbody>

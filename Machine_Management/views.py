@@ -129,7 +129,7 @@ def usermanage(request):
             username = request.POST['deleteuser']                               # get var('username') from HTML
             user = User.objects.get(username=username)                          # Query Username
             user.delete()                                                       # Delete User from Model(DB)
-            messages.success(request, "สร้างรายการสำเร็จ")
+            messages.success(request, "ลบรายการสำเร็จ")
     # return var to HTML
     roles = Role.objects.all()
     users = User.objects.all()
@@ -427,17 +427,14 @@ def machine_data(request):
 
 
 def test(request):
-    mch = Machine.objects.filter(mch_type_id=1).order_by('line_id').values_list('line_id', flat=True).distinct()
-    for i in mch:
-        print(i)
-    # form = UserForm(request.POST or None)
-    form = ProductLineForm(request.POST or None)
 
-    if request.method == "POST":
-        a = request.FILES['myfile']
-        print(a.name, " ", a.size)
+    text = ""
+    if request.method == "GET":
+        if 'skills' in request.GET:
+            text = request.GET.getlist('skills')
+            print(text)
 
-    context = {'form': form, 'mch': mch}
+    context = {'text': text}
     return render(request, 'test.html', context)
 
 
