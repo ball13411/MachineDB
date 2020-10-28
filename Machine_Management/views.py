@@ -14,7 +14,9 @@ from django.core import serializers
 import xlwt
 import ast
 from docx import Document
+from docx.shared import Inches
 from collections import Counter
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # Create your views here.
 
@@ -1036,13 +1038,17 @@ def machine_manage(request):
                     for mch in machine_in_line:
 
                         document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
-                        document.add_paragraph(' ')
+                        if mch.machine_image1:
+                            picture_mch = document.add_picture(mch.machine_image1, width=Inches(2))
+                            last_paragraph = document.paragraphs[-1]
+                            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
                         # run = document.add_paragraph(f'{mch.machine_name}', style='Intense Quote').add_run()
                         # font = run.font
                         # font.size = Pt(20)
                         document.add_paragraph('ข้อมูลเครื่องจักร', style='List Bullet')
 
                         records = (
+                            ('Machine Name', mch.machine_name),
                             ('Machine Brand', mch.machine_brand),
                             ('Machine Model', mch.machine_model),
                             ('Machine Serial', mch.serial_id),
@@ -1050,7 +1056,6 @@ def machine_manage(request):
                             ('Machine Subtype', mch.sub_type),
                             ('Machine Production Line', mch.line),
                             ('Machine Line Code', mch.machine_production_line_code),
-                            ('Machine Name', mch.machine_name),
                             ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
                             ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
                             ('Machine Installed Date', mch.machine_installed_datetime),

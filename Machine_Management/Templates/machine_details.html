@@ -84,7 +84,7 @@
                     {% for mch in machine %}
                     <h2>{{mch.machine_name}}</h2>
                     <h4>( {{mch.sub_type}} )</h4>
-                    <p class="mb-2 text-muted text-uppercase small">Site {{mch.line.location_site}} / Production line {{mch.line.production_line}}</p>
+                    <p class="mb-2 text-muted text-uppercase">Site {{mch.line.location_site}} / Production line {{mch.line.production_line}}</p>
                     <p><span class="mr-1"><strong> ## {{mch.machine_production_line_code}} ##</strong></span></p>
                     <p class="pt-1">รายละเอียดย่อย</p>
                     {% endfor %}
