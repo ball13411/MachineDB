@@ -90,13 +90,13 @@
                         <td>{{org.org_code}}</td>
                         <td>{{org.org_name}}</td>
                         <td>
-                            <a href="#setting{{org.org_code}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{org.org_code}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
 
             <!-- Modal Setting -->
-            <div id="setting{{org.org_code}}" class="modal fade" tabindex="-1">
+            <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST">
@@ -128,7 +128,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{org.org_code}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{forloop.counter}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">

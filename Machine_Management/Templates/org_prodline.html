@@ -65,7 +65,7 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
-                        <h2>Organization <b>Management</b></h2>
+                        <h2>Organization & Production Line <b>Management</b></h2>
                     </div>
                 </div>
             </div>
@@ -90,8 +90,8 @@
                         <td>-</td>
                         {% endif %}
                         <td {% if orgline.org_line.all|length != 0 %}rowspan="{{orgline.org_line.all|length|add:1}}}"{% endif %}>
-                            <a href="#setting{{orgline.org_code}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
-                            <a href="#delete{{orgline.org_code}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
+                            <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                         </td>
                     </tr>
                     {% for line in orgline.org_line.all %}
@@ -103,7 +103,7 @@
                     {% endfor %}
 
             <!-- Modal Setting -->
-            <div id="setting{{orgline.org_code}}" class="modal fade" tabindex="-1">
+            <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST">
@@ -149,7 +149,7 @@
                 </div>
             </div>
             <!-- Modal Delete -->
-            <div id="delete{{orgline.org_code}}" class="modal fade" tabindex="-1" >
+            <div id="delete{{forloop.counter}}" class="modal fade" tabindex="-1" >
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST">

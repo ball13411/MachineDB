@@ -2085,7 +2085,7 @@ def spare_part_and_machine(request):
         dict_mch_sp[sp_mch.spare_part].append(sp_mch.machine)
 
     context = {'role_and_screen': role_and_screen, 'spare_part_all': spare_part_all, 'dict_mch_sp': dict_mch_sp, 'user_org': user_org,
-               'machine_type_all': machine_type_all}
+               'machine_type_all': machine_type_all, 'User_login': User_login}
     return render(request, 'spare_and_machine.html', context)
 
 
