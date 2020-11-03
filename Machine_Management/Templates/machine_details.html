@@ -84,7 +84,7 @@
                     {% for mch in machine %}
                     <h2>{{mch.machine_name}}</h2>
                     <h4>( {{mch.sub_type}} )</h4>
-                    <p class="mb-2 text-muted text-uppercase small">Site {{mch.line.location_site}} / Production line {{mch.line.production_line}}</p>
+                    <p class="mb-2 text-muted text-uppercase">Site {{mch.line.location_site}} / Production line {{mch.line.production_line}}</p>
                     <p><span class="mr-1"><strong> ## {{mch.machine_production_line_code}} ##</strong></span></p>
                     <p class="pt-1">รายละเอียดย่อย</p>
                     {% endfor %}
@@ -154,12 +154,16 @@
                             <td><em>{{mch.machine_start_use_datetime}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier Code</th>
-                            <td><em>{{mch.machine_supplier_code}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Supplier</th>
+                            <td><em>{{mch.machine_supplier_code}} | {{mch.machine_supplier_name}}</em></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="w-150 dark-grey-text h6">Machine EMP ID</th>
-                            <td><em>{{mch.machine_emp_id_response}}</em></td>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Engineer Emp</th>
+                            <td><em>{{mch.machine_eng_emp_id}} | {{mch.machine_eng_emp_name}} </em></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="w-150 dark-grey-text h6">Machine Production Emp</th>
+                            <td><em>{{mch.machine_pro_emp_id}} | {{mch.machine_pro_emp_name}} </em></td>
                         </tr>
                     {% endfor %}
                     </tbody>
