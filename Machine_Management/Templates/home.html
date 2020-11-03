@@ -1,5 +1,6 @@
 {% extends 'layout_home.html' %}
 {% load static %}
+
 {% block content %}
 <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
   <ol class="carousel-indicators">
@@ -8,7 +9,7 @@
     <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
   </ol>
 </div>
-<link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">
+<!--<link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">-->
 <style>
     /* status page */
     ol.breadcrumb {
@@ -141,6 +142,7 @@
     }
 
 </style>
+
 {% csrf_token %}
     <div class="machine-data-header">
 
