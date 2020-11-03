@@ -8,6 +8,7 @@
     {% load static %}
     <!-- icon -->
     <link rel="stylesheet" type="text/css" href="{% static 'iconfont/material-icons.css' %}">
+    <script src="{% static 'javascript/fontawesom_icon_msn.js' %}"></script>
     <!-- Fonts -->
     <link rel="stylesheet" type="text/css" href="{% static 'fonts/fonts.css' %}">
     <!-- Jquery   -->
@@ -160,7 +161,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label>Machine Type Code</label>
-                                    <input type="text" class="form-control" name="add_type_code" id="add_type_code" placeholder="รหัสประเภทเครื่อจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_machine_type_code(this);return false;" data-url="{% url 'check_machine_type_code' %}"/>
+                                    <input type="text" class="form-control" name="add_type_code" id="add_type_code" placeholder="รหัสประเภทเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_machine_type_code(this);return false;" data-url="{% url 'check_machine_type_code' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Type Code already exists</small>
