@@ -132,7 +132,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Screen</label>
-                                    <select class="form-control" id="select_screen{{forloop.counter}}" name="select_screen">
+                                    <select class="form-control" id="select_screen{{forloop.counter}}" name="select_screen" disabled>
                                     {% for screen in list_screen %}
                                     <option value="{{screen.screen_id}}" {% if screen.screen_id == menu.screen.screen_id %} selected {% endif %}>{{screen}} ( ชื่อหน้าจอ : {{screen.screen_name}} )</option>
                                     {% endfor %}

@@ -104,7 +104,7 @@ class Production_line(models.Model):
 
     class Meta:
         db_table = "Production_line"
-        ordering = ["location_site", "location_building","production_line"]
+        ordering = ["location_site", "location_building", "production_line"]
 
 
 class Product(models.Model):
@@ -260,11 +260,11 @@ class Machine(models.Model):
     machine_pro_emp_contact = models.CharField(max_length=50, blank=True)
     machine_load_capacity = models.CharField(max_length=10, blank=True)
     machine_load_capacity_unit = models.CharField(max_length=10, blank=True)
-    machine_power_use_kwatt_per_hour = models.FloatField(max_length=10, blank=True,)
+    machine_power_use_kwatt_per_hour = models.FloatField(max_length=10, blank=True)
     machine_installed_datetime = models.DateField(default=None, null=True)
     machine_start_use_datetime = models.DateField(default=None, null=True)
     machine_hour = models.IntegerField(default=None, null=True, blank=True)
-    machine_minute = models.IntegerField(default=None, null=True, blank=True)
+    machine_hour_last_update = models.IntegerField(default=None, null=True, blank=True)
     create_by = models.CharField(max_length=20)
     create_date = models.DateField()
     last_update_by = models.CharField(max_length=20, default=None, null=True)
@@ -285,6 +285,7 @@ class Machine(models.Model):
     machine_details = models.CharField(max_length=256, blank=True)
     machine_active = models.BooleanField()
     machine_core = models.BooleanField()
+    machine_hour_update_date = models.DateField(default=None, null=True)
 
     class Meta:
         db_table = "Machine_master"
@@ -305,13 +306,23 @@ class Machine_capacity(models.Model):
         db_table = "Machine_capacity"
 
 
-class Machine_and_spare_part(models.Model):
+class Machine_sparepart(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     spare_part = models.ForeignKey(Spare_part, on_delete=models.CASCADE)
-    last_maintenance_hour = models.IntegerField(default=None, null=True, blank=True)
+    last_mtnchng_hour = models.IntegerField(blank=True, default=None, null=True)
+    last_mtnchk_hour = models.IntegerField(blank=True, default=None, null=True)
+    mtnchng_life_hour = models.IntegerField(blank=True, default=None, null=True)
+    mtnchk_life_hour = models.IntegerField(blank=True, default=None, null=True)
+    next_mtnchng_hour = models.IntegerField(blank=True, default=None, null=True)
+    next_mtnchk_hour = models.IntegerField(blank=True, default=None, null=True)
+    last_mtnchng_job_id = models.IntegerField(blank=True, default=None, null=True)
+    last_mtnchk_job_id = models.IntegerField(blank=True, default=None, null=True)
+    gen_mtnchng_date = models.DateField(blank=True, default=None, null=True)
+    gen_mtnchk_date = models.DateField(blank=True, default=None, null=True)
+    warning_hour = models.IntegerField(blank=True, default=None, null=True)
 
     class Meta:
-        db_table = "Machine_and_spare_part"
+        db_table = "Machine_Sparepart"
         ordering = ["machine", "spare_part"]
 
 
@@ -337,36 +348,22 @@ class User(models.Model):
         db_table = "User_management"
 
 
-class Maintenance_order_head(models.Model):
-    job_id = models.AutoField(primary_key=True)
-    job_no = models.IntegerField()
-    job_date = models.DateField()
-    job_assignor_id = models.CharField(max_length=10)
-    job_assignee_id = models.CharField(max_length=10)
-    job_status = models.BooleanField()
-    close_reason = models.CharField(max_length=255)
+class Maintenance_job(models.Model):
+    job_no = models.CharField(max_length=20)
+    job_gen_date = models.DateField()
+    job_assign_user_id = models.CharField(max_length=20, default=None, null=True)
+    job_response_user_id = models.CharField(max_length=20, default=None, null=True)
+    job_assign_date = models.DateField(default=None, null=True)
+    job_mtn_type = models.CharField(max_length=20, default=None, null=True)
+    job_result_type = models.CharField(max_length=20, default=None, null=True)
+    job_result_description = models.TextField(default=None, null=True)
+    job_fix_plan_hour = models.IntegerField(default=None, null=True)
+    job_mch_hour = models.IntegerField(default=None, null=True)
+    job_plan_hour = models.IntegerField(default=None, null=True)
+    job_report_date = models.DateField(default=None, null=True)
+    job_gen_user_id = models.CharField(max_length=20, default=None, null=True)
+    job_mch_sp = models.ForeignKey(Machine_sparepart, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "Maintenance_order_head"
+        db_table = "maintenance_job"
 
-
-class Maintenance_plan(models.Model):
-    plan_id = models.AutoField(primary_key=True)
-    gen_date = models.DateField()
-    machine_and_spare = models.ForeignKey(Machine_and_spare_part, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "Maintenance_plan"
-
-
-class Maintenance_order_detail(models.Model):
-    mtn_order_id = models.AutoField(primary_key=True)
-    plan_work_start = models.DateTimeField()
-    plan_work_finish = models.DateTimeField()
-    actual_work_start = models.DateTimeField()
-    actual_work_finish = models.DateTimeField()
-    remark = models.CharField(max_length=255)
-    status = models.BooleanField()
-
-    class Meta:
-        db_table = "Maintenance_order_detail"
