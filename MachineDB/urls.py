@@ -55,14 +55,15 @@ urlpatterns = [
     path('sparepartmanage/spare_pare_machine/', views.spare_part_and_machine, name='spare_part_and_machine'),
 
     # Preventive Data
-    path('preventive/plan', views.maintenance_plan, name='maintenance_plan'),
+    path('preventive/data', views.maintenance_data, name='maintenance_data'),
+    path('preventive/plan', views.maintenance_job, name='maintenance_job'),
+    path('preventive/report', views.maintenance_report, name='maintenance_report'),
+    path('preventive/machine', views.machine_hour_update, name='machine_hour_update'),
 
     # Home
     path('home/', views.home, name='home'),
-    path('machine/data/', views.machine_data, name='machinedata'),
     path('home/line-<int:line>', views.home_machine, name='machine_data_line'),
     path('home/line-<int:line>/machine-<int:machine>', views.machine_details, name='machine_data_machine'),
-    path('machine/searching/', views.machine_searching, name='machine_searching'),
 
     # AJAX Script
     path('check_username', views.check_username, name='check_username'),                                        # check user exists
@@ -83,7 +84,7 @@ urlpatterns = [
     path('check_spare_part_subtype_code', views.check_spare_part_subtype_code, name='check_spare_part_subtype_code'),
     # path('check_spare_part_code', views.check_spare_part_code, name='check_spare_part_code'),
     path('ajax/load_spare_part/', views.load_spare_part, name='load_spare_part'),
-    path('ajax/load_machine/', views.load_machine, name='ajax_load_machine'),
+    path('ajax/load_machine/', views.load_machine_from_line, name='ajax_load_machine'),
     path('ajax/load_product/', views.load_product, name='ajax_load_product'),
     path('check_machine_product', views.check_machine_product, name='check_machine_product'),
     path('check_spare_part_group_code/', views.check_spare_part_group_code, name='check_spare_part_group_code'),
@@ -91,6 +92,7 @@ urlpatterns = [
     path('ajax/load_selected_lines/', views.load_selected_lines, name='ajax_selected_lines'),
     path('ajax/load_role_screen/', views.load_role_screen, name='load_role_screen'),
     path('ajax/load_machine', views.load_machine, name='load_machine'),
+    path('ajax/load_machine_sparepart', views.load_machine_sparepart, name='load_machine_sparepart'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),

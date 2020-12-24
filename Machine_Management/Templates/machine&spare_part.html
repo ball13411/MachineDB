@@ -72,6 +72,9 @@
                     <div class="col-sm-5">
                         <h2>Machine & Spare part <b>Management</b></h2>
                     </div>
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                        <a href="#setting" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Setting Machine&Sparepart</span></a>
+                    </div>
                 </div>
             </div>
             <table class="table table-striped" id="myTable">
@@ -92,7 +95,7 @@
                     <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_production_line_code}} | {{machine.machine_name}}</td>
                     <td>{{spare_part_of_machine.0.spare_part_name}}</td>
                     <td rowspan="{{spare_part_of_machine|length|add:1}}" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                        <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
+                        <a href="#add{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
                         <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
                     </td>
                 </tr>
@@ -103,16 +106,14 @@
                     {% endif %}
                 </tr>
                 {% endfor %}
-
-
-            <!-- Modal Setting -->
-            <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
+            <!-- Modal Add -->
+            <div id="add{{forloop.counter}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <form method="POST" id="add_sp{{forloop.counter}}" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}" data-sp-subtype-url="{% url 'load_spare_part' %}">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Setting</h5>
+                                <h5 class="modal-title">Add Spare Part</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body" >
@@ -201,17 +202,83 @@
                 </div>
             </div>
             {% endfor %}
+            <!-- Modal Setting -->
+            <div id="setting" class="modal fade" tabindex="1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">Setting</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="form-group col-6">
+                                        <label>Machine Code | Machine Name</label>
+                                        <select class="form-control" id="select_machine" name="select_machine" onchange="machine_sparepart(this)">
+                                            <option value="">-------กรุณาเลือกเครื่องจักร-------</option>
+                                            {% for mch in machine_all %}
+                                            <option value="{{mch.pk}}">{{mch.machine_production_line_code}} | {{mch.machine_name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label>Spare Group | Spare Name</label>
+                                        <select class="form-control" id="select_spare_part" name="select_spare_part">
+                                            <option value="">-------กรุณาเลือกอะไหล่-------</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label><strong>การซ่อมบำรุงรักษา</strong></label><hr>
+                                <div class="row">
+                                    <div class="form-group col-4">
+                                        <label>Last Maintenance</label>
+                                        <input type="number" class="form-control" id="last_mtn_change" name="last_mtn_change">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Life Maintenance</label>
+                                        <input type="number" class="form-control" id="life_mtn_hour" name="life_mtn_hour">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Next Maintenance</label>
+                                        <input type="number" class="form-control" id="next_mtn_change" name="next_mtn_change">
+                                    </div>
+                                </div>
+
+                                <label><strong>การตรวจสอบ</strong></label><hr>
+                                <div class="row">
+                                    <div class="form-group col-4">
+                                        <label>Last Checking</label>
+                                        <input type="number" class="form-control" id="last_mtn_check" name="last_mtn_check">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Life Checking</label>
+                                        <input type="number" class="form-control" id="life_check_hour" name="life_check_hour">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Next Checking</label>
+                                        <input type="number" class="form-control" id="next_mtn_check" name="next_mtn_check">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="setting" >Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
                 </tbody>
             </table>
 
         </div>
     </div>
 </div>
-<!--<script>-->
-<!--    $(document).ready( function () {-->
-<!--    $('#myTable').DataTable();-->
-<!--} );-->
-<!--</script>-->
+
 <script>
         $(document).ready(function(){
             $("#setting").on("show.bs.modal", function(event){
@@ -313,6 +380,43 @@
                 }
             });
         }
+</script>
+<script>
+    function machine_sparepart(element)
+    {
+        var machine_id = element.value;
+        $.ajax({
+            url : "{% url 'load_machine_sparepart' %}",
+            data : {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "machine_id" : machine_id,
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                //console.log(data);
+                if (data) {
+                    console.log("success : ", data);
+                    $('#select_spare_part').empty();
+                    var select_spare = document.getElementById("select_spare_part");
+                    var option_first = document.createElement('option');
+                    option_first.appendChild(document.createTextNode("-------กรุณาเลือกอะไหล่-------"));
+                    option_first.value = 0;
+                    select_spare.appendChild(option_first);
+                    for (model in data) {
+                        var options = document.createElement('option');
+                        options.appendChild( document.createTextNode(data[model].fields.spare_part_name));
+                        options.value = data[model].pk;
+                        select_spare.appendChild(options);
+                    }
+
+                } else {
+                    $('#select_spare_part').empty();
+                    console.log("non-success : ", data);
+                }
+            }
+        });
+    }
 </script>
 </body>
 </html>

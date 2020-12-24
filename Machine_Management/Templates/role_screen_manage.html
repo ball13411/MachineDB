@@ -117,7 +117,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label >Select Role ID</label>
-                                    <select class="form-control" id="set_rs_role{{forloop.counter}}" name="set_rs_role">
+                                    <select class="form-control" id="set_rs_role{{forloop.counter}}" name="set_rs_role" disabled>
                                     {% for role in roles %}
                                     <option value="{{role.role_id}}" {% if role.role_id == rs.role_id %}selected{% endif %}>{{role}}</option>
                                     {% endfor %}
@@ -125,7 +125,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Select Screen ID</label>
-                                    <select class="form-control" id="set_rs_screen{{forloop.counter}}" name="set_rs_screen">
+                                    <select class="form-control" id="set_rs_screen{{forloop.counter}}" name="set_rs_screen" disabled>
                                     {% for screen in screens %}
                                     <option value="{{screen.screen_id}}" {% if screen.screen_id == rs.screen_id %}selected{% endif %}>{{screen.screen_id}}&nbsp;&nbsp;({{screen.screen_name}})</option>
                                     {% endfor %}

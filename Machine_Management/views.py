@@ -52,6 +52,7 @@ def signin(request):
                     return redirect('/home')
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
                 messages.error(request, "username หรือ password ไม่ถูกต้อง")
+
     return render(request, 'signin.html')
 
 
@@ -132,6 +133,9 @@ def usermanage(request):
             user = User.objects.get(username=username)                          # Query Username
             user.delete()                                                       # Delete User from Model(DB)
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/usermanage/user')
+
     # return var to HTML
     roles = Role.objects.all()
     users = User.objects.all()
@@ -256,6 +260,9 @@ def rolemanage(request):
             messages.success(request, "ลบรายการสำเร็จ")
         elif 'signout' in request.POST:
             User_login = None  # Set User_login is None
+
+        return redirect('/usermanage/role/')
+
     roles = Role.objects.all()
     context = {'roles': roles,
                'User_login': User_login}
@@ -300,6 +307,9 @@ def screenmanage(request):
             screen.file_html = set_file_html
             screen.save()
             messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
+
+        return redirect('/usermanage/screen/')
+
     screens = Screen.objects.all()
     context = {'User_logined': User_login,
                'screens': screens}
@@ -370,6 +380,9 @@ def role_screen(request):
                 messages.success(request, "สร้างรายการสำเร็จ")
             else:
                 messages.error(request, 'Role และ Screen นี้มีแล้ว!! ไม่สามารถสร้างซ้ำได้')
+
+        return redirect('/usermanage/rolescreen/')
+
     list_role_screen = Role_Screen.objects.all()
     roles = Role.objects.all()
     screens = Screen.objects.all()
@@ -414,20 +427,6 @@ def home(request):
     return render(request, 'home.html', context)
 
 
-def machine_data(request):
-    global User_login, UserRole, dict_menu_level, User_org_machine_line
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_data').exists():
-        return redirect('/')
-    user_org = User_login.org.org_line.all()
-    User_org_machine_line = Machine.objects.filter(line__in=user_org)
-    context = {
-        'User_login': User_login, 'UserRole': UserRole,
-        'dict_menu_level': dict_menu_level.items(), 'User_org_machine_line': User_org_machine_line,
-        'line_of_user': user_org
-    }
-    return render(request, 'machine_data.html', context)
-
-
 def test(request):
 
     text = ""
@@ -435,6 +434,10 @@ def test(request):
         if 'skills' in request.GET:
             text = request.GET.getlist('skills')
             print(text)
+    elif request.method == "POST":
+        if 'ok' in request.POST:
+            print(request.POST.getlist('check'))
+            return redirect('/test/')
 
     context = {'text': text}
     return render(request, 'test.html', context)
@@ -507,6 +510,9 @@ def menumanage(request):
             menu_del = Menu.objects.get(menu_id=del_menu_id)
             menu_del.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/usermanage/menu/')
+
     list_menu = Menu.objects.order_by('level')
     list_screen = Screen.objects.all()
     screen_of_menu = []
@@ -548,12 +554,14 @@ def organizemanage(request):
             organize.org_name = request.POST['set_org_name']
             organize.save()
             messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
+
+        return redirect('/organizemanage/organization')
+
     orgs = Organization.objects.all()
     context = {
         'orgs': orgs, 'User_login': User_login
     }
     return render(request, 'organizemanage.html', context)
-
 
 
 def load_building(request):
@@ -618,6 +626,9 @@ def production_line(request):
             pline = Production_line.objects.get(pid=request.POST['delete_line'])
             pline.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/organizemanage/line')
+
     lines = Production_line.objects.all()
     sites = Site.objects.all()
     buildings = Building.objects.all()
@@ -689,6 +700,8 @@ def location(request):
                 locations.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
+        return redirect('/organizemanage/location')
+
     sites = Site.objects.all()
     buildings = Building.objects.all()
     floors = Floor.objects.all()
@@ -713,6 +726,9 @@ def org_productline(request):
             org.org_line.remove(line)
             org.save()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/organizemanage/orgline')
+
     org_lines = Organization.objects.all()
     prod_lines = Production_line.objects.all()
     context = {
@@ -788,48 +804,13 @@ def productmanage(request):
             product = Product.objects.get(pk=request.POST['delete_line'])
             product.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/organizemanage/productmanage')
+
     products = Product.objects.all()
     plines = Production_line.objects.all()
     context = {"User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines}
     return render(request, 'productmanage.html', context)
-
-
-def machine_searching(request):
-    global User_login, UserRole, dict_menu_level
-    if not Role_Screen.objects.filter(role=UserRole, screen_id='mch_searching').exists():
-        return redirect('/')
-    User_org = User_login.org.org_line.all()
-    user_org_machine_line = Machine.objects.filter(line__in=User_org)
-    filter_mch_type = Machine_type.objects.values('mtype_code').distinct()
-    filter_sub_type = Machine_subtype.objects.values('subtype_code').distinct()
-
-    if request.method == "POST":
-        if "searching" in request.POST:
-            line_production = request.POST["line_production"] or None
-            mch_type = request.POST["mch_type"] or None
-            sub_type = request.POST["sub_type"] or None
-            # user_org_machine_line = Machine.objects.filter(Q(line_id=line_production) & Q(mch_type_id=mch_type) & Q(sub_type_id=sub_type))
-            if line_production == "0" and mch_type != "0":
-                user_org_machine_line = Machine.objects.filter(mch_type__mtype_code=mch_type)
-            elif line_production == "0" and mch_type == "0" and sub_type != "0":
-                user_org_machine_line = Machine.objects.filter(sub_type__subtype_code=sub_type)
-            elif line_production != "0" and mch_type == "0":
-                user_org_machine_line = Machine.objects.filter(line_id=line_production)
-            elif line_production != "0" and mch_type != "0" and sub_type == "0":
-                user_org_machine_line = Machine.objects.filter(line_id=line_production, mch_type_id=mch_type)
-            elif line_production != "0" and mch_type != "0" and sub_type != "0":
-                user_org_machine_line = Machine.objects.filter(
-                    line_id=line_production, mch_type_id=mch_type, sub_type_id=sub_type)
-        elif "searching_mch_code" in request.POST:
-            machine_line_code = request.POST["machine_line_code"] or None
-            if machine_line_code is not None:
-                user_org_machine_line = Machine.objects.filter(machine_production_line_code__contains=machine_line_code,
-                                                               line__in=User_org)
-    context = {"User_login": User_login, "UserRole": UserRole, "dict_menu_level": dict_menu_level.items(),
-               "machines": user_org_machine_line,
-               "lines": User_org, "filter_mch_type": filter_mch_type, "filter_sub_type": filter_sub_type}
-
-    return render(request, 'machine_searching.html', context)
 
 
 def load_machine_subtype(request):
@@ -875,11 +856,10 @@ def machine_manage(request):
             add_pro_emp_contact = request.POST['add_pro_emp_contact']
             add_capacity_per_min = request.POST['add_cpm']
             add_capacity = request.POST['add_capacity']
-            add_power = request.POST['add_power']
+            add_power = request.POST['add_power'] if request.POST['add_power'] != '' else ""
             add_install_date = request.POST['add_installdate']
             add_start_date = request.POST['add_startdate']
             add_hour = request.POST['add_hour'] if request.POST['add_hour'] != '' else 0
-            add_minute = request.POST['add_minute'] if request.POST['add_minute'] != '' else 0
             add_core = request.POST.get('add_mch_core', False)
             if request.POST.get('add_mch_core', False):
                 if Machine.objects.filter(line_id=add_production_line, machine_core=True).exists():
@@ -913,7 +893,6 @@ def machine_manage(request):
                     create_by=User_login.username,
                     create_date=datetime.date.today(),
                     machine_hour=add_hour,
-                    machine_minute=add_minute,
                     machine_active=True,
                     machine_core=add_core
                 )
@@ -1182,6 +1161,8 @@ def machine_manage(request):
 
                 return response
 
+        return redirect('/machinemanage/machine/')
+
     context = {
         'User_login': User_login,
         'machine': machine, 'mch_subtype_all': mch_subtype_all,
@@ -1258,6 +1239,9 @@ def machine_type(request):
             typeid = Machine_type.objects.get(mtype_id=del_type)
             typeid.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/machinemanage/machinetype/')
+
     context = {'mch_types': mch_types, 'User_login': User_login, 'role_and_screen': role_and_screen}
     return render(request, 'machine_type.html', context)
 
@@ -1347,6 +1331,9 @@ def machine_subtype(request):
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
             subtypeid.delete()
+
+        return redirect('/machinemanage/machinesubtype/')
+
     context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login,
                'role_and_screen': role_and_screen}
     return render(request, 'machine_subtype.html', context)
@@ -1497,7 +1484,7 @@ def machine_details(request, line, machine):
     if not Role_Screen.objects.filter(role=UserRole).exists():
         return redirect('/')
     machine = Machine.objects.filter(machine_id=machine, line_id=line)
-    spare_part_of_mch = Machine_and_spare_part.objects.filter(machine_id__in=machine)
+    spare_part_of_mch = Machine_sparepart.objects.filter(machine_id__in=machine)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine': machine, 'spare_part_of_mch': spare_part_of_mch}
     return render(request, 'machine_details.html', context)
@@ -1543,6 +1530,9 @@ def spare_part_manage(request):
             spare_part = Spare_part.objects.get(pk=request.POST['delete_spare_part'])
             spare_part.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/sparepartmanage/sparepart/')
+
     context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_group_all': spare_part_group_all,
                'role_and_screen': role_and_screen}
     return render(request, 'spare_part_manage.html', context)
@@ -1593,6 +1583,9 @@ def spare_part_subtype(request):
             sp_subtype = Spare_part_sub_type.objects.get(pk=request.POST['delete_spare_part_subtype'])
             sp_subtype.delete()
             messages.success(request, "การลบรายการชนิดอะไหล่เสร็จสมบูรณ์")
+
+        return redirect('/sparepartmanage/subtype/')
+
     context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all,
                'spare_part_group_all': spare_part_group_all, 'role_and_screen': role_and_screen}
     return render(request, 'spare_part_subtype.html', context)
@@ -1625,6 +1618,9 @@ def spare_part_type(request):
             spare_type = Spare_part_type.objects.get(pk=request.POST['delete_spare_part'])
             spare_type.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/sparepartmanage/type/')
+
     context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all,
                'role_and_screen': role_and_screen}
     return render(request, 'spare_part_type.html', context)
@@ -1655,6 +1651,9 @@ def spare_part_group(request):
             spare_group = Spare_part_group.objects.get(pk=request.POST['delete_spare_part'])
             spare_group.delete()
             messages.success(request, "ลบรายการสำเร็จ")
+
+        return redirect('/sparepartmanage/group/')
+
     context = {'User_login': User_login, 'sp_group_all': sp_group_all, 'role_and_screen': role_and_screen}
     return render(request, 'spare_part_group.html', context)
 
@@ -1738,19 +1737,40 @@ def machine_and_spare_part(request):
     dict_mch_sp = {}
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
-    mch_and_sp_all = Machine_and_spare_part.objects.filter(machine__in=machine)
+    mch_and_sp_all = Machine_sparepart.objects.filter(machine__in=machine)
     spare_part_group_all = Spare_part_group.objects.all()
     spare_part_all = Spare_part.objects.all()
 
     if request.method == "POST":
         if "add_mch_and_sp" in request.POST:
-            mch_and_sp = Machine_and_spare_part.objects.create(machine_id=request.POST["add_mch_and_sp"],
-                                                               spare_part_id=request.POST["select_sp_name"])
-            mch_and_sp.save()
+            mch_sp_check_exists = Machine_sparepart.objects.filter(machine_id=request.POST["add_mch_and_sp"], spare_part_id=request.POST["select_sp_name"])
+
+            if request.POST["select_sp_name"] == "0":
+                messages.error(request, "การทำรายการผิดพลาด กรุณาระบุอะไหล่")
+            elif not mch_sp_check_exists.exists():
+                mch_and_sp = Machine_sparepart.objects.create(machine_id=request.POST["add_mch_and_sp"],
+                                                              spare_part_id=request.POST["select_sp_name"])
+                mch_and_sp.save()
+            else:
+                messages.error(request, "การทำรายการผิดพลาด เครื่องจักรนี้ มีอะไหล่นี้แล้ว")
         elif "delete_spare_part" in request.POST:
-            mch_and_sp = Machine_and_spare_part.objects.filter(machine_id=request.POST['delete_spare_part'],
-                                                               spare_part_id=request.POST['select_delete_spare_part'])
+            mch_and_sp = Machine_sparepart.objects.filter(machine_id=request.POST['delete_spare_part'],
+                                                          spare_part_id=request.POST['select_delete_spare_part'])
             mch_and_sp.delete()
+        elif "setting" in request.POST:
+            mch_and_sp = Machine_sparepart.objects.get(machine_id=request.POST['select_machine'],
+                                                       spare_part_id=request.POST['select_spare_part'])
+
+            mch_and_sp.last_mtnchng_hour = request.POST['last_mtn_change'] if request.POST['last_mtn_change'] != "" else None
+            mch_and_sp.mtnchng_life_hour = request.POST['life_mtn_hour'] if request.POST['life_mtn_hour'] != "" else None
+            mch_and_sp.next_mtnchng_hour = request.POST['next_mtn_change'] if request.POST['next_mtn_change'] != "" else None
+            mch_and_sp.last_mtnchk_hour = request.POST['last_mtn_check'] if request.POST['last_mtn_check'] != "" else None
+            mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
+            mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
+            mch_and_sp.save()
+
+        return redirect('/machinemanage/machine_spare_part/')
+
     for mch in machine:
         dict_mch_sp[mch] = []
     for mch_sp in mch_and_sp_all:
@@ -1758,28 +1778,90 @@ def machine_and_spare_part(request):
 
     context = {'User_login': User_login,
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_all': spare_part_all,
-               'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all}
+               'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all, 'machine_all': machine}
     return render(request, 'machine&spare_part.html', context)
 
 
-def maintenance_plan(request):
-    global User_login
-    list_mch_mtn = []
-    mch_sp_all = Machine_and_spare_part.objects.all()
-    for mch_sp in mch_sp_all:
-        if Maintenance_plan.objects.filter(machine_and_spare=mch_sp):
-            continue
-        try:
-            if mch_sp.machine.machine_hour > mch_sp.spare_part.service_plan_life + mch_sp.last_maintenance_hour:
-                list_mch_mtn.append(mch_sp)
-                mtn_plan = Maintenance_plan.objects.create(machine_and_spare=mch_sp, gen_date=datetime.date.today())
-                mtn_plan.save()
-        except TypeError:
-            continue
-    list_plan = Maintenance_plan.objects.all()
-    list_user = User.objects.all()
-    context = {'User_login': User_login, 'list_plan': list_plan, 'list_user': list_user}
-    return render(request, 'maintenance_plan.html', context)
+def maintenance_job(request):
+
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_job')
+    if not role_and_screen.exists():
+        return redirect('/')
+
+    mch_sp_not_gen = Machine_sparepart.objects.filter(gen_mtnchng_date__isnull=True, gen_mtnchk_date__isnull=True)
+
+    for mch_sp in mch_sp_not_gen:
+        if mch_sp.machine.machine_hour:
+            # Change Maintenance
+            if mch_sp.last_mtnchng_hour and mch_sp.mtnchng_life_hour:
+                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchng_hour + mch_sp.mtnchng_life_hour:
+                    mch_sp.gen_mtnchng_date = datetime.date.today()
+                    mch_sp.save()
+                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
+                                                              job_gen_date=datetime.date.today(),
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
+                    main_job.save()
+                    continue
+            elif mch_sp.next_mtnchng_hour:
+                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchng_hour:
+                    mch_sp.gen_mtnchng_date = datetime.date.today()
+                    mch_sp.save()
+                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
+                                                              job_gen_date=datetime.date.today(),
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
+                    main_job.save()
+                    continue
+            # Checking Maintenance
+            if mch_sp.last_mtnchk_hour and mch_sp.mtnchk_life_hour:
+                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchk_hour + mch_sp.mtnchk_life_hour:
+                    mch_sp.gen_mtnchk_date = datetime.date.today()
+                    mch_sp.save()
+                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
+                                                              job_gen_date=datetime.date.today(),
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
+                    main_job.save()
+                    continue
+            elif mch_sp.next_mtnchk_hour:
+                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchk_hour:
+                    mch_sp.gen_mtnchk_date = datetime.date.today()
+                    mch_sp.save()
+                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
+                                                              job_gen_date=datetime.date.today(),
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
+                    main_job.save()
+                    continue
+
+    if request.method == "POST":
+        if "assign_submit" in request.POST:
+            if request.POST.getlist('assign_list[]') != "":
+                for job_pk in request.POST.getlist('assign_list[]'):
+                    job = Maintenance_job.objects.get(pk=job_pk)
+                    job.job_assign_user_id = User_login.pk
+                    job.job_response_user_id = request.POST['user_response'] if request.POST['user_response'] != "" else None
+                    job.job_assign_date = datetime.date.today()
+                    job.job_status = "รอการดำเนินงาน" if request.POST['user_response'] != "" else "รอการมอบหมาย"
+                    job.save()
+            return redirect('/preventive/plan')
+
+        elif "set_maintenance_data" in request.POST:
+            mch_and_sp = Machine_sparepart.objects.get(pk=request.POST['set_maintenance_data'])
+            mch_and_sp.last_mtnchng_hour = request.POST['last_mtn_change'] if request.POST['last_mtn_change'] != "" else None
+            mch_and_sp.mtnchng_life_hour = request.POST['life_mtn_hour'] if request.POST['life_mtn_hour'] != "" else None
+            mch_and_sp.next_mtnchng_hour = request.POST['next_mtn_change'] if request.POST['next_mtn_change'] != "" else None
+            mch_and_sp.last_mtnchk_hour = request.POST['last_mtn_check'] if request.POST['last_mtn_check'] != "" else None
+            mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
+            mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
+            mch_and_sp.save()
+            return redirect('/preventive/plan')
+
+    maintenance_job_gen = Maintenance_job.objects.all()
+
+    context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen}
+    return render(request, 'maintenance_job.html', context)
 
 
 def machine_capacity(request):
@@ -1818,13 +1900,15 @@ def machine_capacity(request):
             delete_machine_capacity = Machine_capacity.objects.get(pk=request.POST['delete_machine_capacity'])
             delete_machine_capacity.delete()
 
+        return redirect('/machinemanage/capacity/')
+
     mch_capacity_all = Machine_capacity.objects.all()
     production_line = Production_line.objects.all()
     context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line}
     return render(request, 'machine_capacity.html', context)
 
 
-def load_machine(request):
+def load_machine_from_line(request):
     line_id = request.GET.get('line_id')
     machine = Machine.objects.filter(line_id=line_id).all()
     context = {'machine': machine}
@@ -2059,25 +2143,27 @@ def spare_part_and_machine(request):
     dict_mch_sp = {}
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
-    sp_and_mch_all = Machine_and_spare_part.objects.filter(machine__in=machine)
+    sp_and_mch_all = Machine_sparepart.objects.filter(machine__in=machine)
     spare_part_all = Spare_part.objects.all()
     machine_type_all = Machine_type.objects.all()
 
     if request.method == "POST":
         if "add_sp_and_mch" in request.POST:
             try:
-                sp_and_mch = Machine_and_spare_part.objects.create(machine_id=request.POST['select_mch'], spare_part_id=request.POST['add_sp_and_mch'])
+                sp_and_mch = Machine_sparepart.objects.create(machine_id=request.POST['select_mch'], spare_part_id=request.POST['add_sp_and_mch'])
                 sp_and_mch.save()
                 messages.success(request, 'บันทึกรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
             except:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
         elif "delete_machine" in request.POST:
             try:
-                sp_and_mch = Machine_and_spare_part.objects.filter(machine_id=request.POST['select_delete_machine'], spare_part_id=request.POST['delete_machine'])
+                sp_and_mch = Machine_sparepart.objects.filter(machine_id=request.POST['select_delete_machine'], spare_part_id=request.POST['delete_machine'])
                 sp_and_mch.delete()
                 messages.success(request, 'ลบรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
             except:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
+
+        return redirect('/sparepartmanage/spare_pare_machine/')
 
     for sp in spare_part_all:
         dict_mch_sp[sp] = []
@@ -2094,7 +2180,195 @@ def load_machine(request):
     sp_id = request.POST['spID']
     line_id = request.POST['lineID']
     sub_type_id = request.POST['subtypeID']
-    machine_spare = Machine_and_spare_part.objects.filter(spare_part_id=sp_id).values_list('machine')
+    machine_spare = Machine_sparepart.objects.filter(spare_part_id=sp_id).values_list('machine')
     machine = Machine.objects.filter(line_id=line_id, sub_type_id=sub_type_id).exclude(pk__in=machine_spare)
     data = serializers.serialize('json', machine)
+    return HttpResponse(data, content_type="application/json")
+
+
+@csrf_exempt
+def load_machine_sparepart(request):
+    machine_id = request.POST['machine_id']
+    mch_sp = Machine_sparepart.objects.filter(machine_id=machine_id).values('spare_part_id')
+    spare_part_of_mch = Spare_part.objects.filter(pk__in=mch_sp)
+    data = serializers.serialize('json', spare_part_of_mch)
+    return HttpResponse(data, content_type="application/json")
+
+
+def maintenance_data(request):
+    global User_login
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_data')
+    if not role_and_screen.exists():
+        return redirect('/')
+    line_of_user = User_login.org.org_line.all()
+    mch_sp_all = Machine_sparepart.objects.filter(machine__line__in=line_of_user)
+    if request.method == 'POST':
+
+        if 'prd_mch' in request.POST:
+            if request.POST['production_line'] == "0":
+                mch_sp_all = Machine_sparepart.objects.filter(machine__line__in=line_of_user)
+            elif request.POST['production_line'] != "0" and request.POST['machine'] == "":
+                mch_sp_all = Machine_sparepart.objects.filter(machine__line__in=request.POST['production_line'])
+            elif request.POST['production_line'] != "0" and request.POST['machine'] != 0:
+                mch_sp_all = Machine_sparepart.objects.filter(machine_id=request.POST['machine'])
+
+        elif "set_maintenance_data" in request.POST:
+            mch_and_sp = Machine_sparepart.objects.get(pk=request.POST['set_maintenance_data'])
+            mch_and_sp.last_mtnchng_hour = request.POST['last_mtn_change'] if request.POST['last_mtn_change'] != "" else None
+            mch_and_sp.mtnchng_life_hour = request.POST['life_mtn_hour'] if request.POST['life_mtn_hour'] != "" else None
+            mch_and_sp.next_mtnchng_hour = request.POST['next_mtn_change'] if request.POST['next_mtn_change'] != "" else None
+            mch_and_sp.last_mtnchk_hour = request.POST['last_mtn_check'] if request.POST['last_mtn_check'] != "" else None
+            mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
+            mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
+            mch_and_sp.save()
+            return redirect('/preventive/data')
+
+    context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all}
+    return render(request, 'maintenance_data.html', context)
+
+
+def maintenance_report(request):
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_report')
+    if not role_and_screen.exists():
+        return redirect('/')
+    job = Maintenance_job.objects.filter(job_response_user_id=User_login.username)
+    if request.method == "POST":
+        if 'report_submit' in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['report_submit'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.job_mtn_type = request.POST['mtn_type']
+            mtn_report.job_result_type = request.POST['mtn_result']
+            mtn_report.job_result_description = request.POST['mtn_result_description'] if request.POST['mtn_result_description'] != "" else None
+            mtn_report.job_fix_plan_hour = request.POST['chang_life_hour_sp'] if request.POST['chang_life_hour_sp'] != "" else request.POST['chang_life_hour_pv']
+            mtn_report.job_mch_hour = request.POST['machine_hour_sp'] if request.POST['machine_hour_sp'] != "" else request.POST['machine_hour_pv']
+            mtn_report.job_plan_hour = request.POST['check_life_hour_sp'] if request.POST['check_life_hour_sp'] != "" else request.POST['check_life_hour_pv']
+            mtn_report.job_report_date = datetime.datetime.today()
+            mtn_report.problem_cause = request.POST['problem_cause']
+            mtn_report.corrective_action = request.POST['corrective_action']
+            mtn_report.after_repair = request.POST['after_repair']
+            mtn_report.job_status = "รอการอนุมัติงาน"
+            mtn_report.equipment_code1 = request.POST['equipment_code1']
+            mtn_report.equipment_code2 = request.POST['equipment_code2']
+            mtn_report.equipment_code3 = request.POST['equipment_code3']
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
+            mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
+            mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
+            mtn_report.equipment_note1 = request.POST['equipment_note1']
+            mtn_report.equipment_note2 = request.POST['equipment_note2']
+            mtn_report.equipment_note3 = request.POST['equipment_note3']
+            mtn_report.save()
+            # mch_sp.gen_mtnchng_date = None
+            # mch_sp.gen_mtnchk_date = None
+            if request.POST['mtn_type'] == "change":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
+            elif request.POST['mtn_type'] == "checking":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+            mch_sp.mtnchng_life_hour = mtn_report.job_fix_plan_hour
+            mch_sp.mtnchk_life_hour = mtn_report.job_plan_hour
+            if mch_sp.mtnchk_life_hour:
+                mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
+            if mch_sp.mtnchng_life_hour:
+                mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+            mch_sp.save()
+
+        elif "report_update" in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['report_update'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.job_mtn_type = request.POST['mtn_type']
+            mtn_report.job_result_type = request.POST['mtn_result']
+            mtn_report.job_result_description = request.POST['mtn_result_description'] if request.POST['mtn_result_description'] != "" else None
+            mtn_report.job_fix_plan_hour = request.POST['chang_life_hour_sp'] if request.POST['chang_life_hour_sp'] != "" else request.POST['chang_life_hour_pv']
+            mtn_report.job_mch_hour = request.POST['machine_hour_sp'] if request.POST['machine_hour_sp'] != "" else request.POST['machine_hour_pv']
+            mtn_report.job_plan_hour = request.POST['check_life_hour_sp'] if request.POST['check_life_hour_sp'] != "" else request.POST['check_life_hour_pv']
+            mtn_report.job_report_date = datetime.datetime.today()
+            mtn_report.problem_cause = request.POST['problem_cause']
+            mtn_report.corrective_action = request.POST['corrective_action']
+            mtn_report.after_repair = request.POST['after_repair']
+            # mtn_report.job_status = "รอการอนุมัติงาน"
+            mtn_report.equipment_code1 = request.POST['equipment_code1']
+            mtn_report.equipment_code2 = request.POST['equipment_code2']
+            mtn_report.equipment_code3 = request.POST['equipment_code3']
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
+            mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
+            mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
+            mtn_report.equipment_note1 = request.POST['equipment_note1']
+            mtn_report.equipment_note2 = request.POST['equipment_note2']
+            mtn_report.equipment_note3 = request.POST['equipment_note3']
+            mtn_report.save()
+            # mch_sp.gen_mtnchng_date = None
+            # mch_sp.gen_mtnchk_date = None
+            if request.POST['mtn_type'] == "change":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
+            elif request.POST['mtn_type'] == "checking":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+            mch_sp.mtnchng_life_hour = mtn_report.job_fix_plan_hour
+            mch_sp.mtnchk_life_hour = mtn_report.job_plan_hour
+            if mch_sp.mtnchk_life_hour:
+                mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
+            if mch_sp.mtnchng_life_hour:
+                mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+            mch_sp.save()
+
+        elif "approve_job" in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.is_approve = True if request.POST.get('is_approve', False) else False
+            mtn_report.job_approve_date = datetime.datetime.today() if request.POST.get('is_approve', False) else None
+            mtn_report.job_status = "งานเสร็จสิ้น" if request.POST.get('is_approve', False) else "รอการอนุมัติงาน"
+            mch_sp.gen_mtnchng_date = None
+            mch_sp.gen_mtnchk_date = None
+            mch_sp.save()
+            mtn_report.save()
+
+        return redirect('/preventive/report')
+
+    context = {'User_login': User_login, 'job': job}
+    return render(request, 'maintenance_report.html', context)
+
+
+def machine_hour_update(request):
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_hour_update')
+    if not role_and_screen.exists():
+        return redirect('/')
+
+    if request.method == 'POST':
+        if 'hour_submit' in request.POST:
+            hour_update = request.POST['hour_update']
+            if request.POST.get('mch_update[]', False) and request.POST['hour_update']:
+                mch_pk = request.POST.getlist('mch_update[]')
+                for mch in Machine.objects.filter(pk__in=mch_pk):
+                    if mch.machine_hour_update_date == datetime.date.today():
+                        mch.machine_hour = mch.machine_hour_last_update + int(hour_update)
+                    else:
+                        mch.machine_hour_update_date = datetime.date.today()
+                        mch.machine_hour_last_update = mch.machine_hour
+                        mch.machine_hour += int(hour_update)
+                    mch.save()
+                return redirect('/preventive/machine')
+            # elif not request.POST.get('mch_update[]', False):
+            #     return redirect('/preventive/machine')
+            else:
+                return redirect('/preventive/machine')
+
+    user_org = User_login.org.org_line.all()
+    machine_all = Machine.objects.filter(line__in=user_org)
+
+    context = {'User_login': User_login, 'machine_all': machine_all}
+    return render(request, 'machine_hour_update.html', context)
+
+
+@csrf_exempt
+def assign_check_user(request):
+    machine_id = request.POST['machine_id']
+    mch_sp = Machine_sparepart.objects.filter(machine_id=machine_id).values('spare_part_id')
+    spare_part_of_mch = Spare_part.objects.filter(pk__in=mch_sp)
+    data = serializers.serialize('json', spare_part_of_mch)
     return HttpResponse(data, content_type="application/json")

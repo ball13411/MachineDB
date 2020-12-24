@@ -2,5 +2,5 @@
 
 {% for build in building %}
 <!--<option value="{{ build.pk }}">{% if build.id == line.location_building_id %} Default : {{ build.building }} {% else %} {{ build.building }} {% endif %}</option>-->
-<option value="{{ build.pk }}">{{ build.building }}</option>
+<option value="{{ build.pk }}">อาคารที่ {{ build.building }}</option>
 {% endfor %}

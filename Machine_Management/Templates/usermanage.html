@@ -222,7 +222,7 @@
 
                                 <div class="form-group">
                                     <label for="username">Username</label>
-                                    <input type="text" class="form-control" name="add_username" id="add_username" placeholder="ไอดีผู้ใช้งาน" required="True" autocomplete="off" maxlength="10" onkeyup="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
+                                    <input type="text" class="form-control" name="add_username" id="add_username" placeholder="ไอดีผู้ใช้งาน" required="True" autocomplete="off" maxlength="10" onchange="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
                                     <i class="fas fa-check-circle"></i>
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Username already exists</small>
@@ -243,7 +243,7 @@
                                     <div class="col-md-8">
                                         <div class="form-group">
                                             <label for="add_email">Email</label>
-                                            <input type="email" class="form-control" maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" required="True" onkeyup="check_email(this);return false;" data-url="{% url 'check_email' %}"/>
+                                            <input type="email" class="form-control" maxlength="30" placeholder="farmhouse@farmhousemail.com" id="add_email" name="add_email" required="True" onchange="check_email(this);return false;" data-url="{% url 'check_email' %}"/>
                                             <i class="fas fa-check-circle"></i>
                                             <i class="fas fa-exclamation-circle"></i>
                                             <small>Email already exists</small>
@@ -399,12 +399,23 @@
         var password = $("#add_password").val();
         var confirmPassword = $("#add_cfpassword").val();
         if (confirmPassword != '') {
+            console.log(password.length);
             if (password == confirmPassword) {
                 $('#add_password').parent().removeClass();
                 $('#add_password').parent().addClass('form-group success');
                 $('#add_cfpassword').parent().removeClass();
                 $('#add_cfpassword').parent().addClass('form-group success');
                 check3 = true;
+            } else if (password.length < 6) {
+                //console.log("con this");
+                //var sm = document.createElement("SMALL");
+                //var text = document.createTextNode("password should more length");
+                //sm.appendChild(text);
+                document.getElementById("add_password").appendChild(sm);
+                $('#add_password').parent().removeClass();
+                $('#add_password').parent().addClass('form-group error');
+
+                check3 = false;
             } else {
                 $('#add_password').parent().removeClass();
                 $('#add_password').parent().addClass('form-group error');

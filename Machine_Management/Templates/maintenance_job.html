@@ -55,7 +55,10 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
-                <a href="{% url 'maintenance_plan' %}" class="nav-item nav-link active"><b>Maintenance Plan</b></a>
+                <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
+                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link active"><b>Maintenance Assign</b></a>
+                <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">Maintenance Report</a>
+                <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -76,10 +79,20 @@
         </div>
         {% endfor %}
         <div class="table-wrapper">
+            <form method="POST">
             <div class="table-title">
                 <div class="row">
-                    <div class="col-sm-5">
-                        <h2>Maintenance <b>Plan</b></h2>
+                    <div class="col-sm-8">
+                        <h2>Maintenance <b>Assign</b></h2>
+                    </div>
+                    <div class="col-1">
+                        <h2>Assign</h2>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control form-control-sm" name="user_response">
+                    </div>
+                    <div class="col-sm-1">
+                        <button type="submit" class="btn btn-primary form-control-sm" name="assign_submit">Submit</button>
                     </div>
                 </div>
             </div>
@@ -87,28 +100,35 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>planID</th>
+                        <th>Job No</th>
+                        <th>Job Date</th>
+                        <th>Line</th>
                         <th>Machine</th>
                         <th>Spare Part</th>
-                        <th>GenDate</th>
-                        <th>jobID</th>
-                        <th>jobStatus</th>
-                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                        <th>Assign By</th>
+                        <th>Response By</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Assign Job</center></th>
+                        <th>Status</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Detail</center></th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for mtn_plan in list_plan %}
+            {% for mtn_job in maintenance_job_gen %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td>{{mtn_plan.plan_id}}</td>
-                        <td>{{mtn_plan.machine_and_spare.machine.machine_name}}</td>
-                        <td>{{mtn_plan.machine_and_spare.spare_part.spare_part_name}}</td>
-                        <td>{{mtn_plan.gen_date}}</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#job{{mtn_plan.pk}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE147;</i></a>
+                        <td>{{mtn_job.job_no}}</td>
+                        <td>{{mtn_job.job_gen_date}}</td>
+                        <td>{{mtn_job.job_mch_sp.machine.line}}</td>
+                        <td>{{mtn_job.job_mch_sp.machine.machine_name}}</td>
+                        <td>{{mtn_job.job_mch_sp.spare_part}}</td>
+                        <td>{{mtn_job.job_assign_user_id|default_if_none:''}}</td>
+                        <td>{{mtn_job.job_response_user_id|default_if_none:''}}</td>
+                        <td>
+                            <a href="#job{{mtn_plan.pk}}" class="settings" title="Settings" data-toggle="modal" hidden><i class="material-icons">&#xE147;</i></a>
+                            <center><input type="checkbox" id="assign{{forloop.counter}}" name="assign_list[]" value="{{mtn_job.pk}}"></center>
                         </td>
+                        <td>{{mtn_job.job_status}}</td>
+                        <td><center><a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a></center></td>
                     </tr>
 
             <!-- Modal job -->
@@ -175,9 +195,77 @@
                     </div>
                 </div>
             </div>
-                </tbody>
+            <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">Machine Maintenance Data</h5>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-md-2">
+                                            <label>Line</label>
+                                            <input type="text" id="line_machine{{forloop.counter}}" class="form-control" name="line_machine" value="{{mtn_job.job_mch_sp.machine.line}}" readonly>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label>Machine</label>
+                                            <input type="text" id="set_machine{{forloop.counter}}" class="form-control" name="set_machine" value="{{mtn_job.job_mch_sp.machine.machine_production_line_code}} | {{mtn_job.job_mch_sp.machine.machine_name}}" readonly>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label>Spare Part</label>
+                                            <input type="text" id="set_spare_part{{forloop.counter}}" class="form-control" name="set_spare_part" value="{{mtn_job.job_mch_sp.spare_part.spare_part_group}} | {{mtn_job.job_mch_sp.spare_part}}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label><strong>การซ่อมบำรุงรักษา</strong></label><hr>
+                                <div class="row">
+                                    <div class="form-group col-4">
+                                        <label>Last Maintenance</label>
+                                        <input type="number" class="form-control" id="last_mtn_change{{forloop.counter}}" name="last_mtn_change" value="{{mtn_job.job_mch_sp.last_mtnchng_hour}}">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Life Maintenance</label>
+                                        <input type="number" class="form-control" id="life_mtn_hour{{forloop.counter}}" name="life_mtn_hour" value="{{mtn_job.job_mch_sp.mtnchng_life_hour}}">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Next Maintenance</label>
+                                        <input type="number" class="form-control" id="next_mtn_change{{forloop.counter}}" name="next_mtn_change" value="{{mtn_job.job_mch_sp.next_mtnchng_hour}}">
+                                    </div>
+                                </div>
+
+                                <label><strong>การตรวจสอบ</strong></label><hr>
+                                <div class="row">
+                                    <div class="form-group col-4">
+                                        <label>Last Checking</label>
+                                        <input type="number" class="form-control" id="last_mtn_check{{forloop.counter}}" name="last_mtn_check" value="{{mtn_job.job_mch_sp.last_mtnchk_hour}}">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Life Checking</label>
+                                        <input type="number" class="form-control" id="life_check_hour{{forloop.counter}}" name="life_check_hour" value="{{mtn_job.job_mch_sp.mtnchk_life_hour}}">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label>Next Checking</label>
+                                        <input type="number" class="form-control" id="next_mtn_check{{forloop.counter}}" name="next_mtn_check" value="{{mtn_job.job_mch_sp.next_mtnchk_hour}}">
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary" name="set_maintenance_data" value="{{mtn_job.job_mch_sp.pk}}">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
+                </tbody>
             </table>
+            </form>
 
         </div>
     </div>
