@@ -1782,9 +1782,9 @@ def machine_and_spare_part(request):
     return render(request, 'machine&spare_part.html', context)
 
 
-def maintenance_plan(request):
+def maintenance_job(request):
 
-    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_plan')
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_job')
     if not role_and_screen.exists():
         return redirect('/')
 
@@ -1799,7 +1799,8 @@ def maintenance_plan(request):
                     mch_sp.save()
                     main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
                                                               job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk)
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
                     main_job.save()
                     continue
             elif mch_sp.next_mtnchng_hour:
@@ -1808,7 +1809,8 @@ def maintenance_plan(request):
                     mch_sp.save()
                     main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
                                                               job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk)
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
                     main_job.save()
                     continue
             # Checking Maintenance
@@ -1818,7 +1820,8 @@ def maintenance_plan(request):
                     mch_sp.save()
                     main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
                                                               job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk)
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
                     main_job.save()
                     continue
             elif mch_sp.next_mtnchk_hour:
@@ -1827,7 +1830,8 @@ def maintenance_plan(request):
                     mch_sp.save()
                     main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
                                                               job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk)
+                                                              job_mch_sp_id=mch_sp.pk,
+                                                              job_status="รอการมอบหมาย")
                     main_job.save()
                     continue
 
@@ -1839,6 +1843,7 @@ def maintenance_plan(request):
                     job.job_assign_user_id = User_login.pk
                     job.job_response_user_id = request.POST['user_response'] if request.POST['user_response'] != "" else None
                     job.job_assign_date = datetime.date.today()
+                    job.job_status = "รอการดำเนินงาน" if request.POST['user_response'] != "" else "รอการมอบหมาย"
                     job.save()
             return redirect('/preventive/plan')
 
@@ -1856,7 +1861,7 @@ def maintenance_plan(request):
     maintenance_job_gen = Maintenance_job.objects.all()
 
     context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen}
-    return render(request, 'maintenance_plan.html', context)
+    return render(request, 'maintenance_job.html', context)
 
 
 def machine_capacity(request):
@@ -2238,9 +2243,25 @@ def maintenance_report(request):
             mtn_report.job_mch_hour = request.POST['machine_hour_sp'] if request.POST['machine_hour_sp'] != "" else request.POST['machine_hour_pv']
             mtn_report.job_plan_hour = request.POST['check_life_hour_sp'] if request.POST['check_life_hour_sp'] != "" else request.POST['check_life_hour_pv']
             mtn_report.job_report_date = datetime.datetime.today()
+            mtn_report.problem_cause = request.POST['problem_cause']
+            mtn_report.corrective_action = request.POST['corrective_action']
+            mtn_report.after_repair = request.POST['after_repair']
+            mtn_report.job_status = "รอการอนุมัติงาน"
+            mtn_report.equipment_code1 = request.POST['equipment_code1']
+            mtn_report.equipment_code2 = request.POST['equipment_code2']
+            mtn_report.equipment_code3 = request.POST['equipment_code3']
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
+            mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
+            mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
+            mtn_report.equipment_note1 = request.POST['equipment_note1']
+            mtn_report.equipment_note2 = request.POST['equipment_note2']
+            mtn_report.equipment_note3 = request.POST['equipment_note3']
             mtn_report.save()
-            mch_sp.gen_mtnchng_date = None
-            mch_sp.gen_mtnchk_date = None
+            # mch_sp.gen_mtnchng_date = None
+            # mch_sp.gen_mtnchk_date = None
             if request.POST['mtn_type'] == "change":
                 mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
                 mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
@@ -2253,6 +2274,59 @@ def maintenance_report(request):
             if mch_sp.mtnchng_life_hour:
                 mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
             mch_sp.save()
+
+        elif "report_update" in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['report_update'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.job_mtn_type = request.POST['mtn_type']
+            mtn_report.job_result_type = request.POST['mtn_result']
+            mtn_report.job_result_description = request.POST['mtn_result_description'] if request.POST['mtn_result_description'] != "" else None
+            mtn_report.job_fix_plan_hour = request.POST['chang_life_hour_sp'] if request.POST['chang_life_hour_sp'] != "" else request.POST['chang_life_hour_pv']
+            mtn_report.job_mch_hour = request.POST['machine_hour_sp'] if request.POST['machine_hour_sp'] != "" else request.POST['machine_hour_pv']
+            mtn_report.job_plan_hour = request.POST['check_life_hour_sp'] if request.POST['check_life_hour_sp'] != "" else request.POST['check_life_hour_pv']
+            mtn_report.job_report_date = datetime.datetime.today()
+            mtn_report.problem_cause = request.POST['problem_cause']
+            mtn_report.corrective_action = request.POST['corrective_action']
+            mtn_report.after_repair = request.POST['after_repair']
+            # mtn_report.job_status = "รอการอนุมัติงาน"
+            mtn_report.equipment_code1 = request.POST['equipment_code1']
+            mtn_report.equipment_code2 = request.POST['equipment_code2']
+            mtn_report.equipment_code3 = request.POST['equipment_code3']
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
+            mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
+            mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
+            mtn_report.equipment_note1 = request.POST['equipment_note1']
+            mtn_report.equipment_note2 = request.POST['equipment_note2']
+            mtn_report.equipment_note3 = request.POST['equipment_note3']
+            mtn_report.save()
+            # mch_sp.gen_mtnchng_date = None
+            # mch_sp.gen_mtnchk_date = None
+            if request.POST['mtn_type'] == "change":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
+            elif request.POST['mtn_type'] == "checking":
+                mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+            mch_sp.mtnchng_life_hour = mtn_report.job_fix_plan_hour
+            mch_sp.mtnchk_life_hour = mtn_report.job_plan_hour
+            if mch_sp.mtnchk_life_hour:
+                mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
+            if mch_sp.mtnchng_life_hour:
+                mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+            mch_sp.save()
+
+        elif "approve_job" in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.is_approve = True if request.POST.get('is_approve', False) else False
+            mtn_report.job_approve_date = datetime.datetime.today() if request.POST.get('is_approve', False) else None
+            mtn_report.job_status = "งานเสร็จสิ้น" if request.POST.get('is_approve', False) else "รอการอนุมัติงาน"
+            mch_sp.gen_mtnchng_date = None
+            mch_sp.gen_mtnchk_date = None
+            mch_sp.save()
+            mtn_report.save()
 
         return redirect('/preventive/report')
 
@@ -2289,3 +2363,12 @@ def machine_hour_update(request):
 
     context = {'User_login': User_login, 'machine_all': machine_all}
     return render(request, 'machine_hour_update.html', context)
+
+
+@csrf_exempt
+def assign_check_user(request):
+    machine_id = request.POST['machine_id']
+    mch_sp = Machine_sparepart.objects.filter(machine_id=machine_id).values('spare_part_id')
+    spare_part_of_mch = Spare_part.objects.filter(pk__in=mch_sp)
+    data = serializers.serialize('json', spare_part_of_mch)
+    return HttpResponse(data, content_type="application/json")

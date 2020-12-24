@@ -56,7 +56,7 @@ urlpatterns = [
 
     # Preventive Data
     path('preventive/data', views.maintenance_data, name='maintenance_data'),
-    path('preventive/plan', views.maintenance_plan, name='maintenance_plan'),
+    path('preventive/plan', views.maintenance_job, name='maintenance_job'),
     path('preventive/report', views.maintenance_report, name='maintenance_report'),
     path('preventive/machine', views.machine_hour_update, name='machine_hour_update'),
 

@@ -56,7 +56,7 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
-                <a href="{% url 'maintenance_plan' %}" class="nav-item nav-link active"><b>Maintenance Plan</b></a>
+                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link active"><b>Maintenance Assign</b></a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">Maintenance Report</a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>
             </div>
@@ -83,10 +83,10 @@
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-8">
-                        <h2>Maintenance <b>Plan</b></h2>
+                        <h2>Maintenance <b>Assign</b></h2>
                     </div>
                     <div class="col-1">
-                        <h2>assign</h2>
+                        <h2>Assign</h2>
                     </div>
                     <div class="col-sm-2">
                         <input type="text" class="form-control form-control-sm" name="user_response">
@@ -108,6 +108,7 @@
                         <th>Assign By</th>
                         <th>Response By</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Assign Job</center></th>
+                        <th>Status</th>
                         <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Detail</center></th>
                     </tr>
                 </thead>
@@ -120,12 +121,13 @@
                         <td>{{mtn_job.job_mch_sp.machine.line}}</td>
                         <td>{{mtn_job.job_mch_sp.machine.machine_name}}</td>
                         <td>{{mtn_job.job_mch_sp.spare_part}}</td>
-                        <td>{{mtn_job.job_assign_user_id}}</td>
-                        <td>{{mtn_job.job_response_user_id}}</td>
+                        <td>{{mtn_job.job_assign_user_id|default_if_none:''}}</td>
+                        <td>{{mtn_job.job_response_user_id|default_if_none:''}}</td>
                         <td>
                             <a href="#job{{mtn_plan.pk}}" class="settings" title="Settings" data-toggle="modal" hidden><i class="material-icons">&#xE147;</i></a>
                             <center><input type="checkbox" id="assign{{forloop.counter}}" name="assign_list[]" value="{{mtn_job.pk}}"></center>
                         </td>
+                        <td>{{mtn_job.job_status}}</td>
                         <td><center><a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a></center></td>
                     </tr>
 
