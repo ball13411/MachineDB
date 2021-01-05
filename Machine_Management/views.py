@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from .models import *
 import Machine_Management
 import datetime
@@ -1819,8 +1820,7 @@ def maintenance_job(request):
                 if mch_sp.machine.machine_hour >= mch_sp.last_mtnchng_hour + mch_sp.mtnchng_life_hour:
                     mch_sp.gen_mtnchng_date = datetime.date.today()
                     mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
-                                                              job_gen_date=datetime.date.today(),
+                    main_job = Maintenance_job.objects.create(job_gen_date=datetime.date.today(),
                                                               job_mch_sp_id=mch_sp.pk,
                                                               job_status="รอการมอบหมาย")
                     main_job.save()
@@ -1829,8 +1829,7 @@ def maintenance_job(request):
                 if mch_sp.machine.machine_hour >= mch_sp.next_mtnchng_hour:
                     mch_sp.gen_mtnchng_date = datetime.date.today()
                     mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
-                                                              job_gen_date=datetime.date.today(),
+                    main_job = Maintenance_job.objects.create(job_gen_date=datetime.date.today(),
                                                               job_mch_sp_id=mch_sp.pk,
                                                               job_status="รอการมอบหมาย")
                     main_job.save()
@@ -1840,8 +1839,7 @@ def maintenance_job(request):
                 if mch_sp.machine.machine_hour >= mch_sp.last_mtnchk_hour + mch_sp.mtnchk_life_hour:
                     mch_sp.gen_mtnchk_date = datetime.date.today()
                     mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
-                                                              job_gen_date=datetime.date.today(),
+                    main_job = Maintenance_job.objects.create(job_gen_date=datetime.date.today(),
                                                               job_mch_sp_id=mch_sp.pk,
                                                               job_status="รอการมอบหมาย")
                     main_job.save()
@@ -1850,8 +1848,7 @@ def maintenance_job(request):
                 if mch_sp.machine.machine_hour >= mch_sp.next_mtnchk_hour:
                     mch_sp.gen_mtnchk_date = datetime.date.today()
                     mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=str(datetime.date.today())+"-NO-"+str(mch_sp.pk),
-                                                              job_gen_date=datetime.date.today(),
+                    main_job = Maintenance_job.objects.create(job_gen_date=datetime.date.today(),
                                                               job_mch_sp_id=mch_sp.pk,
                                                               job_status="รอการมอบหมาย")
                     main_job.save()
@@ -2269,18 +2266,20 @@ def maintenance_report(request):
             mtn_report.corrective_action = request.POST['corrective_action']
             mtn_report.after_repair = request.POST['after_repair']
             mtn_report.job_status = "รอการอนุมัติงาน"
-            mtn_report.equipment_code1 = request.POST['equipment_code1']
-            mtn_report.equipment_code2 = request.POST['equipment_code2']
-            mtn_report.equipment_code3 = request.POST['equipment_code3']
-            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
-            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
-            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_code1 = request.POST['equipment_code1'] if request.POST['equipment_code1'] != "" else None
+            mtn_report.equipment_code2 = request.POST['equipment_code2'] if request.POST['equipment_code2'] != "" else None
+            mtn_report.equipment_code3 = request.POST['equipment_code3'] if request.POST['equipment_code3'] != "" else None
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1'] if request.POST['equipment_detail1'] != "" else None
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2'] if request.POST['equipment_detail2'] != "" else None
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3'] if request.POST['equipment_detail3'] != "" else None
             mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
             mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
             mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
-            mtn_report.equipment_note1 = request.POST['equipment_note1']
-            mtn_report.equipment_note2 = request.POST['equipment_note2']
-            mtn_report.equipment_note3 = request.POST['equipment_note3']
+            mtn_report.equipment_note1 = request.POST['equipment_note1'] if request.POST['equipment_note1'] != "" else None
+            mtn_report.equipment_note2 = request.POST['equipment_note2'] if request.POST['equipment_note2'] != "" else None
+            mtn_report.equipment_note3 = request.POST['equipment_note3'] if request.POST['equipment_note3'] != "" else None
+            mtn_report.job_remark = request.POST['job_remark'] if request.POST['job_remark'] != "" else None
+            mtn_report.estimate_cost = request.POST['estimate_cost'] if request.POST['estimate_cost'] != "" else None
             mtn_report.save()
             # mch_sp.gen_mtnchng_date = None
             # mch_sp.gen_mtnchk_date = None
@@ -2311,18 +2310,20 @@ def maintenance_report(request):
             mtn_report.corrective_action = request.POST['corrective_action']
             mtn_report.after_repair = request.POST['after_repair']
             # mtn_report.job_status = "รอการอนุมัติงาน"
-            mtn_report.equipment_code1 = request.POST['equipment_code1']
-            mtn_report.equipment_code2 = request.POST['equipment_code2']
-            mtn_report.equipment_code3 = request.POST['equipment_code3']
-            mtn_report.equipment_detail1 = request.POST['equipment_detail1']
-            mtn_report.equipment_detail2 = request.POST['equipment_detail2']
-            mtn_report.equipment_detail3 = request.POST['equipment_detail3']
+            mtn_report.equipment_code1 = request.POST['equipment_code1'] if request.POST['equipment_code1'] != "" else None
+            mtn_report.equipment_code2 = request.POST['equipment_code2'] if request.POST['equipment_code2'] != "" else None
+            mtn_report.equipment_code3 = request.POST['equipment_code3'] if request.POST['equipment_code3'] != "" else None
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1'] if request.POST['equipment_detail1'] != "" else None
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2'] if request.POST['equipment_detail2'] != "" else None
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3'] if request.POST['equipment_detail3'] != "" else None
             mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
             mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
             mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
-            mtn_report.equipment_note1 = request.POST['equipment_note1']
-            mtn_report.equipment_note2 = request.POST['equipment_note2']
-            mtn_report.equipment_note3 = request.POST['equipment_note3']
+            mtn_report.equipment_note1 = request.POST['equipment_note1'] if request.POST['equipment_note1'] != "" else None
+            mtn_report.equipment_note2 = request.POST['equipment_note2'] if request.POST['equipment_note2'] != "" else None
+            mtn_report.equipment_note3 = request.POST['equipment_note3'] if request.POST['equipment_note3'] != "" else None
+            mtn_report.job_remark = request.POST['job_remark'] if request.POST['job_remark'] != "" else None
+            mtn_report.estimate_cost = request.POST['estimate_cost'] if request.POST['estimate_cost'] != "" else None
             mtn_report.save()
             # mch_sp.gen_mtnchng_date = None
             # mch_sp.gen_mtnchk_date = None
@@ -2401,9 +2402,29 @@ def repair_notice(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_notice')
     if not role_and_screen.exists():
         return redirect('/')
+    username = str(User_login.username)
     line_of_user = User_login.org.org_line.all()
     list_repair_notice = Repair_notice.objects.all()
     spare_part_group_all = Spare_part_group.objects.all()
+    check_repair_notice = Repair_notice.objects.filter(repair_status='รอการดำเนินงาน')
+    for check_rp in check_repair_notice:
+        if check_rp.job1:
+            if check_rp.job1.job_status != 'งานเสร็จสิ้น':
+                continue
+        if check_rp.job2:
+            if check_rp.job2.job_status != 'งานเสร็จสิ้น':
+                continue
+        if check_rp.job3:
+            if check_rp.job3.job_status != 'งานเสร็จสิ้น':
+                continue
+        if check_rp.job4:
+            if check_rp.job4.job_status != 'งานเสร็จสิ้น':
+                continue
+        if check_rp.job5:
+            if check_rp.job5.job_status != 'งานเสร็จสิ้น':
+                continue
+        check_rp.repair_status = 'การซ่อมสำเร็จ'
+        check_rp.save()
     if request.method == "POST":
         if "create_repair" in request.POST:
             repair_notice_model = Repair_notice.objects.create(
@@ -2421,17 +2442,33 @@ def repair_notice(request):
             return redirect('repair_notice')
         elif "repair_submit" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['repair_submit'])
-            repair_notice_model.repair_status = 'ยืนยันการซ่อม'
+            repair_notice_model.repair_status = 'รอการดำเนินงาน'
+
+            list_check = [request.POST['select_sp_name1'], request.POST['select_sp_name2'], request.POST['select_sp_name3'], request.POST['select_sp_name4'], request.POST['select_sp_name5']]
+            list_check = list(filter(lambda i: i != "0", list_check))
+            if len(list_check) != len(set(list_check)):
+                messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากเลือกชิ้นส่วนอะไหล่ซ้ำ")
+                return redirect('repair_notice')
+            else:
+                for sp_id_test in list_check:
+                    try:
+                        Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=sp_id_test)
+                    except ObjectDoesNotExist:
+                        messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากเครื่องจักรยังไม่ได้เชื่อมต่อกับอะไหล่")
+                        return redirect('repair_notice')
+
             if request.POST.get('select_sp_name1', False):
                 if request.POST['select_sp_name1'] != '0':
                     repair_notice_model.spare_part_1_id = request.POST['select_sp_name1']
                     mch_sp1 = Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=request.POST['select_sp_name1'])
                     mch_sp1.gen_mtnchng_date = datetime.date.today()
                     mch_sp1.save()
-                    job_repair1 = Maintenance_job.objects.create(job_no="RP-"+str(datetime.date.today())+"-NO-"+str(mch_sp1.pk),
+                    job_repair1 = Maintenance_job.objects.create(job_no=randomJobRepairOrder(),
                                                                  job_gen_date=datetime.date.today(),
                                                                  job_mch_sp_id=mch_sp1.pk,
-                                                                 job_status="รอการมอบหมาย")
+                                                                 job_status="รอการมอบหมาย",
+                                                                 job_mtn_type="repair",
+                                                                 job_gen_user_id=username)
                     repair_notice_model.job1_id = job_repair1.pk
                     job_repair1.save()
             if request.POST.get('select_sp_name2', False):
@@ -2440,10 +2477,12 @@ def repair_notice(request):
                     mch_sp2 = Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=request.POST['select_sp_name2'])
                     mch_sp2.gen_mtnchng_date = datetime.date.today()
                     mch_sp2.save()
-                    job_repair2 = Maintenance_job.objects.create(job_no="RP-"+str(datetime.date.today())+"-NO-"+str(mch_sp2.pk),
+                    job_repair2 = Maintenance_job.objects.create(job_no=randomJobRepairOrder(),
                                                                  job_gen_date=datetime.date.today(),
                                                                  job_mch_sp_id=mch_sp2.pk,
-                                                                 job_status="รอการมอบหมาย")
+                                                                 job_status="รอการมอบหมาย",
+                                                                 job_mtn_type="repair",
+                                                                 job_gen_user_id=username)
                     repair_notice_model.job2_id = job_repair2.pk
                     job_repair2.save()
             if request.POST.get('select_sp_name3', False):
@@ -2452,10 +2491,12 @@ def repair_notice(request):
                     mch_sp3 = Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=request.POST['select_sp_name3'])
                     mch_sp3.gen_mtnchng_date = datetime.date.today()
                     mch_sp3.save()
-                    job_repair3 = Maintenance_job.objects.create(job_no="RP-"+str(datetime.date.today())+"-NO-"+str(mch_sp3.pk),
+                    job_repair3 = Maintenance_job.objects.create(job_no=randomJobRepairOrder(),
                                                                  job_gen_date=datetime.date.today(),
                                                                  job_mch_sp_id=mch_sp3.pk,
-                                                                 job_status="รอการมอบหมาย")
+                                                                 job_status="รอการมอบหมาย",
+                                                                 job_mtn_type="repair",
+                                                                 job_gen_user_id=username)
                     repair_notice_model.job3_id = job_repair3.pk
                     job_repair3.save()
             if request.POST.get('select_sp_name4', False):
@@ -2464,10 +2505,12 @@ def repair_notice(request):
                     mch_sp4 = Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=request.POST['select_sp_name4'])
                     mch_sp4.gen_mtnchng_date = datetime.date.today()
                     mch_sp4.save()
-                    job_repair4 = Maintenance_job.objects.create(job_no="RP-"+str(datetime.date.today())+"-NO-"+str(mch_sp4.pk),
+                    job_repair4 = Maintenance_job.objects.create(job_no=randomJobRepairOrder(),
                                                                  job_gen_date=datetime.date.today(),
                                                                  job_mch_sp_id=mch_sp4.pk,
-                                                                 job_status="รอการมอบหมาย")
+                                                                 job_status="รอการมอบหมาย",
+                                                                 job_mtn_type="repair",
+                                                                 job_gen_user_id=username)
                     repair_notice_model.job4_id = job_repair4.pk
                     job_repair4.save()
             if request.POST.get('select_sp_name5', False):
@@ -2476,12 +2519,15 @@ def repair_notice(request):
                     mch_sp5 = Machine_sparepart.objects.get(machine_id=repair_notice_model.machine_id, spare_part_id=request.POST['select_sp_name5'])
                     mch_sp5.gen_mtnchng_date = datetime.date.today()
                     mch_sp5.save()
-                    job_repair5 = Maintenance_job.objects.create(job_no="RP-"+str(datetime.date.today())+"-NO-"+str(mch_sp5.pk),
+                    job_repair5 = Maintenance_job.objects.create(job_no=randomJobRepairOrder(),
                                                                  job_gen_date=datetime.date.today(),
                                                                  job_mch_sp_id=mch_sp5.pk,
-                                                                 job_status="รอการมอบหมาย")
+                                                                 job_status="รอการมอบหมาย",
+                                                                 job_mtn_type="repair",
+                                                                 job_gen_user_id=username)
                     repair_notice_model.job5_id = job_repair5.pk
                     job_repair5.save()
+
             repair_notice_model.save()
             messages.success(request, "บันทึกรายการสำเร็จ")
             return redirect('repair_notice')
