@@ -56,6 +56,7 @@ urlpatterns = [
 
     # Preventive Data
     path('preventive/data', views.maintenance_data, name='maintenance_data'),
+    path('preventive/repair-notice', views.repair_notice, name='repair_notice'),
     path('preventive/plan', views.maintenance_job, name='maintenance_job'),
     path('preventive/report', views.maintenance_report, name='maintenance_report'),
     path('preventive/machine', views.machine_hour_update, name='machine_hour_update'),
@@ -89,6 +90,8 @@ urlpatterns = [
     path('check_machine_product', views.check_machine_product, name='check_machine_product'),
     path('check_spare_part_group_code/', views.check_spare_part_group_code, name='check_spare_part_group_code'),
     path('ajax_dropdown_sp_type/', views.ajax_dropdown_sp_type, name='ajax_dropdown_sp_type'),
+    path('ajax_dropdown_sp_subtype/', views.ajax_dropdown_sp_subtype, name='ajax_dropdown_sp_subtype'),
+    path('ajax_dropdown_sp/', views.ajax_dropdown_sp, name='ajax_dropdown_sp'),
     path('ajax/load_selected_lines/', views.load_selected_lines, name='ajax_selected_lines'),
     path('ajax/load_role_screen/', views.load_role_screen, name='load_role_screen'),
     path('ajax/load_machine', views.load_machine, name='load_machine'),

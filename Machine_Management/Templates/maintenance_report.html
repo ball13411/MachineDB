@@ -40,6 +40,7 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
+                <a href="{% url 'repair_notice' %}" class="nav-item nav-link">Repair Notice</a>
                 <a href="{% url 'maintenance_job' %}" class="nav-item nav-link">Maintenance Assign</a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link active"><b>Maintenance Report</b></a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>
@@ -144,6 +145,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <h1>{{mtn_job.repair_notice_set.0.problem_report}}</h1>
                                 <hr><br>
                                 <center><label><u><strong>ข้อมูลเครื่องจักร</strong></u></label></center><br>
                                 <div class="form-group">
@@ -212,6 +214,18 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <div class="form-row">
+                                        <div class="col-4">
+                                            <label>ค่าใช้จ่ายโดยประมาณ</label>
+                                            <input type="number" class="form-control" id="estimate_cost" name="estimate_cost" value="{{mtn_job.estimate_cost|default_if_none:''}}">
+                                        </div>
+                                        <div class="col-8">
+                                            <label>หมายเหตุ</label>
+                                            <input type="text" class="form-control" id="job_remark" name="job_remark" value="{{mtn_job.job_remark|default_if_none:''}}">
+                                        </div>
+                                    </div>
+                                </div>
                                 <hr><br>
                                 <center><label><u><strong>ผลการดำเนินการ</strong></u></label></center><br>
                                 <div class="form-group">
@@ -219,8 +233,12 @@
                                         <div class="col-md-4">
                                             <label class="control-label">Maintenance Type</label>
                                             <select class="form-control" id="mtn_type{{forloop.counter}}" name="mtn_type">
-                                                <option value="change">Change</option>
-                                                <option value="checking">Checking</option>
+                                                {% if mtn_job.job_mtn_type != "repair" %}
+                                                <option value="change" {% if mtn_job.job_mtn_type == 'change' %}selected{% endif %}>Change</option>
+                                                <option value="checking" {% if mtn_job.job_mtn_type == 'checking' %}selected{% endif %}>Checking</option>
+                                                {% else  %}
+                                                <option value="repair" selected>Repair</option>
+                                                {% endif %}
                                             </select>
                                         </div>
                                         <div class="col-md-8">
@@ -325,9 +343,16 @@
                                 <label class="control-label">วิธีการทำความสะอาดหลังการซ่อม : {{mtn_job.after_repair}}</label><br>
                                 <hr>
                                 <label><u><strong>รายการอุปกรณ์ / ชิ้นส่วนในการซ่อม</strong></u></label><br>
+                                {% if not mtn_job.equipment_code1 and not mtn_job.equipment_code2 and not mtn_job.equipment_code3 %}
+                                <label class="control-label">ไม่มีอุปกรณ์ที่ใช้</label><br>
+                                <label class="control-label">ค่าใช้จ่ายโดยประมาณ : <u>ไม่มี</u></label>
+                                {% else %}
                                 {% if mtn_job.equipment_code1 %} <label class="control-label">1. รหัสอุปกรณ์ {{mtn_job.equipment_code1}}   {{mtn_job.equipment_detail1}} จำนวน {{mtn_job.equipment_quantity1}} {% if tmn_job.equipment_note1 %} หมายเหตุ {{tmn_job.equipment_note1}} {% endif %}</label><br> {% endif %}
                                 {% if mtn_job.equipment_code2 %} <label class="control-label">2. รหัสอุปกรณ์ {{mtn_job.equipment_code2}}   {{mtn_job.equipment_detail2}} จำนวน {{mtn_job.equipment_quantity2}} {% if tmn_job.equipment_note2 %} หมายเหตุ {{tmn_job.equipment_note2}} {% endif %}</label><br> {% endif %}
                                 {% if mtn_job.equipment_code3 %} <label class="control-label">3. รหัสอุปกรณ์ {{mtn_job.equipment_code3}}   {{mtn_job.equipment_detail3}} จำนวน {{mtn_job.equipment_quantity3}} {% if tmn_job.equipment_note3 %} หมายเหตุ {{tmn_job.equipment_note3}} {% endif %}</label><br> {% endif %}
+                                <label class="control-label">ค่าใช้จ่ายโดยประมาณ : <u>{{mtn_job.estimate_cost|default_if_none:'ไม่เสียค่าใช้จ่าย'}}</u> {% if mtn_job.estimate_cost %}บาท{% endif %}</label><br>
+                                <label class="control-label">หมายเหตุ : {{mtn_job.job_remark}}</label>
+                                {% endif %}
                                 <hr>
                                 <label><u><strong>ข้อมูลการซ่อมบำรุงรักษา</strong></u></label><br>
                                 <label class="control-label">ชนิดการซ่อมบำรุงรักษา : {{mtn_job.job_mtn_type|default_if_none:''}}</label><br>

@@ -1,5 +1,5 @@
 from django.db import models
-
+import string, random
 
 # Create your models here.
 
@@ -348,8 +348,32 @@ class User(models.Model):
         db_table = "User_management"
 
 
+def randomJobOrder():
+    while True:
+        jobNumber = "MTN"+"".join(random.choices(string.digits, k=7))
+        if Maintenance_job.objects.filter(job_no=jobNumber).count() == 0:
+            break
+    return jobNumber
+
+
+def randomJobRepairOrder():
+    while True:
+        jobRepairNumber = "RP-MTN"+"".join(random.choices(string.digits, k=7))
+        if Maintenance_job.objects.filter(job_no=jobRepairNumber).count() == 0:
+            break
+    return jobRepairNumber
+
+
+def randomRepairOrder():
+    while True:
+        repairNumber = "RP"+"".join(random.choices(string.digits, k=7))
+        if Repair_notice.objects.filter(repair_no=repairNumber).count() == 0:
+            break
+    return repairNumber
+
+
 class Maintenance_job(models.Model):
-    job_no = models.CharField(max_length=20)
+    job_no = models.CharField(max_length=20, default=randomJobOrder, unique=True)
     job_gen_date = models.DateField()
     job_assign_user_id = models.CharField(max_length=20, default=None, null=True)
     job_response_user_id = models.CharField(max_length=20, default=None, null=True)
@@ -386,4 +410,30 @@ class Maintenance_job(models.Model):
 
     class Meta:
         db_table = "maintenance_job"
+
+
+class Repair_notice(models.Model):
+    repair_no = models.CharField(max_length=20, default=randomRepairOrder, unique=True)
+    agency_notifying = models.CharField(max_length=20, default=None, null=True)
+    notification_date = models.DateField(auto_now_add=True)
+    problem_report = models.TextField(default=None, null=True)
+    effect_problem = models.TextField(default=None, null=True)
+    use_date = models.DateField(default=None, null=True)
+    repairer_user = models.CharField(max_length=30, default=None, null=True)
+    repairer_contact = models.TextField(default=None, null=True)
+    machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
+    repair_status = models.CharField(max_length=30, default=None, null=True)
+    spare_part_1 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    spare_part_2 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    spare_part_3 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    spare_part_4 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    spare_part_5 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job1 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job2 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job3 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job4 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job5 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+
+    class Meta:
+        db_table = 'repair_notice'
 
