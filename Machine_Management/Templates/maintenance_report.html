@@ -100,8 +100,8 @@
                         <td>{{mtn_job.job_report_date|default_if_none:''}}</td>
                         <td>{{mtn_job.job_status}}</td>
                         <td>
-                            <center><a href="#job{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">content_paste</i></a>
-                            <a href="#report{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">insert_drive_file</i></a></center>
+                            <center><a href="#job{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_response_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">content_paste</i></a>
+                            <a href="#report{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_assign_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a></center>
                         </td>
                     </tr>
 
@@ -297,7 +297,7 @@
                                 <small>Approve By {{mtn_job.job_assign_user_id}} [ {{mtn_job.job_approve_date}} ]</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-warning" name="report_update" value="{{mtn_job.pk}}" {% if mtn_job.job_status == 'รอการดำเนินงาน' %} hidden {% endif %}>Update</button>
+                                    <button type="submit" class="btn btn-warning" name="report_update" value="{{mtn_job.pk}}" {% if mtn_job.job_status == 'รอการดำเนินงาน' %} hidden {% endif %} {% if mtn_job.is_approve %} disabled {% endif %}>Update</button>
                                     <button type="submit" class="btn btn-primary" name="report_submit" value="{{mtn_job.pk}}" {% if mtn_job.job_status != 'รอการดำเนินงาน' %} disabled {% endif %}>Submit</button>
                                 </div>
                             </div>
@@ -381,7 +381,7 @@
 
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="approve_job" value="{{mtn_job.pk}}">Approve</button>
+                                    <button type="submit" class="btn btn-primary" name="approve_job" value="{{mtn_job.pk}}" {% if mtn_job.is_approve %}disabled{% endif %}>Approve</button>
                                 </div>
                             </div>
                         </form>

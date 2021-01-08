@@ -2250,7 +2250,7 @@ def maintenance_report(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_report')
     if not role_and_screen.exists():
         return redirect('/')
-    job = Maintenance_job.objects.filter(job_response_user_id=User_login.username)
+    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username))
     if request.method == "POST":
         if 'report_submit' in request.POST:
             mtn_report = Maintenance_job.objects.get(pk=request.POST['report_submit'])
@@ -2448,6 +2448,9 @@ def repair_notice(request):
             list_check = list(filter(lambda i: i != "0", list_check))
             if len(list_check) != len(set(list_check)):
                 messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากเลือกชิ้นส่วนอะไหล่ซ้ำ")
+                return redirect('repair_notice')
+            if len(list_check) == 0:
+                messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากไม่ได้เลือกชิ้นส่วนอะไหล่")
                 return redirect('repair_notice')
             else:
                 for sp_id_test in list_check:
