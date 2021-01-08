@@ -1859,6 +1859,9 @@ def maintenance_job(request):
             if request.POST.getlist('assign_list[]') != "":
                 for job_pk in request.POST.getlist('assign_list[]'):
                     job = Maintenance_job.objects.get(pk=job_pk)
+                    if job.job_status == 'รอการอนุมัติงาน' or job.job_status == 'งานเสร็จสิ้น':
+                        messages.error(request, 'ไม่สามารถมอบหมายงานได้ เนื่องจากงานอยู่ในสถานะรอการอนุมัติงานแล้วหรืองานเสร็จสิ้น')
+                        continue
                     job.job_assign_user_id = User_login.pk
                     job.job_response_user_id = request.POST['user_response'] if request.POST['user_response'] != "" else None
                     job.job_assign_date = datetime.date.today()
