@@ -95,8 +95,10 @@
                     <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_production_line_code}} | {{machine.machine_name}}</td>
                     <td>{{spare_part_of_machine.0.spare_part_name}}</td>
                     <td rowspan="{{spare_part_of_machine|length|add:1}}" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                        <a href="#add{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
-                        <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                        <center>
+                        <a href="#add{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">add_circle</i></a>
+                        <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
                     </td>
                 </tr>
                 {% for spare_part in spare_part_of_machine %}

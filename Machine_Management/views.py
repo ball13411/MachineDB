@@ -1926,7 +1926,7 @@ def machine_capacity(request):
 
     mch_capacity_all = Machine_capacity.objects.all()
     production_line = Production_line.objects.all()
-    context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line}
+    context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line, 'role_and_screen':role_and_screen}
     return render(request, 'machine_capacity.html', context)
 
 
@@ -2245,7 +2245,8 @@ def maintenance_data(request):
             mch_and_sp.save()
             return redirect('/preventive/data')
 
-    context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all}
+    context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all,
+               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
     return render(request, 'maintenance_data.html', context)
 
 
@@ -2283,10 +2284,14 @@ def maintenance_report(request):
             mtn_report.equipment_note3 = request.POST['equipment_note3'] if request.POST['equipment_note3'] != "" else None
             mtn_report.job_remark = request.POST['job_remark'] if request.POST['job_remark'] != "" else None
             mtn_report.estimate_cost = request.POST['estimate_cost'] if request.POST['estimate_cost'] != "" else None
-            mtn_report.save()
+            try:
+                mtn_report.save()
+            except ValueError:
+                messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
+                return redirect('/preventive/report')
             # mch_sp.gen_mtnchng_date = None
             # mch_sp.gen_mtnchk_date = None
-            if request.POST['mtn_type'] == "change":
+            if request.POST['mtn_type'] == "change" or request.POST['mtn_type'] == "repair":
                 mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
                 mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
             elif request.POST['mtn_type'] == "checking":
@@ -2356,7 +2361,8 @@ def maintenance_report(request):
 
         return redirect('/preventive/report')
 
-    context = {'User_login': User_login, 'job': job}
+    context = {'User_login': User_login, 'job': job, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
+               'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
     return render(request, 'maintenance_report.html', context)
 
 
@@ -2387,7 +2393,8 @@ def machine_hour_update(request):
     user_org = User_login.org.org_line.all()
     machine_all = Machine.objects.filter(line__in=user_org)
 
-    context = {'User_login': User_login, 'machine_all': machine_all}
+    context = {'User_login': User_login, 'machine_all': machine_all, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
+               'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
     return render(request, 'machine_hour_update.html', context)
 
 
@@ -2538,5 +2545,6 @@ def repair_notice(request):
             messages.success(request, "บันทึกรายการสำเร็จ")
             return redirect('repair_notice')
 
-    context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice, 'spare_part_group_all': spare_part_group_all}
+    context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice, 'spare_part_group_all': spare_part_group_all,
+               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
     return render(request, 'repair_notice.html', context)

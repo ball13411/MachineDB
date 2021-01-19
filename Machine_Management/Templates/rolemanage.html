@@ -89,7 +89,7 @@
             {% for role in roles %}
                     <tr>
                         <td>{{forloop.counter}}</td>
-                        <td><a href="#">{% if role.role_id == 'admin' %}<img src="/static/img/king.png" width="30" height="30">{% elif role.role_id == 'engineer' %}<img src="/static/img/worker.png" width="30" height="30">{% else %}<img src="/static/img/witch.png" width="30" height="30">{% endif %}&nbsp;&nbsp;{{role.role_id}}</a></td>
+                        <td><a href="#">{% if role.role_id == 'admin' %}<img src="/static/img/king.png" width="30" height="30">{% elif 'engineer' in role.role_id %}<img src="/static/img/worker.png" width="30" height="30">{% else %}<img src="/static/img/witch.png" width="30" height="30">{% endif %}&nbsp;&nbsp;{{role.role_id}}</a></td>
                         <td>{{role.role_name}}</td>
                         <td>
                             <a href="#setting{{role.role_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>

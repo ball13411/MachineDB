@@ -92,8 +92,10 @@
                         <td>{{subtype.subtype_code}}</td>
                         <td>{{subtype.subtype_name}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{subtype.subtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{subtype.subtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <center>
+                            <a href="#setting{{subtype.subtype_id}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{subtype.subtype_id}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                            </center>
                         </td>
                     </tr>
 

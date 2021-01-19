@@ -61,7 +61,7 @@
             <div class="navbar-nav">
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
                 <a href="{% url 'repair_notice' %}" class="nav-item nav-link active"><b>Repair Notice</b></a>
-                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link ">Maintenance Assign</a>
+                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>Maintenance Assign</a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">Maintenance Report</a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>
             </div>
@@ -120,7 +120,11 @@
                         <td>{{repair.notification_date}}</td>
                         <td>{{repair.use_date}}</td>
                         <td>{{repair.repair_status}}</td>
-                        <td><a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a></td>
+                        <td>
+                            <center>
+                            <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
+                            </center>
+                        </td>
                     </tr>
 
             <!-- Modal job -->

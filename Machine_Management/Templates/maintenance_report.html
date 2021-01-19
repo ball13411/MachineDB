@@ -41,7 +41,7 @@
             <div class="navbar-nav">
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
                 <a href="{% url 'repair_notice' %}" class="nav-item nav-link">Repair Notice</a>
-                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link">Maintenance Assign</a>
+                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>Maintenance Assign</a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link active"><b>Maintenance Report</b></a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>
             </div>
@@ -100,7 +100,7 @@
                         <td>{{mtn_job.job_report_date|default_if_none:''}}</td>
                         <td>{{mtn_job.job_status}}</td>
                         <td>
-                            <center><a href="#job{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_response_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">content_paste</i></a>
+                            <center><a href="#job{{forloop.counter}}" class="set tings" title="Settings" data-toggle="modal" {% if mtn_job.job_response_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">build</i></a>
                             <a href="#report{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_assign_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a></center>
                         </td>
                     </tr>
@@ -381,7 +381,7 @@
 
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="approve_job" value="{{mtn_job.pk}}" {% if mtn_job.is_approve %}disabled{% endif %}>Approve</button>
+                                    <button type="submit" class="btn btn-primary" name="approve_job" value="{{mtn_job.pk}}" {% if mtn_job.is_approve or mtn_job.job_status != 'รอการอนุมัติงาน'  %}disabled{% endif %}>Approve</button>
                                 </div>
                             </div>
                         </form>

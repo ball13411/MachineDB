@@ -89,8 +89,10 @@
                         <td>{{type.mtype_code}}</td>
                         <td>{{type.mtype_name}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{type.mtype_id}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{type.mtype_id}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <center>
+                            <a href="#setting{{type.mtype_id}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{type.mtype_id}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                            </center>
                         </td>
                     </tr>
 

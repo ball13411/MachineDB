@@ -105,8 +105,10 @@
                         <td>{{spare_part.service_life}}</td>
                         <td>{{spare_part.service_plan_life}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <center>
+                            <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                            </center>
                         </td>
                     </tr>
 

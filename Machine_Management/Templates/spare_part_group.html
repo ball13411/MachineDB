@@ -90,8 +90,10 @@
                         <td>{{sp_group.spare_part_group_code}}</td>
                         <td>{{sp_group.spare_part_group_name}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{sp_group.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{sp_group.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <center>
+                            <a href="#setting{{sp_group.pk}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{sp_group.pk}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                            </center>
                         </td>
                     </tr>
 

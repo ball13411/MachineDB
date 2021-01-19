@@ -97,8 +97,10 @@
                     <td></td>
                     {% endif %}
                     <td rowspan="{{machine_of_spare_part|length|add:1}}" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                        <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">add_circle</i></a>
-                        <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                        <center>
+                        <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">add_circle</i></a>
+                        <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
                     </td>
                 </tr>
                 {% for machine in machine_of_spare_part %}
