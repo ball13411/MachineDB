@@ -223,17 +223,17 @@ class Spare_part(models.Model):
     spare_part_name = models.CharField(max_length=40, blank=True)
     spare_part_model = models.CharField(max_length=40, blank=True)
     spare_part_brand = models.CharField(max_length=40, blank=True)
-    service_life = models.IntegerField()
-    service_plan_life = models.IntegerField()
+    service_life = models.PositiveIntegerField(default=None, null=True)
+    service_plan_life = models.PositiveIntegerField(default=None, null=True)
     spare_part_type = models.ForeignKey(Spare_part_type, on_delete=models.CASCADE)
     spare_part_sub_type = models.ForeignKey(Spare_part_sub_type, on_delete=models.CASCADE)
     create_by = models.CharField(max_length=20)
     create_date = models.DateField()
     last_update_by = models.CharField(max_length=20, default=None, null=True)
     last_update_date = models.DateField(default=None, null=True)
-    spare_part_active = models.BooleanField()
+    spare_part_active = models.BooleanField(default=True)
     spare_part_group = models.ForeignKey(Spare_part_group, on_delete=models.CASCADE)
-    spare_part_detail = models.TextField(blank=True)
+    spare_part_detail = models.TextField(blank=True, default=None, null=True)
 
     def __str__(self):
         return self.spare_part_name

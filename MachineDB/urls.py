@@ -37,8 +37,8 @@ urlpatterns = [
     path('organizemanage/organization', views.organizemanage, name='organization'),
     path('organizemanage/line', views.production_line, name='productionline'),
     path('organizemanage/location', views.location, name='location'),
-    path('organziemanage/orgline', views.org_productline, name='org_prodline'),
-    path('organziemanage/productmanage', views.productmanage, name='productmanage'),
+    path('organizemanage/orgline', views.org_productline, name='org_prodline'),
+    path('organizemanage/productmanage', views.productmanage, name='productmanage'),
 
     # Machine Management
     path('machinemanage/machine/', views.machine_manage, name='machine_manage'),

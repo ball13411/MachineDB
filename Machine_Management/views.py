@@ -1221,20 +1221,16 @@ def machine_type(request):
 
         elif 'Edittype' in request.POST:
             edit_type = Machine_type.objects.get(mtype_id=request.POST['Edittype'])
-            edit_type.mtype_code = request.POST['set_type_code']
-            edit_type.mtype_name = request.POST['set_mch_type']
-            edit_type.last_update_by = User_login.username
-            now = datetime.datetime.now()
-            edit_type.last_update_date = now.date()
-            if not Machine_type.objects.filter(mtype_code=edit_type.mtype_code,
-                                               mtype_name=edit_type.mtype_name).exists():
+            if Machine_type.objects.filter(mtype_code=request.POST['set_type_code']).exists() and edit_type.mtype_code != request.POST['set_type_code']:
+                messages.error(request, 'การแก้ไขไม่สำเร็จ เนื่องจาก Machine Code นี้มีอยู่แล้วในระบบ')
+            else:
+                edit_type.mtype_code = request.POST['set_type_code']
+                edit_type.mtype_name = request.POST['set_mch_type']
+                edit_type.last_update_by = User_login.username
+                now = datetime.datetime.now()
+                edit_type.last_update_date = now.date()
                 edit_type.save()
                 messages.success(request, 'แก้ไขข้อมูล Machine Type สำเร็จ')
-            elif edit_type.mtype_code == request.POST['set_type_code'] and edit_type.line_id == request.POST[
-                'select_line']:
-                messages.success(request, 'ไม่มีการ Update รายการใหม่')
-            else:
-                messages.error(request, 'การแก้ข้อมูล Machine Type ไม่ถูกต้อง กรุณาแก้ไขใหม่อีกครั้ง')
         elif 'Delete_type' in request.POST:
             del_type = request.POST['Delete_type']
             typeid = Machine_type.objects.get(mtype_id=del_type)
@@ -1311,7 +1307,7 @@ def machine_subtype(request):
                 add_new_subtype.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine Subtype เรียบร้อยแล้ว')
             else:
-                messages.error(request,'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
+                messages.error(request, 'การเพิ่มข้อมูล Machine Subtype ล้มเหลว กรุณากด Add New Machine Subtype ใหม่อีกครั้ง')
 
         elif 'EditSubtype' in request.POST:
             edit_subtype = Machine_subtype.objects.get(subtype_id=request.POST['EditSubtype'])
@@ -1500,27 +1496,30 @@ def spare_part_manage(request):
     spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
         if 'add_spare_part' in request.POST:
-            spare_part = Spare_part.objects.create(spare_part_name=request.POST['add_sp_name'],
-                                                   spare_part_model=request.POST['add_sp_model'],
-                                                   spare_part_brand=request.POST['add_sp_brand'],
-                                                   service_life=request.POST['add_service_life'],
-                                                   service_plan_life=request.POST['add_service_plan_life'],
-                                                   spare_part_detail=request.POST['add_detail'],
-                                                   spare_part_group_id=request.POST['id_sp_group'],
-                                                   spare_part_type_id=request.POST['id_sp_type'],
-                                                   spare_part_sub_type_id=request.POST['id_sp_subtype'],
-                                                   create_by=User_login.username,
-                                                   create_date=datetime.date.today(),
-                                                   spare_part_active=True)
-            spare_part.save()
-            messages.success(request, "สร้างรายการสำเร็จ")
+            if request.POST['id_sp_type'] == "0" or request.POST['id_sp_subtype'] == "0" or request.POST['id_sp_group'] == "0":
+                messages.error(request, "ทำรายการไม่สำเร็จ กรุณาระบุกลุ่มอะไหล่ ประเภทอะไหล่ และชนิดอะไหล่")
+            else:
+                spare_part = Spare_part.objects.create(spare_part_name=request.POST['add_sp_name'],
+                                                       spare_part_model=request.POST['add_sp_model'],
+                                                       spare_part_brand=request.POST['add_sp_brand'],
+                                                       service_life=request.POST['add_service_life'] if request.POST['add_service_life'] != "" else None,
+                                                       service_plan_life=request.POST['add_service_plan_life'] if request.POST['add_service_plan_life'] != "" else None,
+                                                       spare_part_detail=request.POST['add_detail'],
+                                                       spare_part_group_id=request.POST['id_sp_group'],
+                                                       spare_part_type_id=request.POST['id_sp_type'],
+                                                       spare_part_sub_type_id=request.POST['id_sp_subtype'],
+                                                       create_by=User_login.username,
+                                                       create_date=datetime.date.today(),
+                                                       spare_part_active=True)
+                spare_part.save()
+                messages.success(request, "สร้างรายการสำเร็จ")
         elif 'edit_spare_part' in request.POST:
             spare_part = Spare_part.objects.get(pk=request.POST['edit_spare_part'])
             spare_part.spare_part_name = request.POST['set_sp_name']
             spare_part.spare_part_model = request.POST['set_sp_model']
             spare_part.spare_part_brand = request.POST['set_sp_brand']
-            spare_part.service_life = request.POST['set_service_life']
-            spare_part.service_plan_life = request.POST['set_service_plan_life']
+            spare_part.service_life = request.POST['set_service_life'] if request.POST['set_service_life'] != "" else None
+            spare_part.service_plan_life = request.POST['set_service_plan_life'] if request.POST['set_service_plan_life'] != "" else None
             spare_part.spare_part_detail = request.POST['set_detail']
             spare_part.last_update_by = User_login.username
             spare_part.last_update_date = datetime.date.today()
