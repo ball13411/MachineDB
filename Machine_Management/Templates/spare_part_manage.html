@@ -102,11 +102,13 @@
                         <td>{{spare_part.spare_part_model}}</td>
                         <td>{{spare_part.spare_part_type}}</td>
                         <td>{{spare_part.spare_part_sub_type}}</td>
-                        <td>{{spare_part.service_life}}</td>
-                        <td>{{spare_part.service_plan_life}}</td>
+                        <td>{{spare_part.service_life|default_if_none:''}}</td>
+                        <td>{{spare_part.service_plan_life|default_if_none:''}}</td>
                         <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                            <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                            <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a>
+                            <center>
+                            <a href="#setting{{spare_part.pk}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                            <a href="#delete{{spare_part.pk}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                            </center>
                         </td>
                     </tr>
 
@@ -172,11 +174,11 @@
                                     <div class="form-row">
                                         <div class="col-md-6">
                                             <label class="control-label">Service life (Hours)</label>
-                                            <input type="number" class="form-control" id="set_service_life{{forloop.counter}}" placeholder="อายุการใช้งาน (ชั่วโมง)" name="set_service_life" value="{{spare_part.service_life}}">
+                                            <input type="number" class="form-control" id="set_service_life{{forloop.counter}}" placeholder="อายุการใช้งาน (ชั่วโมง)" name="set_service_life" value="{{spare_part.service_life}}" min="0">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="control-label">Service plan life (Hours)</label>
-                                            <input type="number" class="form-control" id="set_service_plan_life{{forloop.counter}}" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="set_service_plan_life" value="{{spare_part.service_plan_life}}">
+                                            <input type="number" class="form-control" id="set_service_plan_life{{forloop.counter}}" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="set_service_plan_life" value="{{spare_part.service_plan_life}}" min="0">
                                         </div>
                                     </div>
                                 </div>
@@ -235,7 +237,7 @@
                                     <div class="col-4 form-group">
                                         <label>Select Group</label>
                                         <select class="form-control" id="id_sp_group" name="id_sp_group" required="True" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                            <option value="0" selected>-------กรุณาเลือกกลุ่มอะไหล่-------</option>
+                                            <option value="" selected>-------กรุณาเลือกกลุ่มอะไหล่-------</option>
                                             {% for sp_group in spare_part_group_all %}
                                             <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_name}}</option>
                                             {% endfor %}
@@ -244,13 +246,13 @@
                                     <div class="col-4 form-group">
                                         <label>Select Type</label>
                                         <select class="form-control" id="id_sp_type" name="id_sp_type" required="True">
-                                            <option value="0" selected>-------กรุณาเลือกประเภทของอะไหล่-------</option>
+                                            <option value="" selected>-------กรุณาเลือกประเภทของอะไหล่-------</option>
                                         </select>
                                     </div>
                                     <div class="col-4 form-group">
                                         <label>Select Subtype</label>
                                         <select class="form-control" id="id_sp_subtype" name="id_sp_subtype" required="True">
-                                            <option value="0" selected>-------กรุณาเลือกชนิดของอะไหล่-------</option>
+                                            <option value="" selected>-------กรุณาเลือกชนิดของอะไหล่-------</option>
                                         </select>
                                     </div>
                                 </div>
@@ -273,11 +275,11 @@
                                 <div class="form-group row">
                                     <div class="col-md-6">
                                         <label class="control-label">Service life (Hours)</label>
-                                        <input type="number" class="form-control" id="add_service_life" placeholder="อายุการใช้งาน (ชั่วโมง)" name="add_service_life" autocomplete="off">
+                                        <input type="number" class="form-control" id="add_service_life" placeholder="อายุการใช้งาน (ชั่วโมง)" name="add_service_life" autocomplete="off" min="0">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="control-label">Service plan life (Hours)</label>
-                                        <input type="number" class="form-control" id="add_service_plan_life" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="add_service_plan_life" autocomplete="off">
+                                        <input type="number" class="form-control" id="add_service_plan_life" placeholder="อายุแผนการใช้งาน (ชั่วโมง)" name="add_service_plan_life" autocomplete="off" min="0">
                                     </div>
                                 </div>
                                 <div class="form-group">
