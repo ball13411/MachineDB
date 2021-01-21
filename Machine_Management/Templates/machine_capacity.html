@@ -158,7 +158,7 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-8">
                                         <label class="form-label">Raw Material Batch Size</label>
-                                        <input type="number" id="set_rm_batch_size{{forloop.counter}}" class="form-control" name="set_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" value="{{mch_capacity.rm_batch_size}}">
+                                        <input type="number" id="set_rm_batch_size{{forloop.counter}}" class="form-control" name="set_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" value="{{mch_capacity.rm_batch_size}}" min="0">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="form-label">Unit</label>
@@ -168,16 +168,16 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-8">
                                         <label class="form-label">Finished Goods Batch Size</label>
-                                        <input type="number" id="set_fg_batch_size{{forloop.counter}}" class="form-control batch" name="set_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="cal_capacity1(this.id,'set_fg_batch_time{{forloop.counter}}','set_fg_capacity{{forloop.counter}}')" required="True" value="{{mch_capacity.fg_batch_size}}">
+                                        <input type="number" id="set_fg_batch_size{{forloop.counter}}" class="form-control batch" name="set_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="cal_capacity1(this.id,'set_fg_batch_time{{forloop.counter}}','set_fg_capacity{{forloop.counter}}')" required="True" value="{{mch_capacity.fg_batch_size}}" min="0">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="form-label">Batch Time (Minute)</label>
-                                        <input type="number" id="set_fg_batch_time{{forloop.counter}}" class="form-control batch" name="set_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="cal_capacity(this.id);" required="True" value="{{mch_capacity.fg_batch_time}}">
+                                        <input type="number" id="set_fg_batch_time{{forloop.counter}}" class="form-control batch" name="set_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="cal_capacity(this.id);" required="True" value="{{mch_capacity.fg_batch_time}}" min="0">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
-                                    <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}" readonly>
+                                    <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}" min="0" readonly>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -266,7 +266,7 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-8">
                                         <label class="form-label">Raw Material Batch Size</label>
-                                        <input type="number" id="add_rm_batch_size" class="form-control" name="add_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True">
+                                        <input type="number" id="add_rm_batch_size" class="form-control" name="add_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" min="0">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="form-label">Unit</label>
@@ -276,16 +276,16 @@
                                 <div class="form-row">
                                     <div class="form-group col-md-8">
                                         <label class="form-label">Finished Goods Batch Size</label>
-                                        <input type="number" id="add_fg_batch_size" class="form-control batch" name="add_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="fg_capacity()" required="True">
+                                        <input type="number" id="add_fg_batch_size" class="form-control batch" name="add_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="fg_capacity()" required="True" min="0">
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label class="form-label">Batch Time (Minute)</label>
-                                        <input type="number" id="add_fg_batch_time" class="form-control batch" name="add_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="fg_capacity()" required="True">
+                                        <input type="number" id="add_fg_batch_time" class="form-control batch" name="add_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="fg_capacity()" required="True" min="0">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
-                                    <input type="number" id="add_fg_capacity" class="form-control" name="add_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" readonly>
+                                    <input type="number" id="add_fg_capacity" class="form-control" name="add_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" min="0" readonly>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

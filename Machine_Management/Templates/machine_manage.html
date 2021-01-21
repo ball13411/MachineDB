@@ -182,16 +182,22 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="form-group">
                                             <label for="machine_name">Machine Name</label>
                                             <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="form-group">
                                             <label for="mac_prod_code">Machine-Production line Code</label>
                                             <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <label for="set_machine_asset_code">Machine Name</label>
+                                            <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_asset_code|default_if_none:''}}" name="set_mch_asset_code" maxlength="30">
                                         </div>
                                     </div>
                                 </div>
@@ -199,15 +205,15 @@
                                     <div class="form-row">
                                         <div class="col-md-4">
                                             <label class="control-label">Capacity Load</label>
-                                            <input type="text" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity}}" name="set_cpm">
+                                            <input type="number" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity}}" name="set_cpm" min="0">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="control-label">Capacity Load unit</label>
                                             <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity_unit}}" name="set_capacity">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="pic">Power (KWatt/Hour) :</label>
-                                            <input type="text" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_kwatt_per_hour}}" name="set_power">
+                                            <label for="set_power">Power (KWatt/Hour) :</label>
+                                            <input type="number" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_kwatt_per_hour}}" name="set_power" min="0">
                                         </div>
                                         <div class="col-md-2">
                                             <label>Machine Core</label>
@@ -231,13 +237,9 @@
                                             <label>Start Date</label>
                                             <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2000-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-4">
                                             <label>Hours</label>
-                                            <input type="number" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour" autocomplete="off">
-                                        </div>
-                                        <div class="col-2">
-                                            <label>Minutes</label>
-                                            <input type="number" id="set_minute{{forloop.counter}}" class="form-control" value="{{mch.machine_minute}}" name="set_minute" autocomplete="off">
+                                            <input type="number" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour" autocomplete="off" min="0">
                                         </div>
                                         <div class="col-md-2">
                                             <label>Machine Status</label>
@@ -251,6 +253,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div><b>Personnel</b></div><hr>
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-4">
@@ -301,7 +304,7 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-sm-6">File of Machine </div>
+                                        <div class="col-sm-6"><b>File of Machine</b></div>
                                     </div>
                                     <hr>
                                     <div class="form-row">
@@ -452,13 +455,17 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-4">
+                                            <label for="machine_name">Machine Name</label>
+                                            <input type="text" class="form-control" name="add_machine_name" id="add_machine_name" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                        </div>
+                                        <div class="col-4">
                                             <label for="mac_prod_code">Machine-Production line Code</label>
                                             <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
                                         </div>
-                                        <div class="col-6">
-                                            <label for="machine_name">Machine Name</label>
-                                            <input type="text" class="form-control" name="add_machine_name" id="add_machine_name" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                        <div class="col-4">
+                                            <label for="machine_asset_code">Machine Asset Code</label>
+                                            <input type="text" class="form-control" name="add_machine_asset_code" id="add_machine_asset_code" placeholder="รหัสทรัพย์สิน" autocomplete="off" maxlength="30" />
                                         </div>
                                     </div>
                                 </div>
@@ -466,7 +473,7 @@
                                     <div class="form-row">
                                         <div class="col-md-4">
                                             <label class="control-label">Load Capacity </label>
-                                            <input type="number" class="form-control" id="add_cpm" placeholder="ความจุ" name="add_cpm" maxlength="10" autocomplete="off">
+                                            <input type="number" class="form-control" id="add_cpm" placeholder="ความจุ" name="add_cpm" maxlength="10" autocomplete="off" min="0">
                                         </div>
                                         <div class="col-md-2">
                                             <label class="control-label">Load Capacity Unit</label>
@@ -474,7 +481,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label for="power">Power (KWatt/Hour) :</label>
-                                            <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานกิโลวัตต์/ชั่วโมง" autocomplete="off" maxlength="50">
+                                            <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานกิโลวัตต์/ชั่วโมง" autocomplete="off" maxlength="50" min="0">
                                         </div>
                                         <div class="col-md-2">
                                             <label>Machine Core</label>
@@ -490,24 +497,22 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="form-row">
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <label>Installation Date</label>
                                             <input type="date" class="form-control" id="add_install_date" name="add_installdate" min="2000-01-01" value="">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <label>Start Date</label>
                                             <input type="date" class="form-control" id="add_start_date" name="add_startdate" min="2000-01-01" value="">
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-4">
                                             <label>Machine Hours</label>
-                                            <input type="number" class="form-control" id="add_hour" placeholder="เวลาเครื่องจักรทำงาน (ชั่วโมง)" name="add_hour" maxlength="10">
+                                            <input type="number" class="form-control" id="add_hour" placeholder="เวลาเครื่องจักรทำงาน (ชั่วโมง)" name="add_hour" maxlength="10" min="0">
                                         </div>
-<!--                                        <div class="col-3">-->
-<!--                                            <label>Machine Minutes</label>-->
-<!--                                            <input type="number" class="form-control" id="add_minute" placeholder="เวลาเครื่องจักรทำงาน (นาที)" name="add_minute" maxlength="10">-->
-<!--                                        </div>-->
                                     </div>
                                 </div>
+                                <br>
+                                <div><b>Personnel</b></div><hr>
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-4">

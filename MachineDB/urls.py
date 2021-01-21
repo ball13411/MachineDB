@@ -32,6 +32,7 @@ urlpatterns = [
     path('usermanage/screen/', views.screenmanage, name='screenmanage'),
     path('usermanage/rolescreen/', views.role_screen, name='role_screen_manage'),
     path('usermanage/menu/', views.menumanage, name='menumanage'),
+    path('usermanage/department', views.department_manage, name='department_manage'),
 
     # Organization Management
     path('organizemanage/organization', views.organizemanage, name='organization'),
@@ -96,6 +97,7 @@ urlpatterns = [
     path('ajax/load_role_screen/', views.load_role_screen, name='load_role_screen'),
     path('ajax/load_machine', views.load_machine, name='load_machine'),
     path('ajax/load_machine_sparepart', views.load_machine_sparepart, name='load_machine_sparepart'),
+    path('check_department_code', views.check_department_code, name='check_dep_code'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),

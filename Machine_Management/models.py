@@ -286,6 +286,7 @@ class Machine(models.Model):
     machine_active = models.BooleanField()
     machine_core = models.BooleanField()
     machine_hour_update_date = models.DateField(default=None, null=True)
+    machine_asset_code = models.CharField(max_length=30, default=None, null=True)
 
     class Meta:
         db_table = "Machine_master"
@@ -326,6 +327,19 @@ class Machine_sparepart(models.Model):
         ordering = ["machine", "spare_part"]
 
 
+class Department(models.Model):
+    department_code = models.CharField(max_length=30, unique=True)
+    department_name = models.CharField(max_length=40, default=None, null=True)
+    create_by = models.CharField(max_length=10, default=None, null=True)
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_by = models.CharField(max_length=10, default=None, null=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "Department"
+        ordering = ["department_code"]
+
+
 class User(models.Model):
     username = models.CharField(max_length=10, primary_key=True)
     firstname = models.CharField(max_length=20)
@@ -342,7 +356,8 @@ class User(models.Model):
     update_date = models.DateTimeField(default=None, null=True)
     last_login_date = models.DateTimeField(default=None, null=True)
     org = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    user_active = models.BooleanField()
+    user_active = models.BooleanField(default=True)
+    departments = models.ManyToManyField(Department)
 
     class Meta:
         db_table = "User_management"
