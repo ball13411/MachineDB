@@ -862,6 +862,7 @@ def machine_manage(request):
             add_start_date = request.POST['add_startdate']
             add_hour = request.POST['add_hour'] if request.POST['add_hour'] != '' else 0
             add_core = request.POST.get('add_mch_core', False)
+            add_machine_asset_code = request.POST['add_machine_asset_code'] if request.POST['add_machine_asset_code'] != "" else None
             if request.POST.get('add_mch_core', False):
                 if Machine.objects.filter(line_id=add_production_line, machine_core=True).exists():
                     messages.error(request, 'ในไลน์ผลิตนี้มี Machine Core แล้วไม่สามารถทำรายการได้')
@@ -895,7 +896,8 @@ def machine_manage(request):
                     create_date=datetime.date.today(),
                     machine_hour=add_hour,
                     machine_active=True,
-                    machine_core=add_core
+                    machine_core=add_core,
+                    machine_asset_code=add_machine_asset_code
                 )
                 add_new_machine.save()
                 messages.success(request, 'เพิ่มข้อมูล Machine เรียบร้อยแล้ว')
@@ -928,6 +930,7 @@ def machine_manage(request):
             edit_mch.last_update_by = str(User_login.username)
             edit_mch.last_update_date = datetime.date.today()
             edit_mch.machine_active = request.POST.get('set_mch_status', False)
+            edit_mch.machine_asset_code = request.POST['set_mch_asset_code'] if request.POST['set_mch_asset_code'] != "" else None
             if request.POST.get('set_mch_core', False):
                 if Machine.objects.filter(line_id=edit_mch.line_id, machine_core=True).exists():
                     if edit_mch != Machine.objects.get(line_id=edit_mch.line_id, machine_core=True):
@@ -2547,3 +2550,48 @@ def repair_notice(request):
     context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice, 'spare_part_group_all': spare_part_group_all,
                'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
     return render(request, 'repair_notice.html', context)
+
+
+def department_manage(request):
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='department_manage')
+    if not role_and_screen.exists():
+        return redirect('/')
+    departments = Department.objects.all()
+    if request.method == "POST":
+        if "add_dep" in request.POST:
+            create_dep = Department.objects.create(department_code=request.POST["add_dep_code"],
+                                                   department_name=request.POST['add_dep_name'],
+                                                   create_by=User_login.username)
+            create_dep.save()
+        elif "edit_dep" in request.POST:
+            update_dep = Department.objects.get(department_code=request.POST['set_dep_code'])
+            update_dep.department_name = request.POST['set_dep_name']
+            update_dep.update_by = str(User_login.username)
+            update_dep.save()
+        elif "delete_dep" in request.POST:
+            delete_dep = Department.objects.get(pk=request.POST['delete_dep'])
+            delete_dep.delete()
+
+        return redirect('/usermanage/department')
+
+    context = {'User_login': User_login, 'departments': departments}
+    return render(request, 'department_manage.html', context)
+
+
+@csrf_exempt
+def check_department_code(request):
+    if request.method == 'POST':
+        response_data = {}
+        dep_code = request.POST["department_code"]
+        department_model = Department.objects.filter(department_code=dep_code)
+        if department_model.exists():
+            response_data["department_success"] = False
+        else:
+            response_data["department_success"] = True
+
+    return JsonResponse(response_data)
+
+
+def user_department(request):
+    context = {'User_login': User_login}
+    return render(request, 'user_department.html', context)
