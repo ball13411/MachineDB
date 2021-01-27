@@ -585,9 +585,9 @@
                                     <div class="row">
                                         <div class="col-10" id="dropdown-semantic">
                                             <label>Select Production Line</label>
-                                            <select name="select_lines" multiple="" class="ui fluid dropdown" id="multi-select-lines">
-                                                {% for line in select_line_export %}
+                                            <select class="ui fluid dropdown" id="multi-select-lines" name="multi-select-lines" multiple>
                                                 <option value="">Production Lines</option>
+                                                {% for line in select_line_export %}
                                                 <option value="{{line.pid}}">{{line}}</option>
                                                 {% endfor %}
                                             </select>

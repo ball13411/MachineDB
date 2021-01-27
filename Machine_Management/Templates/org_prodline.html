@@ -127,7 +127,7 @@
                                     <select class="form-control" id="select_line{{forloop.counter}}" name="select_line">
                                         {% for line in prod_lines %}
                                         {% if line not in orgline.org_line.all %}
-                                        <option value="{{line.pid}}" style="background: ">โรงงาน {{line.location_site}} อาคารที่ {{line.location_building}} ชั้นที่{{line.location_floor}}&nbsp;&nbsp;&nbsp;Line : {{line.production_line}}</option>
+                                        <option value="{{line.pid}}" style="background: ">โรงงาน {{line.location_site}} อาคารที่ {{line.location_building}} ชั้นที่ {{line.location_floor}}&nbsp;&nbsp;&nbsp;|&nbsp; ไลน์ผลิตที่ : {{line.production_line}}</option>
                                         {% endif %}
                                         {% endfor %}
                                         {% if prod_lines|length == orgline.org_line.all|length %}

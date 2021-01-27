@@ -151,7 +151,24 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class="form-group">
+                                    <label for="set_department">Department of User</label>
+                                    <select class="form-control" id="set_department" name="set_department" required="True">
+                                    {% for dep in user.departments.all %}
+                                    <option value="{{dep.pk}}">{{dep.department_code}} | {{dep.department_name}}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <label for="update_department">Department of User</label>-->
+<!--                                    <select class="form-control" id="update_department" name="update_department" required="True">-->
+<!--                                    {% for dep in departments %}-->
+<!--                                        {% if dep not in user.departments.all %}-->
+<!--                                        <option value="{{dep.pk}}">{{dep.department_code}} | {{dep.department_name}}</option>-->
+<!--                                        {% endif %}-->
+<!--                                    {% endfor %}-->
+<!--                                    </select>-->
+<!--                                </div>-->
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-md-6">
@@ -220,7 +237,6 @@
                             </div>
 
                             <div class="modal-body">
-
                                 <div class="form-group">
                                     <label for="username">Username</label>
                                     <input type="text" class="form-control" name="add_username" id="add_username" placeholder="ไอดีผู้ใช้งาน" required="True" autocomplete="off" maxlength="10" onchange="check_username(this);return false;" data-url="{% url 'check_username' %}"/>
@@ -228,7 +244,6 @@
                                     <i class="fas fa-exclamation-circle"></i>
                                     <small>Username already exists</small>
                                 </div>
-
                                 <div class="form-row">
                                     <div class="col-md-6">
                                         <label class="control-label">First name</label>
@@ -256,6 +271,14 @@
                                             <input type="date" id="add_startdate" class="form-control" name="add_startdate" min="2000-01-01" required="True" >
                                         </div>
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="select_department">Select Department</label>
+                                    <select class="form-control" id="select_department" name="select_department" required="True">
+                                    {% for dep in departments %}
+                                    <option value="{{dep.pk}}">{{dep.department_code}} | {{dep.department_name}}</option>
+                                    {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <div class="row">
