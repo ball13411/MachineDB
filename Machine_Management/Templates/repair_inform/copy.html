@@ -105,6 +105,7 @@
                         <th>เครื่องจักร</th>
                         <th>วันที่แจ้งซ่อม</th>
                         <th>วันที่ต้องการใช้</th>
+                        <th>วันที่ปิดใบแจ้ง</th>
                         <th>สถานะการแจ้ง</th>
                         <th>Action</th>
                     </tr>
@@ -114,11 +115,12 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{repair.repair_no}}</td>
-                        <td>{{repair.agency_notifying}}</td>
+                        <td>{{repair.department_notifying.department_name}}</td>
                         <td>{{repair.machine.line}}</td>
                         <td>{{repair.machine.machine_name}}</td>
                         <td>{{repair.notification_date}}</td>
                         <td>{{repair.use_date}}</td>
+                        <td>{{repair.repair_close_date|default_if_none:''}}</td>
                         <td>{{repair.repair_status}}</td>
                         <td>
                             <center>
@@ -149,7 +151,7 @@
                                         </div>
                                     </div>
 
-                                <label class="control-label">หน่วยงานทีแจ้ง : {{repair.agency_notifying}}</label><br>
+                                <label class="control-label">หน่วยงานทีแจ้ง : {{repair.department_notifying.department_code}} {{repair.department_notifying.department_name}}</label><br>
                                 <label class="control-label">พนักงานที่แจ้ง : {{repair.repairer_user}}  &nbsp;&nbsp;&nbsp;ติดต่อ : {{repair.repairer_contact}}</label><br>
                                 <label class="control-label"><u>เครื่องจักร : {{repair.machine.machine_production_line_code}} | {{repair.machine.machine_name}}</u>&nbsp;&nbsp;&nbsp; [ {{repair.machine.line}} ]</label><br>
                                 <label class="control-label">ปัญหาเครื่องจักรที่พบ : {{repair.problem_report}}</label><br>
@@ -362,26 +364,31 @@
 
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <div class="form-row">
-                                        <div class="col-md-8">
-                                            <label>หน่วยงานที่แจ้ง</label>
-                                            <input type="text" class="form-control" name="agency_notifying" id="agency_notifying" required="True" autocomplete="off" maxlength="20"/>
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <label>ผู้แจ้งการซ่อมเครื่องจักร</label>
+                                            <input type="text" class="form-control" name="repairer_user" id="repairer_user" required="True" autocomplete="off" maxlength="30" value="{{User_login.firstname}} {{User_login.lastname}}" readonly/>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label>วันที่ต้องการใช้งาน</label>
-                                            <input type="date" id="use_date" class="form-control" name="use_date" required="True" >
+                                        <div class="col-md-5">
+                                            <label>อีเมลติดต่อ</label>
+                                            <input type="text" class="form-control" name="repairer_contact" id="repairer_contact" required="True" autocomplete="off" value="{{User_login.email}}" readonly/>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <div class="row">
+                                    <div class="form-row">
                                         <div class="col-md-8">
-                                            <label>ผู้แจ้งการซ่อมเครื่องจักร</label>
-                                            <input type="text" class="form-control" name="repairer_user" id="repairer_user" required="True" autocomplete="off" maxlength="30"/>
+                                            <label>หน่วยงานที่แจ้ง</label>
+<!--                                            <input type="text" class="form-control" name="department_notifying" id="department_notifying" required="True" autocomplete="off" maxlength="20"/>-->
+                                            <select class="form-control" id="department_notifying" name="department_notifying" required="True">
+                                            {% for dep in department_of_user %}
+                                            <option value="{{dep.pk}}">{{dep.department_code}} | {{dep.department_name}}</option>
+                                            {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label>เบอร์ติดต่อหรือการติดต่อ</label>
-                                            <input type="text" class="form-control" name="repairer_contact" id="repairer_contact" required="True" autocomplete="off"/>
+                                            <label>วันที่แจ้งซ่อมเครื่องจักร</label>
+                                            <input type="date" id="notification_date" class="form-control" name="notification_date" required="True" >
                                         </div>
                                     </div>
                                 </div>
@@ -410,6 +417,10 @@
                                 <div class="form-group">
                                     <label for="add_email">ผลกระทบของปัญหา</label>
                                     <textarea class="form-control" rows="2" name="effect_problem"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>วันที่ต้องการใช้งาน</label>
+                                    <input type="date" id="use_date" class="form-control" name="use_date" required="True" >
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

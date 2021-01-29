@@ -1,0 +1,197 @@
+.nav-tabs {
+    border-radius: 0.5rem;
+    background: #f5f5f5;
+    border-bottom: 0 solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #cf152d;
+    font-weight: 600;
+    background-color: #fff;
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link:not(.active) {
+    color: rgba(33, 37, 41, 0.5);
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link {
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    margin: .5rem;
+    padding: .5rem;
+    transition: color .35s ease-out;
+}
+
+.avatars {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+}
+table.table .avatar-list, .lettet-avatar {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+    border-radius: 50%;
+    border: 3px solid white;
+    font-family: sans-serif;
+    color: #CF152D;
+    font-weight: bold;
+    font-size: 16px;
+    margin-right: -1em;
+}
+.more-member {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border-radius: 50%;
+    border: transparent;
+    font-family: sans-serif;
+    color: #636A6F;
+    font-weight: bold;
+    font-size: 17px;
+    margin-left: 0.375rem;
+}
+.member-detial {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.member-detial .member-detial-body {
+    margin-left: 1.5rem;
+}
+table.permission-table tr th {
+    border-top: none;
+}
+/* Checkbox Style */
+/* Styling Checkbox Starts */
+.checkbox-label {
+    display: block;
+    position: relative;
+    margin: auto;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 24px;
+    height: 24px;
+    width: 24px;
+    clear: both;
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-label .checkbox-custom {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 24px;
+    width: 24px;
+    background-color: transparent;
+    border-radius: 5px;
+  	transition: all 0.3s ease-out;
+  	-webkit-transition: all 0.3s ease-out;
+  	-moz-transition: all 0.3s ease-out;
+  	-ms-transition: all 0.3s ease-out;
+  	-o-transition: all 0.3s ease-out;
+    border: 2px solid #DBDBDB;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom {
+    background-color: #DBDBDB;
+    border-radius: 5px;
+    -webkit-transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    opacity:1;
+    border: 2px solid #DBDBDB;
+}
+
+
+.checkbox-label .checkbox-custom::after {
+    position: absolute;
+    content: "";
+    left: 12px;
+    top: 12px;
+    height: 0px;
+    width: 0px;
+    border-radius: 5px;
+    border: solid #009BFF;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(0deg) scale(0);
+    -ms-transform: rotate(0deg) scale(0);
+    transform: rotate(0deg) scale(0);
+    opacity:1;
+  	transition: all 0.3s ease-out;
+  	-webkit-transition: all 0.3s ease-out;
+  	-moz-transition: all 0.3s ease-out;
+  	-ms-transition: all 0.3s ease-out;
+  	-o-transition: all 0.3s ease-out;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom::after {
+  -webkit-transform: rotate(45deg) scale(1);
+  -ms-transform: rotate(45deg) scale(1);
+  transform: rotate(45deg) scale(1);
+  opacity:1;
+  left: 7.3px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid #009BFF;
+  border-width: 0 2px 2px 0;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Style for Circular Checkbox */
+.checkbox-label .checkbox-custom.circular {
+    border-radius: 50%;
+    border: 2px solid #DBDBDB;
+}
+
+.checkbox-label input:checked ~ .checkbox-custom.circular {
+    background-color: #DBDBDB;
+    border-radius: 50%;
+    border: 2px solid #DBDBDB;
+}
+.checkbox-label input:checked ~ .checkbox-custom.circular::after {
+    border: solid #0067FF;
+    border-width: 0 2px 2px 0;
+}
+.checkbox-label .checkbox-custom.circular::after {
+    border-radius: 50%;
+}
+
+.checkbox-label .checkbox-custom.circular::before {
+    border-radius: 50%;
+    border: 2px solid #DBDBDB;
+}
+
+.checkbox-label input:checked ~ .checkbox-custom.circular::before {
+    border-radius: 50%;
+}
+
+/* New Department Modal */
+.new-department-form {
+    align-items: center !important;
+    margin-right: 0;
+    margin-bottom: 1rem;
+}
+label[class*='col'] {
+    margin-bottom: 0;
+}

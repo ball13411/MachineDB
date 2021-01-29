@@ -357,10 +357,26 @@ class User(models.Model):
     last_login_date = models.DateTimeField(default=None, null=True)
     org = models.ForeignKey(Organization, on_delete=models.CASCADE)
     user_active = models.BooleanField(default=True)
-    departments = models.ManyToManyField(Department)
+    departments = models.ManyToManyField(Department, through='User_and_department')
 
     class Meta:
         db_table = "User_management"
+
+
+class User_and_department(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    is_inform = models.BooleanField(default=None, null=True)
+    is_inspect = models.BooleanField(default=None, null=True)
+    is_approve = models.BooleanField(default=None, null=True)
+    is_receive = models.BooleanField(default=None, null=True)
+    is_assign = models.BooleanField(default=None, null=True)
+    is_report = models.BooleanField(default=None, null=True)
+    is_verify = models.BooleanField(default=None, null=True)
+    is_close = models.BooleanField(default=None, null=True)
+
+    class Meta:
+        db_table = "User_department"
 
 
 def randomJobOrder():
@@ -429,13 +445,11 @@ class Maintenance_job(models.Model):
 
 class Repair_notice(models.Model):
     repair_no = models.CharField(max_length=20, default=randomRepairOrder, unique=True)
-    agency_notifying = models.CharField(max_length=20, default=None, null=True)
-    notification_date = models.DateField(auto_now_add=True)
+    department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE)
+    notification_date = models.DateField(default=None, null=True)
     problem_report = models.TextField(default=None, null=True)
     effect_problem = models.TextField(default=None, null=True)
     use_date = models.DateField(default=None, null=True)
-    repairer_user = models.CharField(max_length=30, default=None, null=True)
-    repairer_contact = models.TextField(default=None, null=True)
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     repair_status = models.CharField(max_length=30, default=None, null=True)
     spare_part_1 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
@@ -448,6 +462,19 @@ class Repair_notice(models.Model):
     job3 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job4 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job5 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    repair_gen_date = models.DateField(auto_now_add=True)
+    repair_close_date = models.DateField(default=None, null=True)
+    repairer_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    inspect_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    approve_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    receive_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    inspect_remark = models.TextField(default=None, null=True)
+    approve_remark = models.TextField(default=None, null=True)
+    receive_remark = models.TextField(default=None, null=True)
+    is_cancel = models.BooleanField(default=None, null=True)
+    is_inspect = models.BooleanField(default=None, null=True)
+    is_approve = models.BooleanField(default=None, null=True)
+    is_receive = models.BooleanField(default=None, null=True)
 
     class Meta:
         db_table = 'repair_notice'

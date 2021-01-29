@@ -62,7 +62,6 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link active"><b>Maintenance Data</b></a>
-                <a href="{% url 'repair_notice' %}" class="nav-item nav-link">Repair Notice</a>
                 <a href="{% url 'maintenance_job' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>Maintenance Assign</a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">Maintenance Report</a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">Machine Hour Update</a>

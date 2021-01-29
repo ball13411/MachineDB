@@ -585,9 +585,9 @@
                                     <div class="row">
                                         <div class="col-10" id="dropdown-semantic">
                                             <label>Select Production Line</label>
-                                            <select name="select_lines" multiple="" class="ui fluid dropdown" id="multi-select-lines">
-                                                {% for line in select_line_export %}
+                                            <select class="ui fluid dropdown" id="multi-select-lines" name="multi-select-lines" multiple>
                                                 <option value="">Production Lines</option>
+                                                {% for line in select_line_export %}
                                                 <option value="{{line.pid}}">{{line}}</option>
                                                 {% endfor %}
                                             </select>
@@ -756,7 +756,7 @@
     var clear_machine = false;
     $('#machines_choices').multiSelect({
       afterSelect: function(values){
-        selected_machines.push(values)      // Add selected machine to list
+        selected_machines.push(values)                                          // Add selected machine to list
         console.log(typeof selected_machines,selected_machines);
         var selected = JSON.stringify(selected_machines);
         $.ajax({
@@ -829,7 +829,6 @@
         }
       });
       $('.ui.button').on('click', function () {
-        // $('#machines_choices').empty().multiSelect('refresh');
         $('#multi-select-lines').dropdown('restore defaults');
         clear_machine = true;
 
@@ -840,11 +839,6 @@
         console.log("mch list:",typeof JSON.stringify(selected_machines));
         console.log(selected_machines, typeof selected_machines);
         document.getElementById("ExportButton").value = selected_machines;
-        //console.log("Print id value",$('#ExportButton').val())
-        //$('.ui.dropdown').addClass('disabled');
-        //$('.ui.button').addClass('disabled');
-        //$('#machines_choices').prop('disabled', true);
-        //$('#machines_choices').multiSelect('refresh');
 
       });
 

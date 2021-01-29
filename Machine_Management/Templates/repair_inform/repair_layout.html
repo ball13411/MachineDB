@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Machine Management</title>
+    <title>{% block title %}{% endblock %}</title>
 
     {% load static %}
     <!-- icon -->
@@ -21,6 +21,10 @@
     <script src="{% static 'javascript/jquery.dataTables.min.js' %}"></script>
     <!--  Popper  -->
     <script src="{% static 'javascript/popper-1.16.0.min.js' %}"></script>
+    <!-- Moment   -->
+    <script src="{% static 'javascript/moment-2.29.0.min.js' %}"></script>
+    <!--  Input Date Format  DD/MM/YYYY -->
+    <link rel="stylesheet" type="text/css" href="{% static 'style/input_date.css' %}">
     <!--  Container Form -->
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
@@ -42,6 +46,7 @@
         $('[data-toggle="tooltip"]').tooltip();
     });
     </script>
+
 </head>
 <body>
 
@@ -55,10 +60,10 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
-                <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">Maintenance Data</a>
-                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>Maintenance Assign</a>
-                <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">Maintenance Report</a>
-                <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link active"><b>Machine Hour Update</b></a>
+                {% block navbar %}
+
+
+                {% endblock %}
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -78,70 +83,25 @@
             {{ message }}
         </div>
         {% endfor %}
-        <div class="table-wrapper">
-            <form method="POST">
-                {% csrf_token %}
-            <div class="table-title">
-                <div class="row">
-                    <div class="col-sm-8">
-                        <h2>Maintenance <b>Plan</b></h2>
-                    </div>
-                    <div class="col-2">
-                        <h2 align="right">Hour Update</h2>
-                    </div>
-                    <div class="col-sm-1">
-                        <input type="number" class="form-control form-control-sm" name="hour_update">
-                    </div>
-                    <div class="col-sm-1">
-                        <button type="submit" class="btn btn-primary form-control-sm" name="hour_submit">Submit</button>
-                    </div>
-                </div>
-            </div>
-            <table class="table table-hover" id="myTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Line</th>
-                        <th>Machine Code</th>
-                        <th>Machine Name</th>
-                        <th>Hour Last Update</th>
-                        <th>Machine Hour</th>
-                        <th><center>Action</center></th>
-                    </tr>
-                </thead>
-                <tbody>
-            {% for mch in machine_all %}
-                    <tr>
-                        <td>{{forloop.counter}}</td>
-                        <td>{{mch.line}}</td>
-                        <td>{{mch.machine_production_line_code}}</td>
-                        <td>{{mch.machine_name}}</td>
-                        <td>{{mch.machine_hour_last_update}}</td>
-                        <td>{{mch.machine_hour}}</td>
-                        <td>
-                            <center><input type="checkbox" id="mch_update{{forloop.counter}}" name="mch_update[]" value="{{mch.pk}}"></center>
-                        </td>
-                    </tr>
-            {% endfor %}
-                </tbody>
-            </table>
-            </form>
 
-        </div>
+        {% block content %}
+
+
+        {% endblock %}
+
     </div>
 </div>
 <script>
-    //$(document).ready( function () {
-    //$('#myTable').DataTable();
-//} );
-$(document).ready(function() {
-    var table = $('#myTable').DataTable();
-
-    $('#myTable tbody').on( 'click', 'tr', function () {
-        $(this).toggleClass('selected');
-    } );
-
+    $(document).ready( function () {
+    $('#myTable').DataTable();
 } );
 </script>
+<script src="{% static 'javascript/input_date.js'%}"></script>
+
+{% block script %}
+
+
+{% endblock %}
+
 </body>
 </html>
