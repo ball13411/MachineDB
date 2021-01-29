@@ -23,7 +23,10 @@ urlpatterns = [
 
     # General Path
     path('admin/', admin.site.urls),
+
+    # Sign In
     path('', views.signin, name='signin'),
+    path('sign-in/department/', views.signIn_department, name='signIn_department'),
     path('resetpassword/', views.reset_password, name='resetpassword'),
 
     # User Management
@@ -33,6 +36,7 @@ urlpatterns = [
     path('usermanage/rolescreen/', views.role_screen, name='role_screen_manage'),
     path('usermanage/menu/', views.menumanage, name='menumanage'),
     path('usermanage/department', views.department_manage, name='department_manage'),
+    path('usermanage/user_department', views.user_department, name='user_department'),
 
     # Organization Management
     path('organizemanage/organization', views.organizemanage, name='organization'),
@@ -61,6 +65,7 @@ urlpatterns = [
     path('repair/approve', views.repair_approve, name='repair_approve'),
 
     # Preventive Data
+    path('preventive/repair_receive', views.maintenance_receive, name='maintenance_receive'),
     path('preventive/data', views.maintenance_data, name='maintenance_data'),
     path('preventive/plan', views.maintenance_job, name='maintenance_job'),
     path('preventive/report', views.maintenance_report, name='maintenance_report'),
@@ -103,6 +108,7 @@ urlpatterns = [
     path('ajax/load_machine_sparepart', views.load_machine_sparepart, name='load_machine_sparepart'),
     path('check_department_code', views.check_department_code, name='check_dep_code'),
     path('ajax/load_username/', views.load_username, name='load_username'),
+    path('ajax/load_userInOrg', views.load_userInOrg, name='load_userInOrg'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),

@@ -23,6 +23,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # GLOBAL var
 User_login, UserRole, List_user_Screen, dict_menu_level, User_org_machine_line, List_user_Screen = None, None, [], {}, None, None  # User Login for use all pages
+UserLoginDepartment = None
 
 
 def signin(request):
@@ -50,7 +51,7 @@ def signin(request):
                 if user is not None:                                                                # Check login User   # Set user login
                     User_login = user
                     UserRole = str(User_login.role)
-                    return redirect('/home')
+                    return redirect('/sign-in/department/')
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
                 messages.error(request, "username หรือ password ไม่ถูกต้อง")
 
@@ -459,7 +460,7 @@ def menumanage(request):
                 add_menu_name = request.POST['add_menu_name']
                 add_menu_level = request.POST['add_menu_level']
                 select_screen = request.POST['select_screen']
-                select_parent = request.POST['select_parent']
+                select_parent = request.POST['select_parent'] if request.POST.get('select_parent',False) else None
                 add_menu_index = request.POST['add_menu_index']
                 add_menu_path = request.POST['add_menu_path']
                 screen = Screen.objects.get(screen_id=select_screen)
@@ -2419,12 +2420,11 @@ def repair_notice(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_notice')
     if not role_and_screen.exists():
         return redirect('/')
-    username = str(User_login.username)
+
     line_of_user = User_login.org.org_line.all()
-    list_repair_notice = Repair_notice.objects.all()
-    department_of_user = Department.objects.filter(user__pk=User_login.pk)
-    list_inspect_user = User_and_department.objects.filter(department__department_code=3120011, is_inspect=True)
-    list_approve_user = User_and_department.objects.filter(department__department_code=3120011, is_approve=True)
+    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login)
+    list_inspect_user = User_and_department.objects.filter(department__department_code=UserLoginDepartment.department_code, is_inspect=True)
+    list_approve_user = User_and_department.objects.filter(department__department_code=UserLoginDepartment.department_code, is_approve=True)
 
     if request.method == "POST":
         if "create_repair" in request.POST:
@@ -2575,7 +2575,7 @@ def repair_notice(request):
         return redirect('/repair/inform')
 
     context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice,
-               'department_of_user': department_of_user, 'list_inspect_user': list_inspect_user, 'list_approve_user': list_approve_user}
+               'list_inspect_user': list_inspect_user, 'list_approve_user': list_approve_user, "UserLoginDepartment": UserLoginDepartment}
     return render(request, 'repair_inform/repair_notice.html', context)
 
 
@@ -2620,12 +2620,13 @@ def check_department_code(request):
 
 
 def user_department(request):
-    context = {'User_login': User_login}
+    orgs = Organization.objects.all()
+    context = {'User_login': User_login, 'orgs': orgs}
     return render(request, 'user_department.html', context)
 
 
 def repair_inspect(request):
-    repair_inspect_all = Repair_notice.objects.filter(repair_status="รอการตรวจสอบ")
+    repair_inspect_all = Repair_notice.objects.filter(repair_status="รอการตรวจสอบ", inspect_user=User_login)
     if request.method == "POST":
         if "repair_submit" in request.POST:
             repair_inspect_model = Repair_notice.objects.get(pk=request.POST['repair_submit'])
@@ -2649,7 +2650,7 @@ def repair_inspect(request):
 
 
 def repair_approve(request):
-    repair_approve_all = Repair_notice.objects.filter(repair_status="รอการอนุมัติ")
+    repair_approve_all = Repair_notice.objects.filter(repair_status="รอการอนุมัติ", approve_user=User_login)
     if request.method == "POST":
         if "repair_submit" in request.POST:
             repair_approve_model = Repair_notice.objects.get(pk=request.POST['repair_submit'])
@@ -2688,5 +2689,56 @@ def load_username(request):
             response_data["user_success"] = False
 
     return JsonResponse(response_data)
+
+
+def signIn_department(request):
+    global UserLoginDepartment
+    if User_login is None:
+        return redirect('/')
+    departments_user = User_login.departments.all()
+    context = {"departments_user": departments_user}
+    if request.method == "POST":
+        if 'department_submit' in request.POST:
+            UserLoginDepartment = Department.objects.get(pk=request.POST['select_department'])
+            return redirect('/home')
+
+    return render(request, 'home/signIn_department.html', context)
+
+
+@csrf_exempt
+def load_userInOrg(request):
+    if request.method == 'POST':
+        list_org = request.POST.getlist("list_org[]", [])
+        user_model = User.objects.filter(org__in=list_org)
+        if user_model:
+            data = serializers.serialize('json', user_model, fields=["username", "lastname"])
+        else:
+            data = {}
+
+    return HttpResponse(data, content_type="application/json")
+
+
+def maintenance_receive(request):
+    repair_receive_all = Repair_notice.objects.filter(repair_status="รอการรับใบแจ้ง")
+    if request.method == "POST":
+        if "repair_submit" in request.POST:
+            repair_receive_model = Repair_notice.objects.get(pk=request.POST['repair_submit'])
+            if 'is_receive' == request.POST['is_receive']:
+                repair_receive_model.repair_status = 'รอการตรวจสอบอะไหล่'
+                repair_receive_model.is_receive = True
+            elif 'not_receive' == request.POST['is_receive']:
+                repair_receive_model.repair_status = 'ไม่ผ่านการรับแจ้ง'
+                repair_receive_model.is_receive = False
+            elif 'is_cancel' == request.POST['is_receive']:
+                repair_receive_model.repair_status = 'ยกเลิกใบแจ้ง'
+                repair_receive_model.is_receive = False
+                repair_receive_model.is_cancel = True
+            repair_receive_model.receive_remark = request.POST['receive_remark'] if request.POST['receive_remark'] != "" else None
+            repair_receive_model.save()
+
+        return redirect('/preventive/repair_receive')
+    context = {'User_login': User_login, 'repair_receive_all': repair_receive_all}
+    return render(request, 'maintenance/repair_receive.html', context)
+
 
 

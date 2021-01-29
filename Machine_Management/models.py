@@ -467,11 +467,14 @@ class Repair_notice(models.Model):
     repairer_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     inspect_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     approve_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    receive_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     inspect_remark = models.TextField(default=None, null=True)
     approve_remark = models.TextField(default=None, null=True)
+    receive_remark = models.TextField(default=None, null=True)
     is_cancel = models.BooleanField(default=None, null=True)
     is_inspect = models.BooleanField(default=None, null=True)
     is_approve = models.BooleanField(default=None, null=True)
+    is_receive = models.BooleanField(default=None, null=True)
 
     class Meta:
         db_table = 'repair_notice'

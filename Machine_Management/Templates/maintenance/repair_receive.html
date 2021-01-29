@@ -1,11 +1,9 @@
-{% extends "repair_inform/repair_layout.html" %}
+{% extends "maintenance/maintenance_repair_layout.html" %}
 
-{% block title %}Repair Approve{% endblock %}
+{% block title %}Repair Receive{% endblock %}
 
 {% block navbar %}
-<a href="{% url 'repair_notice' %}" class="nav-item nav-link ">ใบแจ้งซ่อมเครื่องจักร</a>
-<a href="{% url 'repair_inspect' %}" class="nav-item nav-link ">ตรวจสอบใบแจ้งซ่อมเครื่องจักร</a>
-<a href="{% url 'repair_approve' %}" class="nav-item nav-link active"><b>อนุมัติใบแจ้งซ่อมเครื่องจักร</b></a>
+
 
 {% endblock %}
 
@@ -16,7 +14,7 @@
     <div class="table-title">
         <div class="row">
             <div class="col-sm-8">
-                <h2>Repair <b>Approve</b></h2>
+                <h2>Repair <b>Receive</b></h2>
             </div>
         </div>
     </div>
@@ -36,7 +34,7 @@
             </tr>
         </thead>
         <tbody>
-    {% for repair in repair_approve_all %}
+    {% for repair in repair_receive_all %}
             <tr>
                 <td>{{forloop.counter}}</td>
                 <td>{{repair.repair_no}}</td>
@@ -49,7 +47,7 @@
                 <td>{{repair.repair_status}}</td>
                 <td>
                     <center>
-                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">beenhere</i></a>
+                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">insert_drive_file</i></a>
                     </center>
                 </td>
             </tr>
@@ -111,24 +109,24 @@
                         <label class="control-label">ปัญหาเครื่องจักรที่พบ : {{repair.problem_report}}</label><br>
                         <label class="control-label">ผลกระทบของปัญหา : {{repair.effect_problem}}</label><br>
                         <hr>
-                        <h5><u><strong>ผลการอนุมัติ</strong></u></h5>
+                        <h5><u><strong>ผลการรับใบแจ้งซ่อมเครื่องจักร</strong></u></h5>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="is_approve" id="is_inspect{{forloop.counter}}" value="is_approve" checked>
-                            <label class="form-check-label" for="is_inspect{{forloop.counter}}" >อนุมัติผ่าน</label>
+                            <input class="form-check-input" type="radio" name="is_receive" id="is_receive{{forloop.counter}}" value="is_receive" checked>
+                            <label class="form-check-label" for="is_receive{{forloop.counter}}" >รับใบแจ้งซ่อมเครื่องจักร</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="is_approve" id="not_inspect{{forloop.counter}}" value="not_approve" >
-                            <label class="form-check-label" for="not_inspect{{forloop.counter}}" >อนุมัติไม่ผ่าน</label>
+                            <input class="form-check-input" type="radio" name="is_receive" id="not_receive{{forloop.counter}}" value="not_receive" >
+                            <label class="form-check-label" for="not_receive{{forloop.counter}}" >ไม่รับใบแจ้งซ่อมเครื่องจักร</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="is_approve" id="is_cancel{{forloop.counter}}" value="is_cancel" >
-                            <label class="form-check-label" for="is_cancel{{forloop.counter}}">ยกเลิกใบตรวจสอบ</label>
+                            <input class="form-check-input" type="radio" name="is_receive" id="is_cancel{{forloop.counter}}" value="is_cancel" >
+                            <label class="form-check-label" for="is_cancel{{forloop.counter}}">ยกเลิกการรับใบแจ้งซ่อมเครื่องจักร</label>
                         </div>
                         <br>
                         <div class="row">
                             <label class="col-sm-1 col-form-label">หมายเหตุ</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" name="approve_remark"/>
+                                <input type="text" class="form-control" name="receive_remark"/>
                             </div>
                         </div>
                     </div>
@@ -150,6 +148,5 @@
 
 
 {% block script %}
-
 
 {% endblock %}
