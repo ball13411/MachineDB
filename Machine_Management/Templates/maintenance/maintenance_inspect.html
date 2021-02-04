@@ -1,0 +1,385 @@
+{% extends "maintenance/maintenance_repair_layout.html" %}
+
+{% block title %}Repair Receive{% endblock %}
+
+{% block navbar %}
+<a href="{% url 'maintenance_data' %}" class="nav-item nav-link">ข้อมูลการซ่อมบำรุง</a>
+<a href="{% url 'maintenance_receive' %}" class="nav-item nav-link">รับใบแจ้งซ่อมบำรุง</a>
+<a href="{% url 'maintenance_inspect' %}" class="nav-item nav-link active"><b>ตรวจสอบอะไหล่ซ่อมบำรุง</b></a>
+<a href="{% url 'maintenance_job' %}" class="nav-item nav-link">มอบหมายงานซ่อมบำรุง</a>
+<a href="{% url 'maintenance_report' %}" class="nav-item nav-link">รายงานการซ่อมบำรุง</a>
+<a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">อัพเดทชั่วโมงทำงานเครื่องจักร</a>
+
+{% endblock %}
+
+
+
+{% block content %}
+<div class="table-wrapper">
+    <div class="table-title">
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Maintenance <b>Inspect</b></h2>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped table-hover" id="myTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>หมายเลขใบแจ้งซ่อม</th>
+                <th>หน่วยงานที่แจ้ง</th>
+                <th>ไลน์ผลิต</th>
+                <th>เครื่องจักร</th>
+                <th>วันที่แจ้งซ่อม</th>
+                <th>วันที่ต้องการใช้</th>
+                <th>วันที่ปิดใบแจ้ง</th>
+                <th>สถานะการแจ้ง</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for mtn in mtn_inspect_all %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{mtn.repair_no}}</td>
+                <td>{{mtn.department_notifying.department_name}}</td>
+                <td>{{mtn.machine.line}}</td>
+                <td>{{mtn.machine.machine_name}}</td>
+                <td>{{mtn.notification_date}}</td>
+                <td>{{mtn.use_date}}</td>
+                <td>{{mtn.repair_close_date|default_if_none:''}}</td>
+                <td>{{mtn.repair_status}}</td>
+                <td>
+                    <center>
+                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">insert_drive_file</i></a>
+                    </center>
+                </td>
+            </tr>
+
+    <!-- Modal job -->
+    <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">ใบแจ้งซ่อมเครื่องจักร</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <h5><u><strong>ข้อมูลใบแจ้งซ่อม</strong></u></h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="control-label">หมายเลขใบแจ้งซ่อม : {{mtn.repair_no}}</label>
+                                </div>
+                                <div class="col-md-6" align="right">
+                                    <label class="control-label">วันที่แจ้งซ่อม : {{mtn.notification_date}}</label>
+                                </div>
+                            </div>
+                        <label class="control-label">สถานะใบแจ้งซ่อม : <b><u>{{mtn.repair_status}}</u></b></label><br>
+                        <label class="control-label">หน่วยงานทีแจ้ง : {{mtn.department_notifying.department_code}} {{mtn.department_notifying.department_name}}</label><br>
+                        <div class="row">
+                            <div class="col-2">
+                                <label class="control-label">พนักงานที่แจ้ง :</label><br>
+                                <label class="control-label">พนักงานที่ตรวจสอบ :</label><br>
+                                <label class="control-label">พนักงานที่อนุมัติ :</label><br>
+                            </div>
+                            <div class="col-1">
+                                <label class="control-label">{{mtn.repairer_user.username}}</label><br>
+                                <label class="control-label">{{mtn.inspect_user.username}}</label><br>
+                                <label class="control-label">{{mtn.approve_user.username}}</label><br>
+                            </div>
+                            <div class="col-2">
+                                <label class="control-label">{{mtn.repairer_user.firstname}}  {{mtn.repairer_user.lastname}}</label><br>
+                                <label class="control-label">{{mtn.inspect_user.firstname}}  {{mtn.repairer_user.lastname}}</label><br>
+                                <label class="control-label">{{mtn.approve_user.firstname}}  {{mtn.repairer_user.lastname}}</label><br>
+                            </div>
+                            <div class="col-4">
+                                <label class="control-label">ที่อยู่อีเมล : {{mtn.repairer_user.email}}</label><br>
+                                <label class="control-label">ที่อยู่อีเมล : {{mtn.inspect_user.email}}</label><br>
+                                <label class="control-label">ที่อยู่อีเมล : {{mtn.approve_user.email}}</label><br>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5><u><strong>เครื่องจักร</strong></u></h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="control-label">เครื่องจักร : <u>{{mtn.machine.machine_production_line_code}} | {{mtn.machine.machine_name}}</u>&nbsp;&nbsp;&nbsp; [ {{mtn.machine.line}} ]</label><br>
+                            </div>
+                            <div class="col-md-6" align="right">
+                                <label class="control-label">วันที่ต้องการใช้งาน : {{mtn.use_date}}</label><br>
+                            </div>
+                        </div>
+                        <label class="control-label">ปัญหาเครื่องจักรที่พบ : {{mtn.problem_report}}</label><br>
+                        <label class="control-label">ผลกระทบของปัญหา : {{mtn.effect_problem}}</label><br>
+                        <hr>
+                        <h5><u><strong>อุปกรณ์หรือชิ้นส่วนที่ชำรุด</strong></u></h5>
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-1">
+                                    <label>ลำดับที่</label><br>
+                                    <label class="col-12 col-form-label">1</label>
+                                    <label class="col-12 col-form-label">2</label>
+                                    <label class="col-12 col-form-label">3</label>
+                                    <label class="col-12 col-form-label">4</label>
+                                    <label class="col-12 col-form-label">5</label>
+                                </div>
+                                <div class="col-3">
+                                    <label>กลุ่มอะไหล่</label>
+                                    <select class="form-control" id="select_sp_group1_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_1.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_group2_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_2.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_group3_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_3.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_group4_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_4.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_group5_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                                        {% for sp_group in spare_part_group_all %}
+                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_5.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-3">
+                                    <label>ประเภทอะไหล่</label>
+                                    <select class="form-control" id="select_sp_type1_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                                        <option value="0">เลือกประเภทอะไหล่</option>
+                                        {% if mtn.spare_part_1_id %}
+                                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_1.spare_part_type.spare_part_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_type2_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                                        <option value="0">เลือกประเภทอะไหล่</option>
+                                        {% if mtn.spare_part_2_id %}
+                                        <option value="{{mtn.spare_part_2.spare_part_type_id}}" selected>{{mtn.spare_part_2.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_2.spare_part_type.spare_part_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_type3_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                                        <option value="0">เลือกประเภทอะไหล่</option>
+                                        {% if mtn.spare_part_3_id %}
+                                        <option value="{{mtn.spare_part_3.spare_part_type_id}}" selected>{{mtn.spare_part_3.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_3.spare_part_type.spare_part_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_type4_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                                        <option value="0">เลือกประเภทอะไหล่</option>
+                                        {% if mtn.spare_part_4_id %}
+                                        <option value="{{mtn.spare_part_4.spare_part_type_id}}" selected>{{mtn.spare_part_4.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_4.spare_part_type.spare_part_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_type5_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                                        <option value="0">เลือกประเภทอะไหล่</option>
+                                        {% if mtn.spare_part_5_id %}
+                                        <option value="{{mtn.spare_part_5.spare_part_type_id}}" selected>{{mtn.spare_part_5.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_5.spare_part_type.spare_part_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+
+                                </div>
+                                <div class="col-3">
+                                    <label>ชนิดอะไหล่</label>
+                                    <select class="form-control" id="select_sp_subtype1_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                                        <option value="0">เลือกชนิดอะไหล่</option>
+                                        {% if mtn.spare_part_1_id %}
+                                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_subtype2_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                                        <option value="0">เลือกชนิดอะไหล่</option>
+                                        {% if mtn.spare_part_2_id %}
+                                        <option value="{{mtn.spare_part_2.spare_part_type_id}}" selected>{{mtn.spare_part_2.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_2.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_subtype3_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                                        <option value="0">เลือกชนิดอะไหล่</option>
+                                        {% if mtn.spare_part_3_id %}
+                                        <option value="{{mtn.spare_part_3.spare_part_type_id}}" selected>{{mtn.spare_part_3.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_3.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_subtype4_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                                        <option value="0">เลือกชนิดอะไหล่</option>
+                                        {% if mtn.spare_part_4_id %}
+                                        <option value="{{mtn.spare_part_4.spare_part_type_id}}" selected>{{mtn.spare_part_4.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_4.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_subtype5_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                                        <option value="0">เลือกชนิดอะไหล่</option>
+                                        {% if mtn.spare_part_5_id %}
+                                        <option value="{{mtn.spare_part_5.spare_part_type_id}}" selected>{{mtn.spare_part_5.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_5.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="col-2">
+                                    <label>อะไหล่</label>
+                                    <select class="form-control" id="select_sp_name1_{{forloop.counter}}" name="select_sp_name1" required="True"  >
+                                        <option value="0">เลือกอะไหล่</option>
+                                        {% if mtn.spare_part_1_id %}<option value="{{mtn.spare_part_1_id}}" selected>{{mtn.spare_part_1.spare_part_name}}</option>{% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_name2_{{forloop.counter}}" name="select_sp_name2" required="True" >
+                                        <option value="0">เลือกอะไหล่</option>
+                                        {% if mtn.spare_part_2_id %}<option value="{{mtn.spare_part_2_id}}" selected>{{mtn.spare_part_2.spare_part_name}}</option>{% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_name3_{{forloop.counter}}" name="select_sp_name3" required="True" >
+                                        <option value="0">เลือกอะไหล่</option>
+                                        {% if mtn.spare_part_3_id %}<option value="{{mtn.spare_part_3_id}}" selected>{{mtn.spare_part_3.spare_part_name}}</option>{% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_name4_{{forloop.counter}}" name="select_sp_name4" required="True" >
+                                        <option value="0">เลือกอะไหล่</option>
+                                        {% if mtn.spare_part_4_id %}<option value="{{mtn.spare_part_4_id}}" selected>{{mtn.spare_part_4.spare_part_name}}</option>{% endif %}
+                                    </select>
+                                    <select class="form-control" id="select_sp_name5_{{forloop.counter}}" name="select_sp_name5" required="True" >
+                                        <option value="0">เลือกอะไหล่</option>
+                                        {% if mtn.spare_part_5_id %}<option value="{{mtn.spare_part_5_id}}" selected>{{mtn.spare_part_5.spare_part_name}}</option>{% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" name="mtn_submit" value="{{mtn.pk}}">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+
+
+{% block script %}
+<script>
+        function ajax_dropdown_type(element) {
+            var filter_sp_type = $(element).val();
+            var numID = element.id.substr(17);
+            var indexID = element.id.substr(15,2);
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : filter_sp_type,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#select_sp_type'+indexID+numID).empty();
+                        var select_type = document.getElementById('select_sp_type'+indexID+numID);
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("เลือกประเภทอะไหล่"));
+                        option_first.value = 0;
+                        select_type.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            var code = data[model].fields.spare_part_type_code;
+                            var name = data[model].fields.spare_part_type_name;
+                            options.appendChild(document.createTextNode(code+" | "+name));
+                            options.value = data[model].pk;
+                            select_type.appendChild(options);
+                        }
+                    } else {
+                        $('#select_sp_type'+indexID+numID).empty();
+                    }
+                }
+            });
+        }
+</script>
+<script>
+        function ajax_dropdown_subtype(element) {
+            var filter_sp_subtype = $(element).val();
+            var numID = element.id.substr(16);
+            var indexID = element.id.substr(14,2);
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_subtype" : filter_sp_subtype,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#select_sp_subtype'+indexID+numID).empty();
+                        var select_subtype = document.getElementById('select_sp_subtype'+indexID+numID);
+                        var option_first_subtype = document.createElement('option');
+                        option_first_subtype.appendChild(document.createTextNode("เลือกชนิดอะไหล่"));
+                        option_first_subtype.value = 0;
+                        select_subtype.appendChild(option_first_subtype);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            var code = data[model].fields.spare_part_sub_type_code;
+                            var name = data[model].fields.spare_part_sub_type_name;
+                            options.appendChild(document.createTextNode(code+" | "+name));
+                            options.value = data[model].pk;
+                            select_subtype.appendChild(options);
+                        }
+                    } else {
+                        $('#select_sp_subtype'+indexID+numID).empty();
+                    }
+                }
+            });
+        }
+</script>
+<script>
+        function ajax_dropdown_sp(element) {
+            console.log(element);
+            console.log($(element).siblings("input[name='csrfmiddlewaretoken']" ).val());
+            var filter_sp = $(element).val();
+            var numID = element.id.substr(19);
+            var indexID = element.id.substr(17,2);
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp" : filter_sp,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#select_sp_name'+indexID+numID).empty();
+                        var select_sp = document.getElementById('select_sp_name'+indexID+numID);
+                        var option_first_subtype = document.createElement('option');
+                        option_first_subtype.appendChild(document.createTextNode("เลือกอะไหล่"));
+                        option_first_subtype.value = 0;
+                        select_sp.appendChild(option_first_subtype);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            var name = data[model].fields.spare_part_name;
+                            options.appendChild(document.createTextNode(name));
+                            options.value = data[model].pk;
+                            select_sp.appendChild(options);
+                        }
+                    } else {
+                        $('#select_sp_subtype'+indexID+numID).empty();
+                    }
+                }
+            });
+        }
+</script>
+{% endblock %}

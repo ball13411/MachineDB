@@ -69,7 +69,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <h5><u><strong>บุคคลากร</strong></u></h5>
+                        <h5><u><strong>ข้อมูลหน่วยงานแจ้งซ่อมเครื่องจักร</strong></u></h5>
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -128,7 +128,7 @@
                             </div>
                         </div>
 
-                        <h5><b>บุคคลากร</b></h5><hr><br>
+                        <h5><b>ข้อมูลหน่วยงานแจ้งซ่อมเครื่องจักร</b></h5><hr><br>
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">หน่วยงานที่แจ้ง : </label>
                             <div class="col-sm-6">
@@ -188,6 +188,20 @@
                                 <input type="text" class="form-control" name="set_approve_email" id="set_approve_email{{forloop.counter}}" value="{{repair.approve_user.email}}" readonly/>
                             </div>
                         </div>
+
+                        <h5><b>ข้อมูลหน่วยงานรับแจ้งซ่อมเครื่องจักร</b></h5><hr><br>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">หน่วยงานที่แจ้ง : </label>
+                            <div class="col-sm-10">
+                                <select  class="form-control" id="set_department_receive{{forloop.counter}}" name="set_department_receive" onchange="load_approve_username(this)" required="True" data-url="{% url 'load_username' %}">
+                                    <option value="">-- กรุณาเลือกแผนกที่รับแจ้ง --</option>
+                                    {% for dep in list_department %}
+                                    <option value="{{dep.pk}}" {% if dep.pk == repair.department_receive.pk %}selected{% endif %}>{{dep.department_code}} | {{dep.department_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
 
                         <h5><b>ข้อมูลเครื่องจักร</b></h5><hr><br>
                         <div class="form-row">
@@ -253,8 +267,8 @@
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">ผลการรับใบแจ้งซ่อม : </label>
                             <div class="col-sm-4">
-                                <input type="text" name="set_inspect_name" {% if repair.is_receive is True %}class="form-control is-valid" value="อนุมัติผ่าน"
-                                {% elif repair.is_receive is False %}class="form-control is-invalid" value="อนุมัติไม่ผ่าน"
+                                <input type="text" name="set_inspect_name" {% if repair.is_receive is True %}class="form-control is-valid" value="ผ่านการรับแจ้งซ่อม"
+                                {% elif repair.is_receive is False %}class="form-control is-invalid" value="ไม่ผ่านการรับแจ้งซ่อม"
                                 {% else %}class="form-control" value=""{% endif %} readonly/>
                             </div>
                             <label class="col-sm-2 col-form-label">หมายเหตุ : </label>
@@ -311,7 +325,7 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <label><b>บุคคลากร</b></label><hr><br>
+                        <label><b>ข้อมูลหน่วยงานแจ้งซ่อมเครื่องจักร</b></label><hr><br>
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">หน่วยงานที่แจ้ง : </label>
                             <div class="col-sm-6">
@@ -370,6 +384,19 @@
                             </div>
                             <div class="col-sm-3">
                                 <input type="text" class="form-control" name="approve_email" id="approve_email" value="" readonly/>
+                            </div>
+                        </div>
+                        
+                        <label><b>ข้อมูลหน่วยงานรับซ่อมเครื่องจักร</b></label><hr><br>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">หน่วยงานที่รับแจ้ง : </label>
+                            <div class="col-sm-10">
+                                <select  class="form-control" id="department_receive" name="department_receive" onchange="load_approve_username(this)" required="True" data-url="{% url 'load_username' %}">
+                                    <option value="">-- กรุณาเลือกแผนกที่รับแจ้ง --</option>
+                                    {% for dep in list_department %}
+                                    <option value="{{dep.pk}}">{{dep.department_code}} | {{dep.department_name}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 

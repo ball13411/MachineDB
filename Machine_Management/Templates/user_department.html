@@ -8,7 +8,7 @@
 
     {% load static %}
     <!-- Font Awesome -->
-<!--    <link rel="stylesheet" type="text/css" href="{% static 'iconfont/all.css' %}">-->
+    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}">
     <!-- icon -->
     <link rel="stylesheet" type="text/css" href="{% static 'iconfont/material-icons.css' %}">
     <!-- Fonts -->
@@ -56,7 +56,13 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
-                <a href="#" class="nav-item nav-link active"><b>Department Management</b></a>
+                <a href="{% url 'usermanage' %}" class="nav-item nav-link">User Manage</a>
+                <a href="{% url 'rolemanage' %}" class="nav-item nav-link">Role Manage</a>
+                <a href="{% url 'department_manage' %}" class="nav-item nav-link">Department Manage</a>
+                <a href="{% url 'user_department' %}" class="nav-item nav-link active"><b>User&Department</b></a>
+                <a href="{% url 'screenmanage' %}" class="nav-item nav-link">Screen Manage</a>
+                <a href="{% url 'role_screen_manage' %}" class="nav-item nav-link">Role&Screen</a>
+                <a href="{% url 'menumanage' %}" class="nav-item nav-link">Menu Manage</a>
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -77,13 +83,12 @@
         </div>
         {% endfor %}
         <div class="table-wrapper">
-            <form method="POST">
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
                         <h2>Department <b>Management</b></h2>
                     </div>
-                    
+
                     <div class="col-sm-7">
                         <a href="#newDepartment" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>New Department</span></a>
                     </div>
@@ -113,74 +118,134 @@
                             </tr>
                         </thead>
                         <tbody>
+                        {% for dep,user_all in dict_user_department.items %}
                             <tr>
                                 <td>{{forloop.counter}}</td>
-                                <td></td>
-                                <td></td>
+                                <td>{{dep.department_code}}</td>
+                                <td>{{dep.department_name}}</td>
                                 <td>
                                     <ul class="avatars">
-                                        <li>
-                                            <img class="avatar-list" avatar="อากาโสะ เอจิ" data-toggle="tooltip" title="อากาโสะ เอจิ">
-                                        <li>
-                                            <img class="avatar-list" avatar="เคย์ตะ มาจิดะ" data-toggle="tooltip" title="เคย์ตะ มาจิดะ">
-                                        </li>
-                                        <li>
-                                            <a href="#members" data-toggle="modal"><span class="more-member">+2</span></a>
-                                        </li>
+                                        {% for user in user_all %}
+                                            {% if forloop.counter <= 5 %}
+                                            <li>
+                                                <a href="#members{{dep.department_code}}" data-toggle="modal"><img class="avatar-list" avatar="{{ user.firstname }} {{ user.lastname }}" data-toggle="tooltip" title="{{ user.firstname }} {{ user.lastname }}"></a>
+                                            </li>
+                                            {% elif forloop.counter == user_all.count %}
+                                            <li>
+                                                <a href="#members{{dep.department_code}}" data-toggle="modal"><span class="more-member">+{{ user_all.count|add:"-5" }}</span></a>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </td>
                                 <td>
-                                    <a href="#editDepartment" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
+                                    <a href="#editDepartment{{dep.department_code}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a>
                                 </td>
                             </tr>
                             <!-- Modal Members -->
-                            <div id="members" class="modal fade" tabindex="-1">
+                            <div id="members{{dep.department_code}}" class="modal fade" tabindex="-1">
                                 <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title">Members</h5>
+                                            <h5 class="modal-title">Members ( {{user_all|length}} )</h5>
                                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                                         </div>
                                         <div class="modal-body">
                                             <div class="row">
-                                                <div class="col-6">
-                                                    <div class="member-detial">
-                                                        <img class="lettet-avatar" avatar="อากาโสะ เอจิ">
-                                                        <div class="member-detial-body">
-                                                            <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">Claire Connors</h6>
-                                                            <span data-filter-by="text" class="text-body SPAN-filter-by-text">Administrator</span>
+                                                {% for user in user_all %}
+                                                    {% if forloop.counter|divisibleby:2 %}
+                                                    <div class="col-6">
+                                                        <div class="member-detial">
+                                                            <img class="lettet-avatar" avatar="{{ user.firstname }} {{ user.lastname }}">
+                                                            <div class="member-detial-body">
+                                                                <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">{{ user.firstname }} {{ user.lastname }}</h6>
+                                                                <span data-filter-by="text" class="text-body SPAN-filter-by-text">{{ user.org.org_name }}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="member-detial">
-                                                        <img class="lettet-avatar" avatar="เคย์ตะ มาจิดะ">
-                                                        <div class="member-detial-body">
-                                                            <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">Claire Connors</h6>
-                                                            <span data-filter-by="text" class="text-body SPAN-filter-by-text">Administrator</span>
+                                                    {% else %}
+                                                    <div class="col-6">
+                                                        <div class="member-detial">
+                                                            <img class="lettet-avatar" avatar="{{ user.firstname }} {{ user.lastname }}">
+                                                            <div class="member-detial-body">
+                                                                <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">{{ user.firstname }} {{ user.lastname }}</h6>
+                                                                <span data-filter-by="text" class="text-body SPAN-filter-by-text">{{ user.org.org_name }}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-6">
-                                                    <div class="member-detial">
-                                                        <img class="lettet-avatar" avatar="Akaso Eiji">
-                                                        <div class="member-detial-body">
-                                                            <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">Claire Connors</h6>
-                                                            <span data-filter-by="text" class="text-body SPAN-filter-by-text">Administrator</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="member-detial">
-                                                        <img class="lettet-avatar" avatar="Keita Machida">
-                                                        <div class="member-detial-body">
-                                                            <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">Claire Connors</h6>
-                                                            <span data-filter-by="text" class="text-body SPAN-filter-by-text">Administrator</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                    {% endif %}
+                                                {% endfor %}
                                             </div>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
+                            <!-- Modal Edit Department's member -->
+                            <div id="editDepartment{{dep.department_code}}" class="modal fade" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <form method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Edit Department's member</h5>
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col align-self-end">
+                                                    <button type="button" class="btn btn-primary add-new" style="float: right;" data-toggle="collapse" data-target="#add-more-members" aria-expanded="false" aria-controls="add-more-members"><i class="fas fa-user-plus"></i> Add New Member</button>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="add-more-members">
+                                                <div class="card card-body card-more-member">
+                                                    <h6 style="font-size: 17px; color: #212529; margin-bottom: 0.75rem;">Members</h6>
+                                                    <div class="row new-department-form">
+                                                        <label class="col-3">Organize</label>
+                                                        <select class="selectpicker" id="more-member-department-{{forloop.counter}}" data-width="75%" multiple data-actions-box="true" onchange="update_userInOrg(this)">
+                                                            {% for org in org_all %}
+                                                            <option value="{{ org.org_id }}">{{ org.org_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="row new-department-form">
+                                                        <label class="col-3">User</label>
+                                                        <select class="selectpicker" id="more-members-{{forloop.counter}}" name="update_add_members" data-width="75%" multiple data-actions-box="true"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="group-users">
+                                                {% for user in user_all %}
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" id="project-user-{{dep.department_code}}-{{forloop.counter}}" name="delete_user_list" value="{{user.pk}}">
+                                                    <label class="custom-control-label" for="project-user-{{dep.department_code}}-{{forloop.counter}}">
+                                                        <span class="d-flex align-items-center">
+                                                            <img class="lettet-avatar mr-2" avatar="{{user.firstname}}  {{user.lastname}}">
+                                                            <span class="h6 mb-0 SPAN-filter-by-text" data-filter-by="text">{{user.firstname}}  {{user.lastname}}</span>
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                                {% endfor %}
+                                                <div class="delete-members" style="text-align:center;">
+                                                    <a class="btn delete" id="show-member{{forloop.counter}}" onclick="show_user_department(this)">
+                                                        <i class="fas fa-history"></i> Default
+                                                    </a>
+                                                    <a class="btn delete" id="delete-member{{forloop.counter}}" onclick="delete_user_department(this)">
+                                                        <i class="fas fa-trash-alt"></i> Remove user from department
+                                                    </a>
+                                                    <input type="text" id="toggle_delete{{forloop.counter}}" name="toggle_delete" value="false" hidden>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary" name="update_user_dep" value="{{dep.department_code}}">Save changes</button>
+                                        </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -198,25 +263,78 @@
                             </tr>
                         </thead>
                         <tbody>
+                        {% for user in user_all %}
                             <tr>
                                 <td>{{forloop.counter}}</td>
-                                <td><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">001016</td>
+                                <td><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{user.username}}</td>
                                 <td>{{user.firstname}} {{user.lastname}}</td>
                                 <td>{{user.role}}</td>
                                 <td>{{user.org}}</td>
-                                <td>{{user.create_date}}</td>
                                 <td>
-                                    <a href="#edit" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                                    <!-- <a href="#delete{{user.username}}" class="delete" title="Delete" data-toggle="modal"><i class="material-icons">&#xE5C9;</i></a> -->
+                                    <ul class="avatars">
+                                        {% for dep in user.departments.all %}
+                                            {% if forloop.counter <= 5 %}
+                                            <li>
+                                                <a href="#departments{{user.username}}" data-toggle="modal"><img class="avatar-list" avatar="{{ dep.department_name }}" data-toggle="tooltip" title="{{ dep.department_name }}"></a>
+                                            </li>
+                                            {% elif forloop.counter == user.departments.all.count %}
+                                            <li>
+                                                <a href="#departments{{user.username}}" data-toggle="modal"><span class="more-member">+{{ user.departments.all.count|add:"-5" }}</span></a>
+                                            </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <a href="#edit{{user.username}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
                                 </td>
                             </tr>
-                            
+                            <!-- Modal Members -->
+                            <div id="departments{{user.username}}" class="modal fade" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Departments ( {{user.departments.all|length}} )</h5>
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                {% for dep in user.departments.all %}
+                                                    {% if forloop.counter|divisibleby:2 %}
+                                                    <div class="col-6">
+                                                        <div class="member-detial">
+                                                            <img class="lettet-avatar" avatar="{{ dep.department_name }}">
+                                                            <div class="member-detial-body">
+                                                                <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">{{ dep.department_code }}</h6>
+                                                                <span data-filter-by="text" class="text-body SPAN-filter-by-text">{{ dep.department_name }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% else %}
+                                                    <div class="col-6">
+                                                        <div class="member-detial">
+                                                            <img class="lettet-avatar" avatar="{{ dep.department_name }}">
+                                                            <div class="member-detial-body">
+                                                                <h6 class="mb-0 H6-filter-by-text" data-filter-by="text">{{ dep.department_code }}</h6>
+                                                                <span data-filter-by="text" class="text-body SPAN-filter-by-text">{{ dep.department_name }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
                 <!-- Modal New Department -->
                 <div id="newDepartment" class="modal fade" tabindex="-1">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-content">
                                 <form method="post">
@@ -228,254 +346,151 @@
                                     <div class="modal-body">
                                         <h6 style="font-size: 17px; color: #212529; margin-top: 0.75rem; margin-bottom: 0.75rem;">Details</h6>
                                         <div class="row new-department-form">
-                                            <label class="col-3">Code</label>
-                                            <input class="form-control col" type="text" placeholder="Department Code" name="department-code">
+                                            <label class="col-3">Department Code</label>
+<!--                                            <input class="form-control col" type="text" placeholder="Department Code" name="department_code">-->
+                                            <select class="form-control col-9" id="add_department_code" onchange="load_department_name(this)" name="add_department_code" required="True">
+                                                <option value="">--- กรุณาเลือกรหัสแผนก ---</option>
+                                                {% for dep in department_all %}
+                                                <option value="{{dep.department_code}}">{{ dep.department_code }}</option>
+                                                {% endfor %}
+                                            </select>
                                         </div>
                                         <div class="row new-department-form">
-                                            <label class="col-3">Name</label>
-                                            <input class="form-control col" type="text" placeholder="Department Name" name="department-name">
-                                        </div>    
+                                            <label class="col-3">Department Name</label>
+                                            <input class="form-control col" type="text" placeholder="Department Name" name="add_department_name" id="add_department_name" readonly>
+                                        </div>
                                         <hr>
                                         <h6 style="font-size: 17px; color: #212529; margin-bottom: 0.75rem;">Members</h6>
                                         <div class="row new-department-form">
                                             <label class="col-3">Organize</label>
-                                            <select class="selectpicker select-org" data-width="75%" multiple data-actions-box="true" onchange="load_userInOrg(this)">
-                                                {% for org in orgs %}
+                                            <select class="selectpicker" id="select-org" data-width="75%" multiple data-actions-box="true" onchange="load_userInOrg(this)">
+                                                {% for org in org_all %}
                                                 <option value="{{ org.org_id }}">{{ org.org_name }}</option>
                                                 {% endfor %}
                                             </select>
-
+                                        </div>
+                                        <div class="row new-department-form">
+                                            <label class="col-3">User</label>
+                                            <select class="selectpicker select-user" id="select-user" name="select_user" data-width="75%" multiple data-actions-box="true"></select>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-primary">Create Department</button>
+                                        <button type="submit" class="btn btn-primary" name="addMembersDepartment">Create Department</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Modal Edit Department's member -->
-                <div id="editDepartment" class="modal fade" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Edit Department's member</h5>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div>
-                            <div class="modal-body">
-                                <button type="button" class="btn btn-info add-new" style="float: right;"><i class="fas fa-user-plus"></i> Add New Member</button>
-                                <table class="table edit-user table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Department</th>
-                                            <th>Phone</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>John Doe</td>
-                                            <td>Administration</td>
-                                            <td>(171) 555-2222</td>
-                                            <td>
-                                                <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
-                                                <a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                                                <a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Peter Parker</td>
-                                            <td>Customer Service</td>
-                                            <td>(313) 555-5735</td>
-                                            <td>
-                                                <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
-                                                <a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                                                <a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Fran Wilson</td>
-                                            <td>Human Resources</td>
-                                            <td>(503) 555-9931</td>
-                                            <td>
-                                                <a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>
-                                                <a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                                                <a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
-                                            </td>
-                                        </tr>      
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary">Save changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {% for user in user_all %}
                 <!-- Modal Edit User's permission -->
-                <div id="edit" class="modal fade" tabindex="-1">
+                <div id="edit{{user.username}}" class="modal fade" tabindex="-1">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
+                            <form method="POST">
+                            {% csrf_token %}
                             <div class="modal-header">
                                 <h5 class="modal-title">Permissions</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
-                                <div>
+                                <div class="">
                                     <table class="table table-striped permission-table">
                                         <thead>
-                                          <tr>
-                                            <th style="width:20%"></th>
-                                            <th style="width:10%"><center>Inform</center></th>
-                                            <th style="width:10%"><center>Inspect</center></th>
-                                            <th style="width:10%"><center>Approve</center></th>
-                                            <th style="width:10%"><center>Recieve</center></th>
-                                            <th style="width:10%"><center>Assign</center></th>
-                                            <th style="width:10%"><center>Report</center></th>
-                                            <th style="width:10%"><center>Verify</center></th>
-                                            <th style="width:10%"><center>Close</center></th>
-                                          </tr>
+                                            <tr>
+                                                <th style="width:20%"></t>
+                                                <th style="width:10%"><center>Inform</center></th>
+                                                <th style="width:10%"><center>Inspect</center></th>
+                                                <th style="width:10%"><center>Approve</center></th>
+                                                <th style="width:10%"><center>Receive</center></th>
+                                                <th style="width:10%"><center>Assign</center></th>
+                                                <th style="width:10%"><center>Report</center></th>
+                                                <th style="width:10%"><center>Verify</center></th>
+                                                <th style="width:10%"><center>Close</center></th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                          <tr>
-                                            <td><b>Departmant XXX</b></td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td><b>Departmant YYY</b></td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                            <td><center>
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox">
-                                                    <span class="checkbox-custom circular"></span>
-                                                </label>
-                                                </center>
-                                            </td>
-                                          </tr>
-
+                                            {% for user_dep in user.user_and_department_set.all %}
+                                            <tr>
+                                                <td><b>{{user_dep.department.department_name}}</b></td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_inform" value="{{user_dep.department.pk}}" {% if user_dep.is_inform  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_inspect" value="{{user_dep.department.pk}}" {% if user_dep.is_inspect  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_approve" value="{{user_dep.department.pk}}" {% if user_dep.is_approve  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_receive" value="{{user_dep.department.pk}}" {% if user_dep.is_receive  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_assign" value="{{user_dep.department.pk}}" {% if user_dep.is_assign  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_report" value="{{user_dep.department.pk}}" {% if user_dep.is_report  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_verify" value="{{user_dep.department.pk}}" {% if user_dep.is_verify  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                                <td><center>
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox" name="is_close" value="{{user_dep.department.pk}}" {% if user_dep.is_close  %}checked{% endif %}>
+                                                        <span class="checkbox-custom circular"></span>
+                                                    </label>
+                                                    </center>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
                                         </tbody>
-                                      </table>
+                                    </table>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary">Save changes</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" name="dep_permission" value="{{user.pk}}">Save changes</button>
                             </div>
+                            </form>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            </form>
+
         </div>
     </div>
 
 </div>
+<script src="{% static 'fontawesome/js/all.js' %}" type="text/javascript"></script>
 <script src="{% static 'javascript/avatar.js' %}" type="text/javascript"></script>
 <script>
     $(document).ready( function () {
@@ -483,7 +498,6 @@
         $('#myTable1').DataTable();
     } );
 </script>
-
 <script>
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
@@ -491,9 +505,54 @@
 </script>
 <script src="{% static 'javascript/input_date.js'%}"></script>
 <script>
+    // Remove Member Button
+    $(document).ready(function(){
+        $('#delete-member').click(function(e){
+            console.log('123');
+            var deleted_list = [];
+            var id = document.getElementById('delete-member');
+            e.preventDefault();
+
+            $(".custom-control input:checked").each(function(){
+                deleted_list.push($(this).val());
+            });
+            // console.log(deleted_list);
+            var removed_members = JSON.stringify(deleted_list);
+
+
+            $(".custom-control input:checked").parent().remove();
+        });
+    });
+
+
+
+</script>
+<script>
+    // Remove Member Button
+        function delete_user_department(element){
+            var numID = element.id.substr(13);
+            var deleted_list = [];
+
+            $(".custom-control input:checked").each(function(){
+                deleted_list.push($(this).val());
+            });
+
+            $("#toggle_delete"+numID).val(true);
+            $(".custom-control input:checked").parent().hide();
+        };
+</script>
+<script>
+    // Remove Member Button
+        function show_user_department(element){
+            var numID = element.id.substr(11);
+            $(".custom-control input:checked").parent().show();
+            $('.custom-control input:checked').prop('checked', false);
+            $("#toggle_delete"+numID).val(false);
+        };
+</script>
+<script>
     function load_userInOrg(element) {
         var selectedItem = $(element).val();
-        console.log(selectedItem);
         $.ajax({
             type: 'POST',
             dataType: 'json',
@@ -503,12 +562,73 @@
                 'list_org': selectedItem
             },
             success : function (data) {
-                    if (data) {
-                        console.log(data);
+                if (data) {
+                    document.getElementById("select-user").innerHTML = null;
+                    var select_user = document.getElementById("select-user");
+                    for (i in data) {
+                        var options = document.createElement('option');
+                        var name = data[i].fields.firstname +" "+ data[i].fields.lastname;
+                        options.appendChild(document.createTextNode(name));
+                        options.value = data[i].pk;
+                        select_user.appendChild(options);
                     }
                 }
+                $("#select-user").selectpicker("refresh");
+            }
         });
     };
 </script>
+<script>
+    function update_userInOrg(element) {
+        var numId = element.id.substr(23);
+        console.log(numId);
+        var selectedItem = $(element).val();
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: "{% url 'load_userInOrg' %}",
+            data: {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']").val(),
+                'list_org': selectedItem
+            },
+            success : function (data) {
+                if (data) {
+                    document.getElementById("more-members-"+numId).innerHTML = null;
+                    var select_user = document.getElementById("more-members-"+numId);
+                    for (i in data) {
+                        var options = document.createElement('option');
+                        var name = data[i].fields.firstname +" "+ data[i].fields.lastname;
+                        options.appendChild(document.createTextNode(name));
+                        options.value = data[i].pk;
+                        select_user.appendChild(options);
+                    }
+                }
+                $("#more-members-"+numId).selectpicker("refresh");
+            }
+        });
+    };
+</script>
+<script>
+    function load_department_name(element) {
+        var department_code = $(element).val();
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: "{% url 'load_department_name' %}",
+            data: {
+                'department_code': department_code
+            },
+            success : function (data) {
+                if (data) {
+                    for (i in data) {
+                        var dep_name = document.getElementById("add_department_name");
+                        dep_name.value = data[i].fields.department_name;
+                    }
+                }
+            }
+        });
+    };
+</script>
+
 </body>
 </html>

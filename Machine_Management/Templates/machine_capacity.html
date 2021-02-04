@@ -230,7 +230,7 @@
                                     <label>Select Production Line</label>
                                     <select class="form-control" id="id_line" name="add_production_line" required="True">
                                         <option value="">--- กรุณาเลือกสายการผลิต ---</option>
-                                        {% for line in production_line %}
+                                        {% for line in user_org %}
                                         <option value="{{line.pid}}">{{line}}</option>
                                         {% endfor %}
                                         </select>

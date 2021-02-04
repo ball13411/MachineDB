@@ -377,6 +377,7 @@ class User_and_department(models.Model):
 
     class Meta:
         db_table = "User_department"
+        ordering = ["department__department_code", "user__firstname"]
 
 
 def randomJobOrder():
@@ -406,8 +407,8 @@ def randomRepairOrder():
 class Maintenance_job(models.Model):
     job_no = models.CharField(max_length=20, default=randomJobOrder, unique=True)
     job_gen_date = models.DateField()
-    job_assign_user_id = models.CharField(max_length=20, default=None, null=True)
-    job_response_user_id = models.CharField(max_length=20, default=None, null=True)
+    job_assign_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
+    job_response_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job_assign_date = models.DateField(default=None, null=True)
     job_mtn_type = models.CharField(max_length=20, default=None, null=True)
     job_result_type = models.CharField(max_length=20, default=None, null=True)
@@ -416,7 +417,7 @@ class Maintenance_job(models.Model):
     job_mch_hour = models.IntegerField(default=None, null=True)
     job_plan_hour = models.IntegerField(default=None, null=True)
     job_report_date = models.DateField(default=None, null=True)
-    job_gen_user_id = models.CharField(max_length=20, default=None, null=True)
+    job_gen_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job_mch_sp = models.ForeignKey(Machine_sparepart, on_delete=models.CASCADE)
     problem_cause = models.TextField(default=None, null=True)
     corrective_action = models.TextField(default=None, null=True)
@@ -445,7 +446,8 @@ class Maintenance_job(models.Model):
 
 class Repair_notice(models.Model):
     repair_no = models.CharField(max_length=20, default=randomRepairOrder, unique=True)
-    department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE)
+    department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
+    department_receive = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
     notification_date = models.DateField(default=None, null=True)
     problem_report = models.TextField(default=None, null=True)
     effect_problem = models.TextField(default=None, null=True)
