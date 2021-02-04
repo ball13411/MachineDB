@@ -101,14 +101,13 @@ table.permission-table tr th {
     width: 24px;
     background-color: transparent;
     border-radius: 5px;
-  	transition: all 0.3s ease-out;
-  	-webkit-transition: all 0.3s ease-out;
-  	-moz-transition: all 0.3s ease-out;
-  	-ms-transition: all 0.3s ease-out;
-  	-o-transition: all 0.3s ease-out;
+  	transition: all 0.1s ease-out;
+  	-webkit-transition: all 0.1s ease-out;
+  	-moz-transition: all 0.1s ease-out;
+  	-ms-transition: all 0.1s ease-out;
+  	-o-transition: all 0.1s ease-out;
     border: 2px solid #DBDBDB;
 }
-
 
 .checkbox-label input:checked ~ .checkbox-custom {
     background-color: #DBDBDB;
@@ -119,7 +118,6 @@ table.permission-table tr th {
     opacity:1;
     border: 2px solid #DBDBDB;
 }
-
 
 .checkbox-label .checkbox-custom::after {
     position: absolute;
@@ -135,13 +133,12 @@ table.permission-table tr th {
     -ms-transform: rotate(0deg) scale(0);
     transform: rotate(0deg) scale(0);
     opacity:1;
-  	transition: all 0.3s ease-out;
-  	-webkit-transition: all 0.3s ease-out;
-  	-moz-transition: all 0.3s ease-out;
-  	-ms-transition: all 0.3s ease-out;
-  	-o-transition: all 0.3s ease-out;
+  	transition: all 0.1s ease-out;
+  	-webkit-transition: all 0.1s ease-out;
+  	-moz-transition: all 0.1s ease-out;
+  	-ms-transition: all 0.1s ease-out;
+  	-o-transition: all 0.1s ease-out;
 }
-
 
 .checkbox-label input:checked ~ .checkbox-custom::after {
   -webkit-transform: rotate(45deg) scale(1);
@@ -163,7 +160,6 @@ table.permission-table tr th {
     border-radius: 50%;
     border: 2px solid #DBDBDB;
 }
-
 .checkbox-label input:checked ~ .checkbox-custom.circular {
     background-color: #DBDBDB;
     border-radius: 50%;
@@ -176,12 +172,10 @@ table.permission-table tr th {
 .checkbox-label .checkbox-custom.circular::after {
     border-radius: 50%;
 }
-
 .checkbox-label .checkbox-custom.circular::before {
     border-radius: 50%;
     border: 2px solid #DBDBDB;
 }
-
 .checkbox-label input:checked ~ .checkbox-custom.circular::before {
     border-radius: 50%;
 }
@@ -195,3 +189,66 @@ table.permission-table tr th {
 label[class*='col'] {
     margin-bottom: 0;
 }
+
+/* Group User in Edit's department */
+.group-users {
+    margin-top: 1.5rem;
+    min-width: 280px;
+    max-height: 50vh;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+}
+.group-users .custom-control {
+    padding-right: 1.5rem;
+    padding-left: 0;
+    margin-bottom: 0.375rem;
+}
+.card-more-member {
+    margin-top: 1.5rem;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.group-users::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.group-users {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.custom-control {
+    position: relative;
+    z-index: 1;
+    display: block;
+    min-height: 1.5rem;
+    padding-left: 2.5rem;
+}
+.group-users .lettet-avatar {
+    width: 32px;
+    height: 32px;
+}
+.custom-checkbox label {
+    display: block;
+}
+.custom-control-label {
+    position: relative;
+    margin-bottom: 0;
+    vertical-align: top;
+}
+.group-users .custom-control-label:before, .group-users .custom-control-label:after {
+    top: .625rem;
+    right: 0.25rem;
+    left: auto;
+}
+.btn.delete {
+    opacity: 0.6;
+    font-size: 0.9rem;
+    transition: color 200ms;
+}
+.btn.delete:hover, .btn.delete:active, .btn.delete:focus {
+    opacity: 1;
+    background-color: transparent;
+    color:#cf152d;
+    font-weight: 600;
+    box-shadow: none !important;
+  }

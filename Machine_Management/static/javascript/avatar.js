@@ -36,9 +36,7 @@ var colours = [
         initials = first_name;
     } else {
         initials = first_name + last_name;
-    }
-//      console.log("initials: ",initials);
-      
+    } 
 
       if (w.devicePixelRatio) {
           size = (size * w.devicePixelRatio);

@@ -31,12 +31,12 @@ urlpatterns = [
 
     # User Management
     path('usermanage/user', views.usermanage, name='usermanage'),
-    path('usermanage/role/', views.rolemanage, name='rolemanage'),
-    path('usermanage/screen/', views.screenmanage, name='screenmanage'),
-    path('usermanage/rolescreen/', views.role_screen, name='role_screen_manage'),
-    path('usermanage/menu/', views.menumanage, name='menumanage'),
+    path('usermanage/role', views.rolemanage, name='rolemanage'),
+    path('usermanage/screen', views.screenmanage, name='screenmanage'),
+    path('usermanage/role-screen', views.role_screen, name='role_screen_manage'),
+    path('usermanage/menu', views.menumanage, name='menumanage'),
     path('usermanage/department', views.department_manage, name='department_manage'),
-    path('usermanage/user_department', views.user_department, name='user_department'),
+    path('usermanage/user-department', views.user_department, name='user_department'),
 
     # Organization Management
     path('organizemanage/organization', views.organizemanage, name='organization'),
@@ -53,7 +53,7 @@ urlpatterns = [
     path('machinemanage/machine_spare_part/', views.machine_and_spare_part, name='machine_and_spare_part'),
 
     # Spare part Management
-    path('sparepartmanage/sparepart/',views.spare_part_manage, name='spare_part_manage'),
+    path('sparepartmanage/sparepart/', views.spare_part_manage, name='spare_part_manage'),
     path('sparepartmanage/subtype/', views.spare_part_subtype, name='spare_part_subtype'),
     path('sparepartmanage/type/', views.spare_part_type, name='spare_part_type'),
     path('sparepartmanage/group/', views.spare_part_group, name='spare_part_group'),
@@ -65,7 +65,8 @@ urlpatterns = [
     path('repair/approve', views.repair_approve, name='repair_approve'),
 
     # Preventive Data
-    path('preventive/repair_receive', views.maintenance_receive, name='maintenance_receive'),
+    path('preventive/maintenance-receive', views.maintenance_receive, name='maintenance_receive'),
+    path('preventive/maintenance-inspect', views.maintenance_inspect, name='maintenance_inspect'),
     path('preventive/data', views.maintenance_data, name='maintenance_data'),
     path('preventive/plan', views.maintenance_job, name='maintenance_job'),
     path('preventive/report', views.maintenance_report, name='maintenance_report'),
@@ -109,6 +110,7 @@ urlpatterns = [
     path('check_department_code', views.check_department_code, name='check_dep_code'),
     path('ajax/load_username/', views.load_username, name='load_username'),
     path('ajax/load_userInOrg', views.load_userInOrg, name='load_userInOrg'),
+    path('ajax/load_department_name', views.load_department_name, name='load_department_name'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),
