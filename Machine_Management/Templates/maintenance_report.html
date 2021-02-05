@@ -298,8 +298,7 @@
                                 <small>Approve By {{mtn_job.job_assign_user_id}} [ {{mtn_job.job_approve_date}} ]</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-warning" name="report_update" value="{{mtn_job.pk}}" {% if mtn_job.job_status == 'รอการดำเนินงาน' %} hidden {% endif %} {% if mtn_job.is_approve %} disabled {% endif %}>Update</button>
-                                    <button type="submit" class="btn btn-primary" name="report_submit" value="{{mtn_job.pk}}" {% if mtn_job.job_status != 'รอการดำเนินงาน' %} disabled {% endif %}>Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="report_submit" value="{{mtn_job.pk}}">Submit</button>
                                 </div>
                             </div>
                         </form>
