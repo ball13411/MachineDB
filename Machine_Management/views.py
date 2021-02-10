@@ -1827,9 +1827,9 @@ def machine_and_spare_part(request):
     return render(request, 'machine&spare_part.html', context)
 
 
-def maintenance_job(request):
+def maintenance_assign(request):
 
-    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_job')
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_assign')
     if not role_and_screen.exists():
         return redirect('signin')
 
@@ -1916,7 +1916,7 @@ def maintenance_job(request):
 
     maintenance_job_gen = Maintenance_job.objects.all()
     context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen}
-    return render(request, 'maintenance_job.html', context)
+    return render(request, 'maintenance/maintenance_assign.html', context)
 
 
 def machine_capacity(request):
@@ -2279,11 +2279,11 @@ def maintenance_data(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
-            return redirect('/preventive/data')
+            return redirect('maintenance_data')
 
     context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all,
-               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
-    return render(request, 'maintenance_data.html', context)
+               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+    return render(request, 'maintenance/maintenance_data.html', context)
 
 
 def maintenance_report(request):
@@ -2326,7 +2326,7 @@ def maintenance_report(request):
                 mch_sp.save()
             except ValueError:
                 messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
-                return redirect('/preventive/report')
+                return redirect('maintenance_report')
 
         elif "approve_job" in request.POST:
             if request.POST.get('is_approve', False):
@@ -2361,11 +2361,11 @@ def maintenance_report(request):
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
                 mtn_report.save()
 
-        return redirect('/preventive/report')
+        return redirect('maintenance_report')
 
     context = {'User_login': User_login, 'job': job, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
-               'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
-    return render(request, 'maintenance_report.html', context)
+               'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+    return render(request, 'maintenance/maintenance_report.html', context)
 
 
 def machine_hour_update(request):
@@ -2386,18 +2386,15 @@ def machine_hour_update(request):
                         mch.machine_hour_last_update = mch.machine_hour
                         mch.machine_hour += int(hour_update)
                     mch.save()
-                return redirect('/preventive/machine')
-            # elif not request.POST.get('mch_update[]', False):
-            #     return redirect('/preventive/machine')
-            else:
-                return redirect('/preventive/machine')
+
+        return redirect('machine_hour_update')
 
     user_org = User_login.org.org_line.all()
     machine_all = Machine.objects.filter(line__in=user_org)
 
     context = {'User_login': User_login, 'machine_all': machine_all, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
-               'menu_assign': Menu.objects.get(menu_id='maintenance_job')}
-    return render(request, 'machine_hour_update.html', context)
+               'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+    return render(request, 'maintenance/machine_hour_update.html', context)
 
 
 @csrf_exempt
@@ -2780,7 +2777,7 @@ def maintenance_inspect(request):
 
         if "mtn_submit" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['mtn_submit'])
-            repair_notice_model.repair_status = 'รอการมอบหมายงาน'
+            repair_notice_model.repair_status = 'อยู่ในระหว่างการทำงาน'
 
             list_check = request.POST.getlist('list_spare_part')
             if len(list_check) != len(set(list_check)):
@@ -2817,11 +2814,6 @@ def maintenance_inspect(request):
             repair_notice_model.save()
             messages.success(request, "บันทึกรายการสำเร็จ")
             return redirect('maintenance_inspect')
-        elif "submit" in request.POST:
-            print(request.POST.getlist("list_spare_part"))
-            print(request.POST.getlist("spare_part1[]"))
-            print(request.POST.get("spare_part2"))
-            print(request.POST.get("spare_part2[]"))
 
     context = {'User_login': User_login, 'mtn_inspect_all': mtn_inspect_all, 'spare_part_group_all': spare_part_group_all}
     return render(request, 'maintenance/maintenance_inspect.html', context)
