@@ -117,7 +117,51 @@
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
-                                <center><label><u><strong>ข้อมูลงาน</strong></u></label></center><br>
+                                {% if mtn_job.repair_notice_set %}
+                                {% for repair in mtn_job.repair_notice_set.all %}
+                                <center><h5><u><strong>ข้อมูลใบแจ้งซ่อม</strong></u></h5></center><br>
+                                <div class="form-group row">
+                                    <div class="col-5">
+                                        <label>หมายเลขใบแจ้งซ่อมเครื่องจักร</label>
+                                        <input type="text" class="form-control" value="{{repair.repair_no}}" readonly>
+                                    </div>
+                                    <div class="col-2">
+                                        <label>วันที่แจ้งซ่อมเครื่องจักร</label>
+                                        <input type="text" class="form-control" value="{{repair.notification_date}}" readonly>
+                                    </div>
+                                    <div class="col-2">
+                                        <label>วันที่ต้องการใช้งาน</label>
+                                        <input type="text" class="form-control" value="{{repair.use_date}}" readonly>
+                                    </div>
+                                    <div class="col-3">
+                                        <label>สถานะใบแจ้งซ่อมเครื่องจักร</label>
+                                        <input type="text" class="form-control" name="repair_no" value="{{repair.repair_status}}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-6">
+                                        <label>ผู้แจ้งใบแจ้งซ่อมเครื่องจักร</label>
+                                        <input type="text" class="form-control" value="{{repair.repairer_user.username}}" readonly>
+                                    </div>
+                                    <div class="col-6">
+                                        <label>หน่วยงานที่แจ้งซ่อมเครื่องจักร</label>
+                                        <input type="text" class="form-control" value="{{repair.department_notifying.department_code}} {{repair.department_notifying.department_name}}" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-6">
+                                        <label>ปัญหาเครื่องจักรที่พบ</label>
+                                        <input type="text" class="form-control" value="{{repair.problem_report}}" readonly>
+                                    </div>
+                                    <div class="col-6">
+                                        <label>ผลกระทบของปัญหาเครื่องจักร</label>
+                                        <input type="text" class="form-control" value="{{repair.effect_problem}}" readonly>
+                                    </div>
+                                </div>
+                                <hr>
+                                {% endfor %}
+                                {% endif %}
+                                <center><h5><u><strong>ข้อมูลงาน</strong></u></h5></center><br>
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-6">
@@ -148,7 +192,7 @@
                                 </div>
                                 <h1>{{mtn_job.repair_notice_set.0.problem_report}}</h1>
                                 <hr><br>
-                                <center><label><u><strong>ข้อมูลเครื่องจักร</strong></u></label></center><br>
+                                <center><h5><u><strong>ข้อมูลเครื่องจักร</strong></u></h5></center><br>
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-md-2">
@@ -166,7 +210,7 @@
                                     </div>
                                 </div>
                                 <hr><br>
-                                <center><label><u><strong>บันทึกผู้ดำเนินการซ่อม</strong></u></label></center><br>
+                                <center><h5><u><strong>บันทึกผู้ดำเนินการซ่อม</strong></u></h5></center><br>
                                 <div class="form-group">
                                     <label>สาเหตุขัดข้องของเครื่อง</label>
                                     <textarea class="form-control" rows="2" name="problem_cause">{{mtn_job.problem_cause|default_if_none:''}}</textarea>
@@ -180,7 +224,7 @@
                                     <textarea class="form-control" rows="2" name="after_repair">{{mtn_job.after_repair|default_if_none:''}}</textarea>
                                 </div>
                                 <hr size="6"><br>
-                                <center><label><u><strong>รายการอุปกรณ์ / ชิ้นส่วนในการซ่อม</strong></u></label></center><br>
+                                <center><h5><u><strong>รายการอุปกรณ์ / ชิ้นส่วนในการซ่อม</strong></u></h5></center><br>
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-1">
@@ -228,7 +272,7 @@
                                     </div>
                                 </div>
                                 <hr><br>
-                                <center><label><u><strong>ผลการดำเนินการ</strong></u></label></center><br>
+                                <center><h5><u><strong>ผลการดำเนินการ</strong></u></h5></center><br>
                                 <div class="form-group">
                                     <div class="form-row">
                                         <div class="col-md-4">
@@ -298,8 +342,7 @@
                                 <small>Approve By {{mtn_job.job_assign_user_id}} [ {{mtn_job.job_approve_date}} ]</small>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-warning" name="report_update" value="{{mtn_job.pk}}" {% if mtn_job.job_status == 'รอการดำเนินงาน' %} hidden {% endif %} {% if mtn_job.is_approve %} disabled {% endif %}>Update</button>
-                                    <button type="submit" class="btn btn-primary" name="report_submit" value="{{mtn_job.pk}}" {% if mtn_job.job_status != 'รอการดำเนินงาน' %} disabled {% endif %}>Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="report_submit" value="{{mtn_job.pk}}">Submit</button>
                                 </div>
                             </div>
                         </form>
