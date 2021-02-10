@@ -64,7 +64,7 @@
                 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link active"><b>ข้อมูลการซ่อมบำรุง</b></a>
                 <a href="{% url 'maintenance_receive' %}" class="nav-item nav-link">รับใบแจ้งซ่อมบำรุง</a>
                 <a href="{% url 'maintenance_inspect' %}" class="nav-item nav-link">ตรวจสอบอะไหล่ซ่อมบำรุง</a>
-                <a href="{% url 'maintenance_job' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>มอบหมายงานซ่อมบำรุง</a>
+                <a href="{% url 'maintenance_assign' %}" class="nav-item nav-link" {% if menu_assign not in menu_job %}hidden{% endif %}>มอบหมายงานซ่อมบำรุง</a>
                 <a href="{% url 'maintenance_report' %}" class="nav-item nav-link">รายงานการซ่อมบำรุง</a>
                 <a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">อัพเดทชั่วโมงทำงานเครื่องจักร</a>
             </div>
