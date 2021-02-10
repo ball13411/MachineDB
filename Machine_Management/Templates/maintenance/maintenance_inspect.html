@@ -2,6 +2,13 @@
 
 {% block title %}Repair Receive{% endblock %}
 
+{% block css %}
+<style>
+    span.orange600 { color: #FB8C00; float:right }
+    span.orange600:hover { color: #FB8C00; float:right; opacity: .6; cursor: pointer; }
+</style>
+{% endblock %}
+
 {% block navbar %}
 <a href="{% url 'maintenance_data' %}" class="nav-item nav-link">ข้อมูลการซ่อมบำรุง</a>
 <a href="{% url 'maintenance_receive' %}" class="nav-item nav-link">รับใบแจ้งซ่อมบำรุง</a>
@@ -52,13 +59,17 @@
                 <td>{{mtn.repair_status}}</td>
                 <td>
                     <center>
-                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">insert_drive_file</i></a>
+                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn.repair_status != "รอการตรวจสอบอะไหล่" %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a>
                     </center>
                 </td>
             </tr>
-
-    <!-- Modal job -->
-    <div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
+    {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% for mtn in mtn_inspect_all %}
+<!-- Modal job -->
+<div id="setting{{forloop.counter}}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <form method="POST">
@@ -115,143 +126,52 @@
                         <label class="control-label">ปัญหาเครื่องจักรที่พบ : {{mtn.problem_report}}</label><br>
                         <label class="control-label">ผลกระทบของปัญหา : {{mtn.effect_problem}}</label><br>
                         <hr>
-                        <h5><u><strong>อุปกรณ์หรือชิ้นส่วนที่ชำรุด</strong></u></h5>
-                        <div class="form-group">
-                            <div class="form-row">
-                                <div class="col-1">
-                                    <label>ลำดับที่</label><br>
-                                    <label class="col-12 col-form-label">1</label>
-                                    <label class="col-12 col-form-label">2</label>
-                                    <label class="col-12 col-form-label">3</label>
-                                    <label class="col-12 col-form-label">4</label>
-                                    <label class="col-12 col-form-label">5</label>
-                                </div>
-                                <div class="col-3">
-                                    <label>กลุ่มอะไหล่</label>
-                                    <select class="form-control" id="select_sp_group1_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value="0">เลือกกลุ่มอะไหล่</option>
-                                        {% for sp_group in spare_part_group_all %}
-                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_1.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_group2_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value="0">เลือกกลุ่มอะไหล่</option>
-                                        {% for sp_group in spare_part_group_all %}
-                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_2.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_group3_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value="0">เลือกกลุ่มอะไหล่</option>
-                                        {% for sp_group in spare_part_group_all %}
-                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_3.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_group4_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value="0">เลือกกลุ่มอะไหล่</option>
-                                        {% for sp_group in spare_part_group_all %}
-                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_4.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_group5_{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
-                                        <option value="0">เลือกกลุ่มอะไหล่</option>
-                                        {% for sp_group in spare_part_group_all %}
-                                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_5.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <label>ประเภทอะไหล่</label>
-                                    <select class="form-control" id="select_sp_type1_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
-                                        <option value="0">เลือกประเภทอะไหล่</option>
-                                        {% if mtn.spare_part_1_id %}
-                                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_1.spare_part_type.spare_part_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_type2_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
-                                        <option value="0">เลือกประเภทอะไหล่</option>
-                                        {% if mtn.spare_part_2_id %}
-                                        <option value="{{mtn.spare_part_2.spare_part_type_id}}" selected>{{mtn.spare_part_2.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_2.spare_part_type.spare_part_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_type3_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
-                                        <option value="0">เลือกประเภทอะไหล่</option>
-                                        {% if mtn.spare_part_3_id %}
-                                        <option value="{{mtn.spare_part_3.spare_part_type_id}}" selected>{{mtn.spare_part_3.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_3.spare_part_type.spare_part_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_type4_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
-                                        <option value="0">เลือกประเภทอะไหล่</option>
-                                        {% if mtn.spare_part_4_id %}
-                                        <option value="{{mtn.spare_part_4.spare_part_type_id}}" selected>{{mtn.spare_part_4.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_4.spare_part_type.spare_part_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_type5_{{forloop.counter}}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
-                                        <option value="0">เลือกประเภทอะไหล่</option>
-                                        {% if mtn.spare_part_5_id %}
-                                        <option value="{{mtn.spare_part_5.spare_part_type_id}}" selected>{{mtn.spare_part_5.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_5.spare_part_type.spare_part_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-
-                                </div>
-                                <div class="col-3">
-                                    <label>ชนิดอะไหล่</label>
-                                    <select class="form-control" id="select_sp_subtype1_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
-                                        <option value="0">เลือกชนิดอะไหล่</option>
-                                        {% if mtn.spare_part_1_id %}
-                                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_subtype2_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
-                                        <option value="0">เลือกชนิดอะไหล่</option>
-                                        {% if mtn.spare_part_2_id %}
-                                        <option value="{{mtn.spare_part_2.spare_part_type_id}}" selected>{{mtn.spare_part_2.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_2.spare_part_sub_type.spare_part_sub_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_subtype3_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
-                                        <option value="0">เลือกชนิดอะไหล่</option>
-                                        {% if mtn.spare_part_3_id %}
-                                        <option value="{{mtn.spare_part_3.spare_part_type_id}}" selected>{{mtn.spare_part_3.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_3.spare_part_sub_type.spare_part_sub_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_subtype4_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
-                                        <option value="0">เลือกชนิดอะไหล่</option>
-                                        {% if mtn.spare_part_4_id %}
-                                        <option value="{{mtn.spare_part_4.spare_part_type_id}}" selected>{{mtn.spare_part_4.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_4.spare_part_sub_type.spare_part_sub_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_subtype5_{{forloop.counter}}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
-                                        <option value="0">เลือกชนิดอะไหล่</option>
-                                        {% if mtn.spare_part_5_id %}
-                                        <option value="{{mtn.spare_part_5.spare_part_type_id}}" selected>{{mtn.spare_part_5.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_5.spare_part_sub_type.spare_part_sub_type_name}}</option>
-                                        {% endif %}
-                                    </select>
-                                </div>
-                                <div class="col-2">
-                                    <label>อะไหล่</label>
-                                    <select class="form-control" id="select_sp_name1_{{forloop.counter}}" name="select_sp_name1" required="True"  >
-                                        <option value="0">เลือกอะไหล่</option>
-                                        {% if mtn.spare_part_1_id %}<option value="{{mtn.spare_part_1_id}}" selected>{{mtn.spare_part_1.spare_part_name}}</option>{% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_name2_{{forloop.counter}}" name="select_sp_name2" required="True" >
-                                        <option value="0">เลือกอะไหล่</option>
-                                        {% if mtn.spare_part_2_id %}<option value="{{mtn.spare_part_2_id}}" selected>{{mtn.spare_part_2.spare_part_name}}</option>{% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_name3_{{forloop.counter}}" name="select_sp_name3" required="True" >
-                                        <option value="0">เลือกอะไหล่</option>
-                                        {% if mtn.spare_part_3_id %}<option value="{{mtn.spare_part_3_id}}" selected>{{mtn.spare_part_3.spare_part_name}}</option>{% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_name4_{{forloop.counter}}" name="select_sp_name4" required="True" >
-                                        <option value="0">เลือกอะไหล่</option>
-                                        {% if mtn.spare_part_4_id %}<option value="{{mtn.spare_part_4_id}}" selected>{{mtn.spare_part_4.spare_part_name}}</option>{% endif %}
-                                    </select>
-                                    <select class="form-control" id="select_sp_name5_{{forloop.counter}}" name="select_sp_name5" required="True" >
-                                        <option value="0">เลือกอะไหล่</option>
-                                        {% if mtn.spare_part_5_id %}<option value="{{mtn.spare_part_5_id}}" selected>{{mtn.spare_part_5.spare_part_name}}</option>{% endif %}
-                                    </select>
-                                </div>
+                        <h5><u><strong>อุปกรณ์หรือชิ้นส่วนที่ชำรุด</strong></u><a onclick="addFields(this)" id="{{forloop.counter}}"><span class="material-icons orange600">add_circle</span></a></h5>
+                        <div class="row">
+                            <div class="col-1">
+                                <label>ลำดับที่</label><br>
+                            </div>
+                            <div class="col-3">
+                                <label>กลุ่มอะไหล่</label>
+                            </div>
+                            <div class="col-3">
+                                <label>ประเภทอะไหล่</label>
+                            </div>
+                            <div class="col-3">
+                                <label>ชนิดอะไหล่</label>
+                            </div>
+                            <div class="col-2">
+                                <label>อะไหล่</label>
                             </div>
                         </div>
-                        
+                        <div class="form-group row">
+                            <div id="sp_label-{{forloop.counter}}">
+                                <label class="col-1 col-form-label">1</label><br>
+                            </div>
+                            <div class="col-3" id="sp_group-{{forloop.counter}}">
+                                <select class="form-control" id="select_sp_group1_{{forloop.counter}}" name="" onchange="ajax_dropdown_type(this)">
+                                    <option value="0">เลือกกลุ่มอะไหล่</option>
+                                    {% for sp_group in spare_part_group_all %}
+                                    <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-3" id="sp_type-{{forloop.counter}}">
+                                <select class="form-control" id="select_sp_type1_{{forloop.counter}}" name="" required="True" onchange="ajax_dropdown_subtype(this)" >
+                                    <option value="0">เลือกประเภทอะไหล่</option>
+                                </select>
+                            </div>
+                            <div class="col-3" id="sp_subtype-{{forloop.counter}}">
+                                <select class="form-control" id="select_sp_subtype1_{{forloop.counter}}" name="" required="True" onchange="ajax_dropdown_sp(this)" >
+                                    <option value="0">เลือกชนิดอะไหล่</option>
+                                </select>
+                            </div>
+                            <div class="col-2" id="sp_spare-{{forloop.counter}}">
+                                <select class="form-control" id="select_sp_name1_{{forloop.counter}}" name="list_spare_part" required="True"  >
+                                    <option value="0">เลือกอะไหล่</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -261,23 +181,86 @@
             </div>
         </div>
     </div>
-    {% endfor %}
-        </tbody>
-    </table>
-</div>
-
+{% endfor %}
 {% endblock %}
 
 
 
 {% block script %}
 <script>
+    var add_number = 2;
+    function addFields(element){
+        var id = element.id;
+        // Label Number
+        var div_label = document.getElementById("sp_label-"+id);
+        var label = document.createElement("label");
+        label.innerHTML  = add_number;
+        label.className = "col-1 col-form-label";
+        div_label.appendChild(label);
+        var br = document.createElement("br");
+        div_label.appendChild(br);
+        // Select Spare Part Group
+        var div_group = document.getElementById("sp_group-"+id);
+        var select_group = document.createElement("select");
+        select_group.className = "form-control";
+        select_group.id = "select_sp_group"+add_number+"_"+id;
+        select_group.name = "select_group";
+        select_group.onchange = function(){ajax_dropdown_type(select_group);};
+        var option_group = document.createElement('option');
+        option_group.appendChild(document.createTextNode("เลือกกลุ่มอะไหล่"));
+        option_group.value = 0;
+        select_group.appendChild(option_group);
+        {% for sp_group in spare_part_group_all %}
+            var option_group = document.createElement('option');
+            option_group.appendChild(document.createTextNode("{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}"));
+            option_group.value = "{{sp_group.pk}}";
+            select_group.appendChild(option_group);
+        {% endfor %}
+        div_group.appendChild(select_group);
+        // Select Spare Part Type
+        var div_type = document.getElementById("sp_type-"+id);
+        var select_type = document.createElement("select");
+        select_type.className = "form-control";
+        select_type.id = "select_sp_type"+add_number+"_"+id;
+        select_type.onchange = function(){ajax_dropdown_subtype(select_type);};
+        var option_type = document.createElement('option');
+        option_type.appendChild(document.createTextNode("เลือกประเภทอะไหล่"));
+        option_type.value = 0;
+        select_type.appendChild(option_type);
+        div_type.appendChild(select_type);
+        // Select Spare Part Subtype
+        var div_subtype = document.getElementById("sp_subtype-"+id);
+        var select_subtype = document.createElement("select");
+        select_subtype.className = "form-control";
+        select_subtype.id = "select_sp_subtype"+add_number+"_"+id;
+        select_subtype.onchange = function(){ajax_dropdown_sp(select_subtype);};
+        var option_subtype = document.createElement('option');
+        option_subtype.appendChild(document.createTextNode("เลือกชนิดอะไหล่"));
+        option_subtype.value = 0;
+        select_subtype.appendChild(option_subtype);
+        div_subtype.appendChild(select_subtype);
+        // Select Spare Part
+        var div_sp = document.getElementById("sp_spare-"+id);
+        var select_sp = document.createElement("select");
+        select_sp.className = "form-control";
+        select_sp.id = "select_sp_name"+add_number+"_"+id;
+        select_sp.name = "list_spare_part";
+        var option_sp = document.createElement('option');
+        option_sp.appendChild(document.createTextNode("เลือกอะไหล่"));
+        option_sp.value = 0;
+        select_sp.appendChild(option_sp);
+        div_sp.appendChild(select_sp);
+
+        add_number = add_number + 1 ;
+    }
+</script>
+<script>
         function ajax_dropdown_type(element) {
             var filter_sp_type = $(element).val();
             var numID = element.id.substr(17);
             var indexID = element.id.substr(15,2);
             $.ajax({
-                url : $(element).attr("data-url"),
+                url : "{% url 'ajax_dropdown_sp_type' %}",
                 data : {
                     "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
                     "filter_sp_type" : filter_sp_type,
@@ -314,7 +297,7 @@
             var numID = element.id.substr(16);
             var indexID = element.id.substr(14,2);
             $.ajax({
-                url : $(element).attr("data-url"),
+                url : "{% url 'ajax_dropdown_sp_subtype' %}",
                 data : {
                     "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
                     "filter_sp_subtype" : filter_sp_subtype,
@@ -347,13 +330,11 @@
 </script>
 <script>
         function ajax_dropdown_sp(element) {
-            console.log(element);
-            console.log($(element).siblings("input[name='csrfmiddlewaretoken']" ).val());
             var filter_sp = $(element).val();
             var numID = element.id.substr(19);
             var indexID = element.id.substr(17,2);
             $.ajax({
-                url : $(element).attr("data-url"),
+                url : "{% url 'ajax_dropdown_sp' %}",
                 data : {
                     "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
                     "filter_sp" : filter_sp,

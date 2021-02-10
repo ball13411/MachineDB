@@ -52,14 +52,15 @@
                 <td>{{repair.repair_status}}</td>
                 <td>
                     <center>
-                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
-                    <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal"}><i class="material-icons">&#xE5C9;</i></a>
+                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if repair.is_receive %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                    <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal" {% if repair.is_receive %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                    <a href="#report{{forloop.counter}}" class="report" title="Report" data-toggle="modal" {% if not repair.is_receive %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a>
                     </center>
                 </td>
             </tr>
 
     <!-- Modal job -->
-    <div id="setting2_{{forloop.counter}}" class="modal fade" tabindex="-1">
+    <div id="report{{forloop.counter}}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <form method="POST">
@@ -79,7 +80,7 @@
                                     <label class="control-label">วันที่แจ้งซ่อม : {{repair.notification_date}}</label>
                                 </div>
                             </div>
-
+                        <label class="control-label">สถานะใบแจ้งซ่อม : <u>{{repair.repair_status}}</u></label><br>
                         <label class="control-label">หน่วยงานทีแจ้ง : {{repair.department_notifying.department_code}} {{repair.department_notifying.department_name}}</label><br>
                         <label class="control-label">พนักงานที่แจ้ง : {{repair.repairer_user.username}}&nbsp;&nbsp;&nbsp;ติดต่อ : {{repair.repairer_user.email}}</label><br>
                         <label class="control-label">พนักงานที่ตรวจสอบ : {{repair.inspect_user.username}}&nbsp;&nbsp;&nbsp;ติดต่อ : {{repair.inspect_user.email}}</label><br>
@@ -89,11 +90,39 @@
                         <label class="control-label">เครื่องจักร : <u>{{repair.machine.machine_production_line_code}} | {{repair.machine.machine_name}}</u>&nbsp;&nbsp;&nbsp; [ {{repair.machine.line}} ]</label><br>
                         <label class="control-label">ปัญหาเครื่องจักรที่พบ : {{repair.problem_report}}</label><br>
                         <label class="control-label">ผลกระทบของปัญหา : {{repair.effect_problem}}</label><br>
-                        <label class="control-label">วันที่ต้องการใช้งาน : {{repair.use_date}}</label><br>
+                        <label class="control-label">วันที่ต้องการใช้งาน : {{repair.use_date}}</label><br><br>
+
+                        <h5><u><strong>อะไหล่ที่ซ่อมบำรุง</strong></u></h5>
+                        {% for mtn_job in repair.maintenance_jobs.all %}
+                        <label class="control-label"><b>{{forloop.counter}}.</b> อะไหล่ที่ซ่อมบำรุง : <u>{{mtn_job.job_mch_sp.spare_part}}</u>&nbsp;&nbsp;&nbsp; [ {{mtn_job.job_mch_sp.spare_part.spare_part_group}} {{mtn_job.job_mch_sp.spare_part.spare_part_type}} {{mtn_job.job_mch_sp.spare_part.spare_part_sub_type}} ]</label><br>
+                        <label class="control-label col-5">- หมายเลขงาน : {{mtn_job.job_no}}</label><br>
+                        <label class="control-label col-5">- สถานะของงาน : {{mtn_job.job_status}}</label><br><br>
+                        {% endfor %}
+
+
+                        <hr>
+                        <h5><u><strong>ปิดใบแจ้งซ่อมเครื่องจักร</strong></u></h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="is_close" id="is_close{{forloop.counter}}" value="is_close" checked>
+                            <label class="form-check-label" for="is_close{{forloop.counter}}" >ปิดใบแจ้งซ่อมเครื่องจักร</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="is_close" id="is_cancel{{forloop.counter}}" value="is_cancel" >
+                            <label class="form-check-label" for="is_cancel{{forloop.counter}}">ยกเลิกใบแจ้งซ่อมเครื่องจักร</label>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <label class="col-sm-1 col-form-label">หมายเหตุ</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="close_remark"/>
+                            </div>
+                        </div>
+                        <small># การจะปิดใบแจ้งซ่อมเครื่องจักรได้ งานการซ่อมของอะไหล่ทั้งหมดสถานะงานต้องอยู่ใน 'ปิดงาน' หรือ 'งานเสร็จสิ้น' เท่านั้น</small>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" name="repair_submit" value="{{repair.pk}}" {% if repair.repair_status != 'รอช่างมายืนยัน' %}disabled{% endif %}>Submit</button>
+                        <button type="submit" class="btn btn-primary" name="repair_close" value="{{repair.pk}}" >Submit</button>
                     </div>
                 </form>
             </div>

@@ -52,7 +52,7 @@
                 <td>{{repair.repair_status}}</td>
                 <td>
                     <center>
-                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">insert_drive_file</i></a>
+                    <a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if repair.repair_status != "รอการรับใบแจ้ง" %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a>
                     </center>
                 </td>
             </tr>

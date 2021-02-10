@@ -1,5 +1,5 @@
 from django.db import models
-import string, random
+import string, random, datetime
 
 # Create your models here.
 
@@ -405,8 +405,8 @@ def randomRepairOrder():
 
 
 class Maintenance_job(models.Model):
-    job_no = models.CharField(max_length=20, default=randomJobOrder, unique=True)
-    job_gen_date = models.DateField()
+    job_no = models.CharField(max_length=25, unique=True)
+    job_gen_date = models.DateField(auto_now_add=True)
     job_assign_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job_response_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     job_assign_date = models.DateField(default=None, null=True)
@@ -445,25 +445,16 @@ class Maintenance_job(models.Model):
 
 
 class Repair_notice(models.Model):
-    repair_no = models.CharField(max_length=20, default=randomRepairOrder, unique=True)
+    repair_no = models.CharField(max_length=25, unique=True)
     department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
     department_receive = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
+    maintenance_jobs = models.ManyToManyField(Maintenance_job)
     notification_date = models.DateField(default=None, null=True)
     problem_report = models.TextField(default=None, null=True)
     effect_problem = models.TextField(default=None, null=True)
     use_date = models.DateField(default=None, null=True)
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE)
     repair_status = models.CharField(max_length=30, default=None, null=True)
-    spare_part_1 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    spare_part_2 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    spare_part_3 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    spare_part_4 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    spare_part_5 = models.ForeignKey(Spare_part, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    job1 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    job2 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    job3 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    job4 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
-    job5 = models.ForeignKey(Maintenance_job, default=None, null=True, on_delete=models.CASCADE, related_name='+')
     repair_gen_date = models.DateField(auto_now_add=True)
     repair_close_date = models.DateField(default=None, null=True)
     repairer_user = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE, related_name='+')
@@ -473,11 +464,41 @@ class Repair_notice(models.Model):
     inspect_remark = models.TextField(default=None, null=True)
     approve_remark = models.TextField(default=None, null=True)
     receive_remark = models.TextField(default=None, null=True)
+    close_remark = models.TextField(default=None, null=True)
     is_cancel = models.BooleanField(default=None, null=True)
     is_inspect = models.BooleanField(default=None, null=True)
     is_approve = models.BooleanField(default=None, null=True)
     is_receive = models.BooleanField(default=None, null=True)
+    is_close = models.BooleanField(default=None, null=True)
 
     class Meta:
         db_table = 'repair_notice'
+
+
+def autoJobNumber():
+    date_now = datetime.datetime.today()
+    date_no = date_now.strftime('%y') + date_now.strftime('%m') + date_now.strftime('%d')
+    last_no = Maintenance_job.objects.filter(job_no__startswith="MTN"+date_no).last()
+    if not last_no:
+        new_mtn_number = "MTN" + date_no + "001"
+    else:
+        job_no = last_no.job_no
+        mtn_int = int(job_no.split(date_no)[-1])
+        new_mtn_int = mtn_int + 1
+        new_mtn_number = "MTN" + date_no + '{:03}'.format(new_mtn_int)
+    return new_mtn_number
+
+
+def genJobNumber():
+    date_now = datetime.datetime.today()
+    date_no = date_now.strftime('%y') + date_now.strftime('%m') + date_now.strftime('%d')
+    last_no = Maintenance_job.objects.filter(job_no__startswith="RP-MTN"+date_no).last()
+    if not last_no:
+        new_mtn_number = "RP-MTN" + date_no + "001"
+    else:
+        job_no = last_no.job_no
+        mtn_int = int(job_no.split(date_no)[-1])
+        new_mtn_int = mtn_int + 1
+        new_mtn_number = "RP-MTN" + date_no + '{:03}'.format(new_mtn_int)
+    return new_mtn_number
 

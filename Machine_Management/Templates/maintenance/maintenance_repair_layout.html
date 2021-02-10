@@ -29,23 +29,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
 
-    <script>
-        $(document).ready(function(){
-            $("#setting").on("show.bs.modal", function(event){
-                // Get the button that triggered the modal
-                var button = $(event.relatedTarget);
+    {% block css %}
 
-                // Extract value from the custom data-* attribute
-                var titleData = button.data("title");
-                $(this).find(".modal-title").text(titleData);
-            });
-        });
-    </script>
-    <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-    </script>
+    {% endblock %}
 
 </head>
 <body>
@@ -91,17 +77,36 @@
 
     </div>
 </div>
-<script>
-    $(document).ready( function () {
-    $('#myTable').DataTable();
-} );
-</script>
-<script src="{% static 'javascript/input_date.js'%}"></script>
 
 {% block script %}
 
 
 {% endblock %}
+<script>
+        $(document).ready(function(){
+            $("#setting").on("show.bs.modal", function(event){
+                // Get the button that triggered the modal
+                var button = $(event.relatedTarget);
+                console.log(button);
+
+                // Extract value from the custom data-* attribute
+                var titleData = button.data("title");
+                console.log(titleData);
+                $(this).find(".modal-title").text(titleData);
+            });
+        });
+    </script>
+<script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+<script>
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+</script>
+<script src="{% static 'javascript/input_date.js'%}"></script>
 
 </body>
 </html>
