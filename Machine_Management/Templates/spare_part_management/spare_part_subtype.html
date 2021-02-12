@@ -1,0 +1,238 @@
+{% extends "spare_part_management/spare_part_layout.html" %}
+
+{% block title %}SparePart Subtype{% endblock %}
+
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <h2>Spare part Subtype <b>Management</b></h2>
+                    </div>
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
+                        <a href="#create_spare_part_subtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Spare Part</span></a>
+                    </div>
+                </div>
+            </div>
+        <table class="table table-striped table-hover" id="myTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Spare part Group</th>
+                    <th>Spare part Type</th>
+                    <th>Spare Part Subtype Code</th>
+                    <th>Spare Part Subtype Name</th>
+                    <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for sp_subtype in spare_part_subtype_all %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{sp_subtype.spare_part_type.spare_part_group}}</td>
+                    <td>{{sp_subtype.spare_part_type}}</td>
+                    <td>{{sp_subtype.spare_part_sub_type_code}}</td>
+                    <td>{{sp_subtype.spare_part_sub_type_name}}</td>
+                    <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                        <center>
+                        <a href="#setting{{sp_subtype.pk}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                        <a href="#delete{{sp_subtype.pk}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
+                    </td>
+                </tr>
+
+        <!-- Modal Setting -->
+        <div id="setting{{sp_subtype.pk}}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" id="spare_part_type_edit{{forloop.counter}}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Setting</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Spare Part Type Code</label>
+                                <input type="text" class="form-control" name="set_sp_group_code" id="set_sp_group_code{{forloop.counter}}" placeholder="รหัสอะไหล่" required="True" autocomplete="off" value="{{sp_subtype.spare_part_type.spare_part_group.spare_part_group_code}} | {{sp_subtype.spare_part_type.spare_part_group}}" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label>Spare Part Type Code</label>
+                                <input type="text" class="form-control" name="set_sp_type_code" id="set_sp_type_code{{forloop.counter}}" placeholder="รหัสอะไหล่" required="True" autocomplete="off" value="{{sp_subtype.spare_part_type.spare_part_type_code}} | {{sp_subtype.spare_part_type}}" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label>Spare Part Subtype Code</label>
+                                <input type="text" class="form-control" name="set_sp_suptype_code" id="set_sp_suptype_code{{forloop.counter}}" placeholder="รหัสอะไหล่" required="True" autocomplete="off" value="{{sp_subtype.spare_part_sub_type_code}}" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label>Spare Part Type Name</label>
+                                <input type="text" class="form-control" name="set_sp_suptype_name" id="set_sp_name{{forloop.counter}}" placeholder="ชื่ออะไหล่" required="True" autocomplete="off" value="{{sp_subtype.spare_part_sub_type_name}}" maxlength="40" />
+                            </div>
+                            <small>Create by : {{sp_subtype.create_by}} [ {{sp_subtype.create_date}} ]</small><br>
+                            <small>Update by : {% if sp_subtype.last_update_by %} {{sp_subtype.last_update_by}} [ {{sp_subtype.last_update_date}} ] {% else %} - {% endif %}</small>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="edit_spare_part_subtype" value="{{sp_subtype.pk}}">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Delete -->
+        <div id="delete{{sp_subtype.pk}}" class="modal fade" tabindex="-1" >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="del_spare_part{{forloop.counter}}" class="form-control" value="Spare part subtype : {{sp_subtype.spare_part_sub_type_name}}" name="del_machine" readonly>
+                        <br><p>Do you want to delete this machine?</p>
+                        <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" value="{{sp_subtype.pk}}" name="delete_spare_part_subtype">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Modal Add Machine -->
+        <div id="create_spare_part_subtype" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" id="add_sp">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Spare Part Subtype</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Select Spare Part Group</label>
+                                <select class="form-control" id="add_sp_group" name="select_sp_group" required="True" onchange="ajax_dropdown_type()" onchange="check_spare_part_subtype_code()">
+                                    <option value="0">---------กรุณาเลือกกลุ่มของอะไหล่---------</option>
+                                    {% for sp_group in spare_part_group_all %}
+                                    <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Spare Part Type</label>
+                                <select class="form-control" id="add_sp_type" name="select_sp_type" onchange="check_spare_part_subtype_code()">
+                                    <option value="0">---------กรุณาเลือกประเภทของอะไหล่---------</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Spare Part Subtype Code</label>
+                                <input type="text" class="form-control" name="add_sp_subtype_code" id="add_sp_subtype_code" placeholder="รหัสประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" onkeyup="check_spare_part_subtype_code()" />
+                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-exclamation-circle"></i>
+                                <small>Spare part type code is already exists</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Spare Part Subtype Name</label>
+                                <input type="text" class="form-control" name="add_sp_subtype_name" id="add_sp_subtype_name" placeholder="ชื่อประเภทอะไหล่" required="True" autocomplete="off" maxlength="40" />
+                            </div>
+                            <br>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="add_spare_part_subtype" id="add_spare_part_subtype">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+        function ajax_dropdown_type() {
+            var group_code = document.getElementById("add_sp_group");
+            $.ajax({
+                url : "{% url 'ajax_dropdown_sp_type' %}",
+                data : {
+                    "csrfmiddlewaretoken" : $(group_code).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : group_code.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#add_sp_type').empty();
+                        var select_type = document.getElementById('add_sp_type');
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("---------กรุณาเลือกประเภทของอะไหล่---------"));
+                        option_first.value = 0;
+                        select_type.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            options.appendChild( document.createTextNode(data[model].fields.spare_part_type_name));
+                            options.value = data[model].pk;
+                            select_type.appendChild(options);
+                        }
+                    } else {
+                        $('#add_sp_type').empty();
+                    }
+                }
+            });
+        }
+</script>
+    <script>
+        function check_spare_part_subtype_code() {
+            add_subtype_code = document.getElementById("add_sp_subtype_code");
+            add_sp_type = document.getElementById("add_sp_type");
+            add_sp_group = document.getElementById("add_sp_group");
+            var button = document.getElementById("add_spare_part_subtype");
+            $.ajax({
+                url : "{% url 'check_spare_part_subtype_code' %}",
+                data : {
+                    "csrfmiddlewaretoken" : $(add_subtype_code).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_subtype_code" : add_subtype_code.value,
+                    "add_sp_type" : add_sp_type.value,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+
+                    if (data.spare_subtype_code_success && add_sp_type.value != 0) {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (add_subtype_code.value == "") {
+                        $('#add_sp_subtype_code').parent().removeClass();
+                        $('#add_sp_subtype_code').parent().addClass('form-group');
+                        button.disabled = true;
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
+

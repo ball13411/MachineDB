@@ -1,74 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Spare Part Management</title>
+{% extends "spare_part_management/spare_part_layout.html" %}
 
-<!--    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
-<!--    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
-<!--    <link href="https://fonts.googleapis.com/css2?family=Pridi&display=swap" rel="stylesheet">-->
-<!--    <script src='https://kit.fontawesome.com/a076d05399.js'></script>-->
+{% block title %}Spare Part Manage{% endblock %}
 
-    {% load static %}
-    <!-- icon -->
-    <link rel="stylesheet" type="text/css" href="{% static 'iconfont/material-icons.css' %}">
-    <script src="{% static 'javascript/fontawesom_icon_msn.js' %}"></script>
-    <!-- Fonts -->
-    <link rel="stylesheet" type="text/css" href="{% static 'fonts/fonts.css' %}">
-    <!-- Jquery   -->
-    <script src="{% static 'javascript/jquery-3.5.1.min.js' %}"></script>
-    <!-- Bootstrap 4.5.3 -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap.min.css' %}">
-    <script src="{% static 'javascript/bootstrap.min.js' %}"></script>
-    <!--  Popper  -->
-    <script src="{% static 'javascript/popper-1.16.0.min.js' %}"></script>
-    <!-- DataTable   -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style/jquery.dataTables-1.10.19.min.css' %}">
-    <script src="{% static 'javascript/jquery.dataTables.min.js' %}"></script>
-    <!--  Container Form -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
+
+{% block css %}
+{% load static %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
 
-</head>
-<body>
+{% endblock %}
 
-<div class="container-fluid">
-    <nav class="navbar navbar-expand-md navbar-light" style="background-color: #f5f5f5;">
-        <a href="{% url 'home' %}" class="navbar-brand">
-            <img src="/static/img/farmhouse_logo copy.gif" height="65" alt="CoolBrand">
-        </a>
-        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-            <div class="navbar-nav">
-                <a href="{% url 'spare_part_manage' %}" class="nav-item nav-link active"><b>Spare Part</b></a>
-                <a href="{% url 'spare_part_group' %}" class="nav-item nav-link">Spare Part Group</a>
-                <a href="{% url 'spare_part_type' %}" class="nav-item nav-link">Spare Part Type</a>
-                <a href="{% url 'spare_part_subtype' %}" class="nav-item nav-link">Spare Part Subtype</a>
-                <a href="{% url 'spare_part_and_machine' %}" class="nav-item nav-link">Spare part & Machine</a>
-            </div>
-            <form method="POST" action="{% url 'signin' %}">
-                {% csrf_token %}
-                <ul class="nav navbar-nav ml-auto">
-                    <a href="#" class="nav-item nav-link" style="color:#B22222">{{User_login.username}}</a>
-                    <button type="submit" class="btn btn-outline-secondary" name="signout" >Sign out</button>
-                </ul>
-            </form>
-        </div>
-    </nav>
-</div>
-<div class="container-fluid">
-    <div class="table-responsive">
-        {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible" role="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
-            {{ message }}
-        </div>
-        {% endfor %}
-        <div class="table-wrapper">
+
+{% block content %}
+
+    <div class="table-wrapper">
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-5">
@@ -79,7 +24,7 @@
                     </div>
                 </div>
             </div>
-            <table class="table table-striped table-hover" id="myTable">
+        <table class="table table-striped table-hover" id="myTable">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -298,11 +243,14 @@
             </div>
                 </tbody>
             </table>
-
-        </div>
     </div>
-</div>
-<script>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
     $(document).ready(function(){
         $("#id_sp_group").change(function(){
             check_spare_part_code('#add_sp_code');
@@ -315,92 +263,50 @@
         });
     });
 </script>
-<script>
-    $(document).ready( function () {
-    $('#myTable').DataTable();
-} );
-</script>
-<script>
-        function ajax_dropdown_type(element) {
-            var filter_sp_type = $(element).val();
-            $.ajax({
-                url : $(element).attr("data-url"),
-                data : {
-                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
-                    "filter_sp_type" : filter_sp_type,
+    <script>
+            function ajax_dropdown_type(element) {
+                var filter_sp_type = $(element).val();
+                $.ajax({
+                    url : $(element).attr("data-url"),
+                    data : {
+                        "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                        "filter_sp_type" : filter_sp_type,
 
-                },
-                method: "POST",
-                dataType : "json",
-                success : function (data) {
-                    if (data) {
-                        $('#id_sp_type').empty();
-                        var select_type = document.getElementById('id_sp_type');
-                        var option_first = document.createElement('option');
-                        option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทของอะไหล่-------"));
-                        option_first.value = 0;
-                        select_type.appendChild(option_first);
-                        for (model in data) {
-                            var options = document.createElement('option');
-                            options.appendChild( document.createTextNode(data[model].fields.spare_part_type_name));
-                            options.value = data[model].pk;
-                            select_type.appendChild(options);
+                    },
+                    method: "POST",
+                    dataType : "json",
+                    success : function (data) {
+                        if (data) {
+                            $('#id_sp_type').empty();
+                            var select_type = document.getElementById('id_sp_type');
+                            var option_first = document.createElement('option');
+                            option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทของอะไหล่-------"));
+                            option_first.value = 0;
+                            select_type.appendChild(option_first);
+                            for (model in data) {
+                                var options = document.createElement('option');
+                                options.appendChild( document.createTextNode(data[model].fields.spare_part_type_name));
+                                options.value = data[model].pk;
+                                select_type.appendChild(options);
+                            }
+                        } else {
+                            $('#add_sp_type').empty();
                         }
-                    } else {
-                        $('#add_sp_type').empty();
+                        if(select_type.value == 0) {
+                            $('#id_sp_subtype').empty();
+                            var select_subtype = document.getElementById('id_sp_subtype');
+                            var option_sub_first = document.createElement('option');
+                            option_sub_first.appendChild(document.createTextNode("-------กรุณาเลือกชนิดของอะไหล่-------"));
+                            option_sub_first.value = 0;
+                            select_subtype.appendChild(option_sub_first);
+                        }
                     }
-                    if(select_type.value == 0) {
-                        $('#id_sp_subtype').empty();
-                        var select_subtype = document.getElementById('id_sp_subtype');
-                        var option_sub_first = document.createElement('option');
-                        option_sub_first.appendChild(document.createTextNode("-------กรุณาเลือกชนิดของอะไหล่-------"));
-                        option_sub_first.value = 0;
-                        select_subtype.appendChild(option_sub_first);
-                    }
-                }
-            });
-        }
-    </script>
-<script>
-    $(document).ready(function(){
-        $("#setting").on("show.bs.modal", function(event){
-            // Get the button that triggered the modal
-            var button = $(event.relatedTarget);
-
-            // Extract value from the custom data-* attribute
-            var titleData = button.data("title");
-            $(this).find(".modal-title").text(titleData);
-        });
-    });
-</script>
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
-<script>
-    $("#id_sp_type").change(function () {
-        const url = $("#add_sp").attr("data-sp-type-url");  // get the url of the `load_cities` view
-        const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
-
-        $.ajax({                       // initialize an AJAX request
-            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
-            data: {
-                'sp_type_id': sp_typeID       // add the country id to the GET parameters
-            },
-            success: function (data) {   // `data` is the return of the `load_cities` view function
-                $("#id_sp_subtype").html(data);  // replace the contents of the city input with the data that came from the server
+                });
             }
-        });
-    });
-
-</script>
-<script>
-    var i;
-    for (i = 0; i <= {{spare_part_all|length}}; i++) {
-        $("#set_sp_type"+i).change(function () {
-            var numID = this.id.substring(11,);
-            const url = $("#spare_part_edit"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
+        </script>
+    <script>
+        $("#id_sp_type").change(function () {
+            const url = $("#add_sp").attr("data-sp-type-url");  // get the url of the `load_cities` view
             const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
 
             $.ajax({                       // initialize an AJAX request
@@ -409,11 +315,32 @@ $(document).ready(function(){
                     'sp_type_id': sp_typeID       // add the country id to the GET parameters
                 },
                 success: function (data) {   // `data` is the return of the `load_cities` view function
-                    $("#set_sp_subtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    $("#id_sp_subtype").html(data);  // replace the contents of the city input with the data that came from the server
                 }
             });
         });
-    }
-</script>
-</body>
-</html>
+
+    </script>
+    <script>
+        var i;
+        for (i = 0; i <= {{spare_part_all|length}}; i++) {
+            $("#set_sp_type"+i).change(function () {
+                var numID = this.id.substring(11,);
+                const url = $("#spare_part_edit"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
+                const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'sp_type_id': sp_typeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {   // `data` is the return of the `load_cities` view function
+                        $("#set_sp_subtype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    }
+                });
+            });
+        }
+    </script>
+{% endblock %}
+
+

@@ -1,0 +1,192 @@
+{% extends "machine_management/machine_layout.html" %}
+
+{% block title %}Machine Type{% endblock %}
+
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <h2>Machine Type<b> Management</b></h2>
+                    </div>
+                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
+                        <a href="#Addtype" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Type</span></a>
+                    </div>
+                </div>
+            </div>
+        <table class="table table-striped table-hover" id="myTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>mType Code</th>
+                    <th>mType Name</th>
+                    <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for type in mch_types %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{type.mtype_code}}</td>
+                    <td>{{type.mtype_name}}</td>
+                    <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                        <center>
+                        <a href="#setting{{type.mtype_id}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                        <a href="#delete{{type.mtype_id}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
+                    </td>
+                </tr>
+
+        <!-- Modal Setting -->
+        <div id="setting{{type.mtype_id}}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Setting</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Type Code</label>
+                                <input type="text" id="set_type_code{{forloop.counter}}" class="form-control" value="{{type.mtype_code}}" name="set_type_code">
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                <input type="text" id="set_mch_type{{forloop.counter}}" class="form-control" value="{{type.mtype_name}}" name="set_mch_type" >
+                            </div>
+                            <small>Create by : {{type.create_by}} [ {{type.create_date}} ]</small><br>
+                            <small>Update by : {% if type.last_update_by %} {{type.last_update_by}} [ {{type.last_update_date}} ] {% else %} - {% endif %}</small>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Edittype" value="{{type.mtype_id}}">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Delete -->
+        <div id="delete{{type.mtype_id}}" class="modal fade" tabindex="-1" >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Type Name : {{type.mtype_name}}" name="delete_type" readonly>
+                        <input type="text"  class="form-control" value="Type Code : {{type.mtype_code}}" readonly>
+                        <br><p>Do you want to delete this type?</p>
+                        <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" value="{{type.mtype_id}}" name="Delete_type">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Modal Add Machine Type -->
+        <div id="Addtype" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Machine Type </h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Machine Type Code</label>
+                                <input type="text" class="form-control" name="add_type_code" id="add_type_code" placeholder="รหัสประเภทเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_machine_type_code(this);return false;" data-url="{% url 'check_machine_type_code' %}"/>
+                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-exclamation-circle"></i>
+                                <small>Type Code already exists</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Machine Type Name</label>
+                                <input type="text" class="form-control" name="add_type" id="add_type" placeholder="ชื่อประเภทเครื่องจักร" required="True" autocomplete="off" maxlength="50">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Addtype" id="AddtypeButton" disabled>Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+        function check_machine_type_code(element) {
+            add_type_code= $(element).val();
+            var button = document.getElementById("AddtypeButton");
+            if (add_type_code == "") {
+                $('#add_type_code').parent().removeClass();
+                $('#add_type_code').parent().addClass('form-group');
+            }
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "add_type_code" : add_type_code,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data.typecode_success) {
+                        $('#add_type_code').parent().removeClass();
+                        $('#add_type_code').parent().addClass('form-group success');
+                        button.disabled = false;
+                    } else {
+                        $('#add_type_code').parent().removeClass();
+                        $('#add_type_code').parent().addClass('form-group error');
+                        button.disabled = true;
+                    }
+                    if (data.typecode_empty) {
+                        $('#add_type_code').parent().removeClass();
+                        $('#add_type_code').parent().addClass('form-group');
+                        button.disabled = true;
+                    }
+                }
+            });
+        }
+
+    </script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

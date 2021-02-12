@@ -1,0 +1,383 @@
+{% extends "machine_management/machine_layout.html" %}
+
+{% block title %}Machine Capacity{% endblock %}
+
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="table-wrapper">
+        <div class="table-title">
+            <div class="row">
+                <div class="col-sm-5">
+                    <h2>Machine <b>Capacity</b></h2>
+                </div>
+                <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
+                    <a href="#create_mch_capacity" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine Capacity</span></a>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped table-hover" id="myTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Production Line</th>
+                    <th>Machine</th>
+                    <th>Product</th>
+                    <th>FG Batch Size</th>
+                    <th>FG Batch Time</th>
+                    <th>FG Capacity/Hour</th>
+                    <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for mch_capacity in mch_capacity_all %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{mch_capacity.machine.line}}</td>
+                    <td>{{mch_capacity.machine.machine_production_line_code}} | {{mch_capacity.machine.machine_name}}</td>
+                    <td>{{mch_capacity.product}}</td>
+                    <td>{{mch_capacity.fg_batch_size}}</td>
+                    <td>{{mch_capacity.fg_batch_time}}</td>
+                    <td>{{mch_capacity.fg_capacity|floatformat }}</td>
+                    <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                        <center>
+                        <a href="#setting{{mch_capacity.pk}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                        <a href="#delete{{mch_capacity.pk}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
+                    </td>
+                </tr>
+
+        <!-- Modal Setting -->
+        <div id="setting{{mch_capacity.pk}}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Setting</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Select Production Line</label>
+                                <select class="form-control" id="set_id_line{{forloop.counter}}" name="set_production_line" required="True" disabled>
+                                    <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                    {% for line in production_line %}
+                                    <option value="{{line.pid}}" {% if line.pid == mch_capacity.machine.line_id %} selected {% endif %}>{{line}}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Select Machine</label>
+                                        <select class="form-control" id="set_id_mch{{forloop.counter}}" name="set_mch" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}" disabled>
+                                            <option value="{{mch_capacity.machine_id}}" selected>{{mch_capacity.machine.machine_name}}</option>
+                                        </select>
+                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <small>Machine and Product already exists</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Select Product</label>
+                                        <select class="form-control" id="set_id_product{{forloop.counter}}" name="set_product" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}" disabled>
+                                            <option value="{{mch_capacity.product_id}}" selected>{{mch_capacity.product.product_name}}</option>
+                                        </select>
+                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <small>Machine and Product already exists</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Raw Material Name</label>
+                                <input type="text" id="set_rm_name{{forloop.counter}}" class="form-control" name="set_rm_name" placeholder="ชื่อวัตถุดิบ" required="True" autocomplete="off" value="{{mch_capacity.rm_name}}">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label">Raw Material Batch Size</label>
+                                    <input type="number" id="set_rm_batch_size{{forloop.counter}}" class="form-control" name="set_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" value="{{mch_capacity.rm_batch_size}}" min="0">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">Unit</label>
+                                    <input type="text" id="set_rm_batch_unit{{forloop.counter}}" class="form-control" name="set_rm_batch_unit" placeholder="หน่วย" required="True" autocomplete="off" value="{{mch_capacity.rm_unit}}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label">Finished Goods Batch Size</label>
+                                    <input type="number" id="set_fg_batch_size{{forloop.counter}}" class="form-control batch" name="set_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="cal_capacity1(this.id,'set_fg_batch_time{{forloop.counter}}','set_fg_capacity{{forloop.counter}}')" required="True" value="{{mch_capacity.fg_batch_size}}" min="0">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">Batch Time (Minute)</label>
+                                    <input type="number" id="set_fg_batch_time{{forloop.counter}}" class="form-control batch" name="set_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="cal_capacity(this.id);" required="True" value="{{mch_capacity.fg_batch_time}}" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
+                                <input type="number" id="set_fg_capacity{{forloop.counter}}" class="form-control" name="set_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" value="{{mch_capacity.fg_capacity}}" min="0" readonly>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Edit_mch_capacity" value="{{mch_capacity.pk}}">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Delete -->
+        <div id="delete{{mch_capacity.pk}}" class="modal fade" tabindex="-1" >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Machine : {{mch_capacity.machine.machine_name}}" name="del_machine" readonly>
+                        <br>
+                        <input type="text" id="del_product{{forloop.counter}}" class="form-control" value="Product : {{mch_capacity.product.product_name}}" name="del_product" readonly>
+                        <br><p>Do you want to delete this machine & product?</p>
+                        <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" value="{{mch_capacity.pk}}" name="delete_machine_capacity">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Modal Add Machine -->
+        <div id="create_mch_capacity" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" id="add_machine" data-mch-url="{% url 'ajax_load_machine' %}" data-product-url="{% url 'ajax_load_product' %}" >
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Machine & Product</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Select Production Line</label>
+                                <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                    <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                    {% for line in user_org %}
+                                    <option value="{{line.pid}}">{{line}}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Select Machine</label>
+                                        <select class="form-control" id="id_mch" name="add_mch" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}">
+                                            <option value="" selected>--- กรุณาเลือกเครื่องจักร ---</option>
+                                        </select>
+                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <small>Machine and Product already exists</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group">
+                                        <label>Select Product</label>
+                                        <select class="form-control" id="id_product" name="add_product" required="True" onchange="check_machine_product()" data-url="{% url 'check_machine_product' %}">
+                                            <option value="" selected>--- กรุณาเลือกผลิตภัณฑ์ ---</option>
+                                        </select>
+                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <small>Machine and Product already exists</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Raw Material Name</label>
+                                <input type="text" id="add_rm_name" class="form-control" name="add_rm_name" placeholder="ชื่อวัตถุดิบ" required="True" autocomplete="off">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label">Raw Material Batch Size</label>
+                                    <input type="number" id="add_rm_batch_size" class="form-control" name="add_rm_batch_size" placeholder="จำนวนของวัตถุดิบ" required="True" min="0">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">Unit</label>
+                                    <input type="text" id="add_rm_batch_unit" class="form-control" name="add_rm_batch_unit" placeholder="หน่วย" required="True" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-8">
+                                    <label class="form-label">Finished Goods Batch Size</label>
+                                    <input type="number" id="add_fg_batch_size" class="form-control batch" name="add_fg_batch_size" placeholder="จำนวนของสินค้าสำเร็จรูป" onkeyup="fg_capacity()" required="True" min="0">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="form-label">Batch Time (Minute)</label>
+                                    <input type="number" id="add_fg_batch_time" class="form-control batch" name="add_fg_batch_time" placeholder="เวลาที่ใช้ (นาที)" onkeyup="fg_capacity()" required="True" min="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Finished Goods Capacity (Size/Hour)</label>
+                                <input type="number" id="add_fg_capacity" class="form-control" name="add_fg_capacity" placeholder="กำลังผลิตต่อชั่วโมง" min="0" readonly>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Add_machine_capacity" id="Add_machine_capacity" disabled>Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+    function check_machine_product() {
+        mch_id = $('#id_mch').val();
+        product_id = $('#id_product').val();
+        var button = document.getElementById("Add_machine_capacity");
+        if (id_product == "") {
+            $('#id_product').parent().removeClass();
+            $('#id_product').parent().addClass('form-group');
+        }
+        $.ajax({
+            url : $('#id_product').attr("data-url"),
+            data : {
+                "csrfmiddlewaretoken" : $('#id_product').siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "mch_id" : mch_id,
+                "product_id" : product_id,
+
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                //console.log(data);
+                if (data.data_code_success) {
+                    $('#id_mch').parent().removeClass();
+                    $('#id_mch').parent().addClass('form-group success');
+                    $('#id_product').parent().removeClass();
+                    $('#id_product').parent().addClass('form-group success');
+                    button.disabled = false;
+                } else {
+                    $('#id_mch').parent().removeClass();
+                    $('#id_mch').parent().addClass('form-group error');
+                    $('#id_product').parent().removeClass();
+                    $('#id_product').parent().addClass('form-group error');
+                    button.disabled = true;
+                }
+                if (data.data_code_empty) {
+                    $('#id_product').parent().removeClass();
+                    $('#id_product').parent().addClass('form-group');
+                    button.disabled = true;
+                }
+            }
+        });
+    }
+</script>
+    <script>
+        $("#id_line").change(function () {
+            const url = $("#add_machine").attr("data-mch-url");  // get the url of the `load_cities` view
+            const line_id = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'line_id': line_id       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#id_mch").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+        });
+        $("#id_line").change(function () {
+            const url = $("#add_machine").attr("data-product-url");  // get the url of the `load_cities` view
+            const line_id = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'line_id': line_id       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#id_product").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+        });
+    </script>
+    <script>
+        var i;
+        for (i = 0; i <= {{machine|length}}; i++) {
+            $("#select_mtype"+i).change(function () {
+                var numID = this.id.substring(12,);
+                const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");  // get the url of the `load_cities` view
+                const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'mch_type': mch_typeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {   // `data` is the return of the `load_cities` view function
+                        $("#select_stype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    }
+                });
+            });
+        }
+    </script>
+    <script>
+        function fg_capacity()
+        {
+            var fg_batch_size = document.getElementById('add_fg_batch_size').value;
+            var fg_batch_time = document.getElementById('add_fg_batch_time').value;
+            var capacity = fg_batch_size / fg_batch_time * 60;
+            document.getElementById('add_fg_capacity').value = Math.floor(capacity) ;
+        }
+    </script>
+    <script>
+        function cal_capacity(id)
+        {
+            console.log("id " + id);
+            var numID = id.substring(17);
+            console.log("numID "+ numID);
+            var fg_batch_size = document.getElementById('set_fg_batch_size'+numID).value;
+            var fg_batch_time = document.getElementById('set_fg_batch_time'+numID).value;
+            var capacity = fg_batch_size / fg_batch_time * 60;
+            console.log(capacity);
+            document.getElementById('set_fg_capacity'+numID).value = Math.floor(capacity) ;
+        }
+    </script>
+    <script>
+        function cal_capacity1(batch_size,batch_time,batch_capacity)
+        {
+            var fg_batch_size = document.getElementById(batch_size).value;
+            var fg_batch_time = document.getElementById(batch_time).value;
+            var capacity = fg_batch_size / fg_batch_time * 60;
+            document.getElementById(batch_capacity).value = Math.floor(capacity) ;
+        }
+    </script>
+{% endblock %}
+
+
+
+

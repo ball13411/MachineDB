@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
             name='Maintenance_job',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('job_no', models.CharField(default=Machine_Management.models.randomJobOrder, max_length=20, unique=True)),
+                ('job_no', models.CharField(max_length=20, unique=True)),
                 ('job_gen_date', models.DateField()),
                 ('job_assign_user_id', models.CharField(default=None, max_length=20, null=True)),
                 ('job_response_user_id', models.CharField(default=None, max_length=20, null=True)),
@@ -375,7 +375,7 @@ class Migration(migrations.Migration):
             name='Repair_notice',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('repair_no', models.CharField(default=Machine_Management.models.randomRepairOrder, max_length=20, unique=True)),
+                ('repair_no', models.CharField(max_length=20, unique=True)),
                 ('notification_date', models.DateField(default=None, null=True)),
                 ('problem_report', models.TextField(default=None, null=True)),
                 ('effect_problem', models.TextField(default=None, null=True)),

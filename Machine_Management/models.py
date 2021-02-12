@@ -1,5 +1,5 @@
 from django.db import models
-import string, random, datetime
+import datetime
 
 # Create your models here.
 
@@ -380,30 +380,6 @@ class User_and_department(models.Model):
         ordering = ["department__department_code", "user__firstname"]
 
 
-def randomJobOrder():
-    while True:
-        jobNumber = "MTN"+"".join(random.choices(string.digits, k=7))
-        if Maintenance_job.objects.filter(job_no=jobNumber).count() == 0:
-            break
-    return jobNumber
-
-
-def randomJobRepairOrder():
-    while True:
-        jobRepairNumber = "RP-MTN"+"".join(random.choices(string.digits, k=7))
-        if Maintenance_job.objects.filter(job_no=jobRepairNumber).count() == 0:
-            break
-    return jobRepairNumber
-
-
-def randomRepairOrder():
-    while True:
-        repairNumber = "RP"+"".join(random.choices(string.digits, k=7))
-        if Repair_notice.objects.filter(repair_no=repairNumber).count() == 0:
-            break
-    return repairNumber
-
-
 class Maintenance_job(models.Model):
     job_no = models.CharField(max_length=25, unique=True)
     job_gen_date = models.DateField(auto_now_add=True)
@@ -501,4 +477,3 @@ def genJobNumber():
         new_mtn_int = mtn_int + 1
         new_mtn_number = "RP-MTN" + date_no + '{:03}'.format(new_mtn_int)
     return new_mtn_number
-

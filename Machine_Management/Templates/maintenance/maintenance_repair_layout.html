@@ -46,9 +46,15 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
+                {% for menu in mtn_menu %}
+                    {% if menu == mtn_main_menu %}
+                        <a href="{% url menu.path_url %}" class="nav-item nav-link active"><b>{{menu.name}}</b></a>
+                        {% else %}
+                        <a href="{% url menu.path_url %}" class="nav-item nav-link">{{menu.name}}</a>
+                    {% endif %}
+                {% endfor %}
+
                 {% block navbar %}
-
-
                 {% endblock %}
             </div>
             <form method="POST" action="{% url 'signin' %}">
@@ -62,6 +68,11 @@
     </nav>
 </div>
 <div class="container-fluid">
+
+    {% block filter %}
+
+    {% endblock %}
+
     <div class="table-responsive">
         {% for message in messages %}
         <div class="alert {{ message.tags }} alert-dismissible" role="alert">
