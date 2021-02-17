@@ -30,8 +30,8 @@
                         <h2>Machine <b>Management</b></h2>
                     </div>
 
-                    <div class="col-sm-7" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}>
-                        <a href="#create_mch" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add Machine</span></a>
+                    <div class="col-sm-7">
+                        <a href="#create_mch" class="btn btn-secondary" data-toggle="modal" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}><i class="material-icons">&#xE147;</i> <span>Add Machine</span></a>
                         <a href="#exportfile" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE24D;</i> <span>Export to File</span></a>
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                                         <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity_unit}}" name="set_capacity">
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="set_power">Power (KWatt/Hour) :</label>
+                                        <label for="set_power{{forloop.counter}}">Power (KWatt/Hour) :</label>
                                         <input type="number" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_kwatt_per_hour}}" name="set_power" min="0">
                                     </div>
                                     <div class="col-md-2">
@@ -377,6 +377,15 @@
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-4">
+                                        <label>Select Production Line</label>
+                                        <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                            <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                            {% for line in user_org %}
+                                            <option value="{{line.pid}}">{{line}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
                                         <label>Select Machine Type</label>
                                         <select class="form-control" id="id_mch_type" name="add_type" required="True">
                                             <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
@@ -389,15 +398,6 @@
                                         <label>Select Machine Subtype</label>
                                         <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
                                             <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-4">
-                                        <label>Select Production Line</label>
-                                        <select class="form-control" id="id_line" name="add_production_line" required="True">
-                                            <option value="">--- กรุณาเลือกสายการผลิต ---</option>
-                                            {% for line in production_line %}
-                                            <option value="{{line.pid}}">{{line}}</option>
-                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
@@ -422,7 +422,7 @@
                                 <div class="form-row">
                                     <div class="col-md-4">
                                         <label class="control-label">Load Capacity </label>
-                                        <input type="number" class="form-control" id="add_cpm" placeholder="ความจุ" name="add_cpm" maxlength="10" autocomplete="off" min="0">
+                                        <input type="number" class="form-control" id="add_cpm" placeholder="ความจุ" name="add_cpm" maxlength="10" autocomplete="off" min="0" required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="control-label">Load Capacity Unit</label>
@@ -430,7 +430,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label for="power">Power (KWatt/Hour) :</label>
-                                        <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานกิโลวัตต์/ชั่วโมง" autocomplete="off" maxlength="50" min="0">
+                                        <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานกิโลวัตต์/ชั่วโมง" autocomplete="off" maxlength="50" min="0" required>
                                     </div>
                                     <div class="col-md-2">
                                         <label>Machine Core</label>
@@ -519,8 +519,11 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Export File -->
-        <div id="exportfile" class="modal fade" tabindex="-1">
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal Export File -->
+    <div id="exportfile" class="modal fade" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form method="POST" id="export_file" action="{% url 'machine_manage' %}">
@@ -534,9 +537,9 @@
                                 <div class="row">
                                     <div class="col-10" id="dropdown-semantic">
                                         <label>Select Production Line</label>
-                                        <select class="ui fluid dropdown" id="multi-select-lines" name="multi-select-lines" multiple>
+                                        <select class="ui fluid dropdown" id="multi-select-lines" name="multi_select_lines" multiple>
                                             <option value="">Production Lines</option>
-                                            {% for line in select_line_export %}
+                                            {% for line in user_org %}
                                             <option value="{{line.pid}}">{{line}}</option>
                                             {% endfor %}
                                         </select>
@@ -568,11 +571,6 @@
                 </div>
             </div>
         </div>
-
-            </tbody>
-        </table>
-    </div>
-
 {% endblock %}
 
 

@@ -31,7 +31,7 @@ class Menu(models.Model):
 
     class Meta:
         db_table = "Menu_management"
-        ordering = ["level", "parent_menu", "index"]
+        ordering = ["level", "index"]
 
 
 class Role(models.Model):
@@ -359,6 +359,9 @@ class User(models.Model):
     user_active = models.BooleanField(default=True)
     departments = models.ManyToManyField(Department, through='User_and_department')
 
+    def __str__(self):
+        return self.username
+
     class Meta:
         db_table = "User_management"
 
@@ -399,6 +402,7 @@ class Maintenance_job(models.Model):
     corrective_action = models.TextField(default=None, null=True)
     after_repair = models.TextField(default=None, null=True)
     is_approve = models.BooleanField(default=False)
+    is_report = models.BooleanField(default=False)
     job_status = models.CharField(max_length=30, default=None, null=True)
     job_remark = models.TextField(default=None, null=True)
     estimate_cost = models.PositiveIntegerField(default=None, null=True)
@@ -446,6 +450,7 @@ class Repair_notice(models.Model):
     is_approve = models.BooleanField(default=None, null=True)
     is_receive = models.BooleanField(default=None, null=True)
     is_close = models.BooleanField(default=None, null=True)
+    can_close = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'repair_notice'

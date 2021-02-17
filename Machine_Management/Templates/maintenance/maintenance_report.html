@@ -53,7 +53,7 @@
                         <td>{{mtn_job.job_status}}</td>
                         <td>
                             <center><a href="#job{{forloop.counter}}" class="set tings" title="Settings" data-toggle="modal" {% if mtn_job.job_response_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">build</i></a>
-                            <a href="#report{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_assign_user_id != User_login.username %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a></center>
+                            <a href="#report{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if mtn_job.job_assign_user_id != User_login.username or not mtn_job.is_report %}hidden{% endif %}><i class="material-icons">insert_drive_file</i></a></center>
                         </td>
                     </tr>
 

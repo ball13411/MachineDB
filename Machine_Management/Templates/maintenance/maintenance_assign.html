@@ -17,6 +17,7 @@
 {% block content %}
     <div class="table-wrapper">
             <form method="POST">
+                {% csrf_token %}
             <div class="table-title">
                 <div class="row">
                     <div class="col-sm-8">
@@ -37,16 +38,17 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Job No</th>
-                        <th>Job Date</th>
-                        <th>Line</th>
-                        <th>Machine</th>
-                        <th>Spare Part</th>
-                        <th>Assign By</th>
-                        <th>Response By</th>
-                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Assign Job</center></th>
-                        <th>Status</th>
-                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>Detail</center></th>
+                        <th>หมายเลขงาน</th>
+                        <th hidden>วันที่เกิดงาน</th>
+                        <th>ไลน์ผลิต</th>
+                        <th>เครื่องจักร</th>
+                        <th>อะไหล่</th>
+                        <th>ผู้มอบหมายงาน</th>
+                        <th>ผู้รับผิดชอบงาน</th>
+                        <th>ลักษณะ</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>มอบหมายงาน</center></th>
+                        <th>สถานะงาน</th>
+                        <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><center>รายะเอียด</center></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,12 +56,13 @@
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{mtn_job.job_no}}</td>
-                        <td>{{mtn_job.job_gen_date}}</td>
+                        <td hidden>{{mtn_job.job_gen_date}}</td>
                         <td>{{mtn_job.job_mch_sp.machine.line}}</td>
                         <td>{{mtn_job.job_mch_sp.machine.machine_name}}</td>
                         <td>{{mtn_job.job_mch_sp.spare_part}}</td>
                         <td>{{mtn_job.job_assign_user_id|default_if_none:''}}</td>
                         <td>{{mtn_job.job_response_user_id|default_if_none:''}}</td>
+                        <td>{{mtn_job.job_mtn_type}}</td>
                         <td>
                             <a href="#job{{mtn_plan.pk}}" class="settings" title="Settings" data-toggle="modal" hidden><i class="material-icons">&#xE147;</i></a>
                             <center><input type="checkbox" id="assign{{forloop.counter}}" name="assign_list[]" value="{{mtn_job.pk}}"></center>
@@ -67,8 +70,14 @@
                         <td>{{mtn_job.job_status}}</td>
                         <td><center><a href="#setting{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" ><i class="material-icons">&#xE8B8;</i></a></center></td>
                     </tr>
+            {% endfor %}
+                </tbody>
+            </table>
+            </form>
 
-            <!-- Modal job -->
+        </div>
+        <!-- Modal job -->
+        {% for mtn_job in maintenance_job_gen %}
             <div id="job{{mtn_plan.pk}}" class="modal fade" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -199,12 +208,7 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
-                </tbody>
-            </table>
-            </form>
-
-        </div>
+        {% endfor %}
 {% endblock %}
 
 

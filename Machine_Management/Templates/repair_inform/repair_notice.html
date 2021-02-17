@@ -124,7 +124,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" name="repair_close" value="{{repair.pk}}" >Submit</button>
+                        <button type="submit" class="btn btn-primary" name="repair_close" value="{{repair.pk}}" {%if repair.is_close %}disabled{% endif %}>Submit</button>
                     </div>
                 </form>
             </div>

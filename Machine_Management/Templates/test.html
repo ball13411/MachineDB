@@ -2,39 +2,17 @@
 <head>
 </head>
 <body>
-    <input type="text" id="member" name="member" value="">Number of members: (max. 10)<br />
-    <a href="#" id="filldetails" onclick="addFields()">Fill Details</a>
     <form method="POST">
         {% csrf_token %}
-        <div id="container">
-        </div>
+        <select class="ui fluid dropdown" name="test_select" multiple>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
         <button type="submit" >Submit</button>
     </form>
 </body>
-<script type='text/javascript'>
-        function addFields(){
-            // Number of inputs to create
-            var number = document.getElementById("member").value;
-            // Container <div> where dynamic content will be placed
-            var container = document.getElementById("container");
-            // Clear previous contents of the container
-            while (container.hasChildNodes()) {
-                container.removeChild(container.lastChild);
-            }
-            for (i=0;i<number;i++){
-                // Append a node with a random text
-                container.appendChild(document.createTextNode("Member " + (i+1)));
-                // Create an <input> element, set its type and name attributes
-                var select = document.createElement("select");
-                select.name = "test";
-                var option = document.createElement("option");
-                option.value = number
-                option.appendChild(document.createTextNode(number));
-                select.appendChild(option);
-                container.appendChild(select);
-                // Append a line break
-                container.appendChild(document.createElement("br"));
-            }
-        }
-    </script>
+
 </html>

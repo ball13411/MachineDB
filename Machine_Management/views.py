@@ -56,7 +56,7 @@ def signin(request):
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
                 messages.error(request, "username หรือ password ไม่ถูกต้อง")
 
-    return render(request, 'signin.html')
+    return render(request, 'account/signin.html')
 
 
 def usermanage(request):
@@ -151,7 +151,7 @@ def usermanage(request):
                'User_login': User_login,
                'orgs': orgs,
                'departments': departments}
-    return render(request, 'usermanage.html', context)
+    return render(request, 'account/usermanage.html', context)
 
 
 def reset_password(request):
@@ -178,7 +178,7 @@ def reset_password(request):
                 messages.error(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
         except Machine_Management.models.User.DoesNotExist:  # Failed Connect User in model(DB)
             messages.error(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
-    return render(request, 'resetpassword.html')
+    return render(request, 'account/resetpassword.html')
 
 
 def rolemanage(request):
@@ -215,7 +215,7 @@ def rolemanage(request):
     roles = Role.objects.all()
     context = {'roles': roles,
                'User_login': User_login}
-    return render(request, 'rolemanage.html', context)
+    return render(request, 'account/rolemanage.html', context)
 
 
 def screenmanage(request):
@@ -262,7 +262,7 @@ def screenmanage(request):
     screens = Screen.objects.all()
     context = {'User_logined': User_login,
                'screens': screens}
-    return render(request, 'screenmanage.html', context)
+    return render(request, 'account/screenmanage.html', context)
 
 
 def role_screen(request):
@@ -339,7 +339,7 @@ def role_screen(request):
                'list_role_screen': list_role_screen,
                'roles': roles,
                'screens': screens}
-    return render(request, 'role_screen_manage.html', context)
+    return render(request, 'account/role_screen_manage.html', context)
 
 
 def home(request):
@@ -367,7 +367,7 @@ def home(request):
         if root in list_menu_role:
             dict_menu_level[root] = []
     for child in list_user_menu_lv1:
-        if child.pk == 'repair_inspect' and not user_dep.is_inform and not user_dep.is_close:
+        if child.pk == 'repair_notice' and not user_dep.is_inform and not user_dep.is_close:
             continue
         elif child.pk == 'repair_inspect' and not user_dep.is_inspect:
             continue
@@ -407,15 +407,16 @@ def home(request):
                'repair_inspect_incomplete': repair_inspect_incomplete, 'repair_approve_incomplete': repair_approve_incomplete,
                'mtn_receive_incomplete': mtn_receive_incomplete, 'mtn_assign_incomplete': mtn_assign_incomplete, 'mtn_report_incomplete': mtn_report_incomplete,
                'repair_receive_incomplete': repair_receive_incomplete, 'mtn_inspect_incomplete': mtn_inspect_incomplete}
-    return render(request, 'home.html', context)
+    return render(request, 'home/home.html', context)
 
 
 def test(request):
 
     if request.method == "POST":
-        if 'test' in request.POST:
-            print(request.POST.getlist('test'))
-            return redirect('/test/')
+        if 'test_select' in request.POST:
+            print(request.POST['test_select'])
+            print(request.POST.getlist('test_select'))
+        return redirect('/test/')
     context = {}
     return render(request, 'test.html', context)
 
@@ -490,7 +491,7 @@ def menumanage(request):
 
         return redirect('menumanage')
 
-    list_menu = Menu.objects.order_by('level')
+    list_menu = Menu.objects.order_by('level', 'index')
     list_screen = Screen.objects.all()
     screen_of_menu = []
     for menu in list_menu:
@@ -501,7 +502,7 @@ def menumanage(request):
         'list_screen': list_screen,
         'screen_of_menu': screen_of_menu
     }
-    return render(request, 'menumanage.html', context)
+    return render(request, 'account/menumanage.html', context)
 
 
 def organizemanage(request):
@@ -538,7 +539,7 @@ def organizemanage(request):
     context = {
         'orgs': orgs, 'User_login': User_login
     }
-    return render(request, 'organizemanage.html', context)
+    return render(request, 'organization/organizemanage.html', context)
 
 
 def production_line(request):
@@ -598,7 +599,7 @@ def production_line(request):
     context = {
         'User_login': User_login, 'lines': lines, 'sites': sites, 'buildings': buildings, 'floors': floors
     }
-    return render(request, 'production_line.html', context)
+    return render(request, 'organization/production_line.html', context)
 
 
 def location(request):
@@ -668,7 +669,7 @@ def location(request):
     buildings = Building.objects.all()
     floors = Floor.objects.all()
     context = {'User_login': User_login, 'sites': sites, 'buildings': buildings, 'floors': floors}
-    return render(request, 'location.html', context)
+    return render(request, 'organization/location.html', context)
 
 
 def org_productline(request):
@@ -696,7 +697,7 @@ def org_productline(request):
     context = {
         'org_lines': org_lines, 'prod_lines': prod_lines, 'User_login': User_login, 'UserRole': UserRole
     }
-    return render(request, 'org_prodline.html', context)
+    return render(request, 'organization/org_prodline.html', context)
 
 
 def productmanage(request):
@@ -736,7 +737,7 @@ def productmanage(request):
     products = Product.objects.all()
     plines = Production_line.objects.all()
     context = {"User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines}
-    return render(request, 'productmanage.html', context)
+    return render(request, 'organization/productmanage.html', context)
 
 
 def machine_manage(request):
@@ -901,10 +902,17 @@ def machine_manage(request):
             messages.success(request, "ลบรายการสำเร็จ")
 
         elif 'Export_machine' in request.POST:
+            list_line = request.POST.getlist('multi_select_lines')
+            list_machine = request.POST.get('Export_machine').split(',')
+            if list_line == []:
+                list_machine = Machine.objects.filter(line_id__in=user_org)
+            elif list_machine == ['']:
+                list_machine = Machine.objects.filter(line_id__in=list_line)
+
             file_report = request.POST['file_type']
             if file_report == 'docx':
-                machine_id = request.POST.get('Export_machine').split(',')
-                line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
+
+                line_id = Machine.objects.filter(machine_id__in=list_machine).order_by('line_id').values('line_id').distinct()
                 list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
                 document = Document()
                 for line in list_production_line:
@@ -939,7 +947,7 @@ def machine_manage(request):
                         row_cells[2].text = str(capacity)
 
                     # document.add_heading('เครื่องจักร', level=1)
-                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=machine_id).order_by('machine_production_line_code')
+                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=list_machine).order_by('machine_production_line_code')
                     for mch in machine_in_line:
 
                         document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
@@ -1042,8 +1050,7 @@ def machine_manage(request):
                           'pattern: pattern solid, fore_colour tan;' 'align: vert centre, horiz centre',
                           'pattern: pattern solid, fore_colour rose;' 'align: vert centre, horiz centre']
 
-                machine_submit = request.POST.get('Export_machine')
-                queryset = Machine.objects.filter(machine_id__in=machine_submit.split(',')).order_by('line__production_line', 'machine_production_line_code')
+                queryset = Machine.objects.filter(machine_id__in=list_machine).order_by('line__production_line', 'machine_production_line_code')
 
                 rows = queryset.values_list('line__production_line', 'mch_type__mtype_name', 'sub_type__subtype_name', 'machine_name',
                                             'machine_production_line_code', 'machine_brand', 'machine_model', 'serial_id', 'machine_load_capacity',
@@ -1090,7 +1097,7 @@ def machine_manage(request):
         return redirect('machine_manage')
 
     context = {
-        'User_login': User_login,
+        'User_login': User_login, 'user_org': user_org,
         'machine': machine, 'mch_subtype_all': mch_subtype_all,
         'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen,
         'select_line_export': select_line_export, 'filter_mch_line': filter_mch_line,
@@ -1221,7 +1228,7 @@ def home_machine(request, line):
     machine_line = Machine.objects.filter(line__in=product_line)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine_line': machine_line, 'product_line': product_line, 'products': products}
-    return render(request, 'home_machine.html', context)
+    return render(request, 'home/home_machine.html', context)
 
 
 def machine_details(request, line, machine):
@@ -1232,7 +1239,7 @@ def machine_details(request, line, machine):
     spare_part_of_mch = Machine_sparepart.objects.filter(machine_id__in=machine)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine': machine, 'spare_part_of_mch': spare_part_of_mch}
-    return render(request, 'machine_details.html', context)
+    return render(request, 'home/machine_details.html', context)
 
 
 def spare_part_manage(request):
@@ -1366,7 +1373,7 @@ def spare_part_type(request):
             spare_type.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
-        return redirect('/sparepartmanage/type/')
+        return redirect('spare_part_subtype')
 
     context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all,
                'role_and_screen': role_and_screen, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
@@ -1403,7 +1410,7 @@ def spare_part_group(request):
             spare_group.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
-        return redirect('/sparepartmanage/group/')
+        return redirect('spare_part_group')
 
     context = {'User_login': User_login, 'sp_group_all': sp_group_all, 'role_and_screen': role_and_screen,
                'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
@@ -1454,7 +1461,7 @@ def machine_and_spare_part(request):
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
 
-        return redirect('/machinemanage/machine_spare_part/')
+        return redirect('machine_and_spare_part')
 
     for mch in machine:
         dict_mch_sp[mch] = []
@@ -1604,7 +1611,7 @@ def machine_capacity(request):
             delete_machine_capacity = Machine_capacity.objects.get(pk=request.POST['delete_machine_capacity'])
             delete_machine_capacity.delete()
 
-        return redirect('/machinemanage/capacity/')
+        return redirect('machine_capacity')
 
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
@@ -1813,7 +1820,7 @@ def spare_part_and_machine(request):
             except ObjectDoesNotExist:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
 
-        return redirect('/sparepartmanage/spare_pare_machine/')
+        return redirect('spare_part_and_machine')
 
     for sp in spare_part_all:
         dict_mch_sp[sp] = []
@@ -1888,6 +1895,7 @@ def maintenance_report(request):
             mtn_report.after_repair = request.POST['after_repair']
             mtn_report.job_status = "รอการอนุมัติงาน"
             mtn_report.is_approve = False
+            mtn_report.is_report = True
             mtn_report.equipment_code1 = request.POST['equipment_code1'] if request.POST['equipment_code1'] != "" else None
             mtn_report.equipment_code2 = request.POST['equipment_code2'] if request.POST['equipment_code2'] != "" else None
             mtn_report.equipment_code3 = request.POST['equipment_code3'] if request.POST['equipment_code3'] != "" else None
@@ -1940,6 +1948,7 @@ def maintenance_report(request):
             else:
                 mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
+                mtn_report.is_report = False
                 mtn_report.save()
 
         return redirect('maintenance_report')
@@ -1988,7 +1997,7 @@ def repair_notice(request):
         return redirect('signin')
 
     repair_menu = dict_menu_level[Menu.objects.get(pk='repair_menu')]
-    repair_main_menu = Menu.objects.get(pk='repair_notice_menu')
+    repair_main_menu = Menu.objects.get(pk='repair_notice')
 
     line_of_user = User_login.org.org_line.all()
     list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login)
@@ -2118,10 +2127,10 @@ def department_manage(request):
             delete_dep = Department.objects.get(pk=request.POST['delete_dep'])
             delete_dep.delete()
 
-        return redirect('/usermanage/department')
+        return redirect('department_manage')
 
     context = {'User_login': User_login, 'departments': departments}
-    return render(request, 'department_manage.html', context)
+    return render(request, 'account/department_manage.html', context)
 
 
 def user_department(request):
@@ -2197,7 +2206,7 @@ def user_department(request):
 
     context = {'User_login': User_login, 'org_all': org_all, 'user_all': user_all, 'user_department_all': user_department_all,
                'department_all': department_all, 'dict_user_department': dict_user_department}
-    return render(request, 'user_department.html', context)
+    return render(request, 'account/user_department.html', context)
 
 
 def repair_inspect(request):
@@ -2225,7 +2234,7 @@ def repair_inspect(request):
             repair_inspect_model.inspect_remark = request.POST['inspect_remark'] if request.POST['inspect_remark'] != "" else None
             repair_inspect_model.save()
 
-        return redirect('/repair/inspect')
+        return redirect('repair_inspect')
 
     context = {'User_login': User_login, 'repair_inspect_all': repair_inspect_all, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
     return render(request, 'repair_inform/repair_inspect.html', context)
@@ -2256,7 +2265,7 @@ def repair_approve(request):
             repair_approve_model.approve_remark = request.POST['approve_remark'] if request.POST['approve_remark'] != "" else None
             repair_approve_model.save()
 
-        return redirect('/repair/approve')
+        return redirect('repair_approve')
 
     context = {'User_login': User_login, 'repair_approve_all': repair_approve_all, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
     return render(request, 'repair_inform/repair_approve.html', context)

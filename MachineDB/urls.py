@@ -30,34 +30,34 @@ urlpatterns = [
     path('resetpassword/', views.reset_password, name='resetpassword'),
 
     # User Management
-    path('usermanage/user', views.usermanage, name='usermanage'),
-    path('usermanage/role', views.rolemanage, name='rolemanage'),
-    path('usermanage/screen', views.screenmanage, name='screenmanage'),
-    path('usermanage/role-screen', views.role_screen, name='role_screen_manage'),
-    path('usermanage/menu', views.menumanage, name='menumanage'),
-    path('usermanage/department', views.department_manage, name='department_manage'),
+    path('usermanage/user-management', views.usermanage, name='usermanage'),
+    path('usermanage/role-management', views.rolemanage, name='rolemanage'),
+    path('usermanage/screen-management', views.screenmanage, name='screenmanage'),
+    path('usermanage/role-screen-management', views.role_screen, name='role_screen_manage'),
+    path('usermanage/menu-management', views.menumanage, name='menumanage'),
+    path('usermanage/department-management', views.department_manage, name='department_manage'),
     path('usermanage/user-department', views.user_department, name='user_department'),
 
     # Organization Management
-    path('organizemanage/organization', views.organizemanage, name='organization'),
-    path('organizemanage/line', views.production_line, name='productionline'),
-    path('organizemanage/location', views.location, name='location'),
-    path('organizemanage/orgline', views.org_productline, name='org_prodline'),
-    path('organizemanage/productmanage', views.productmanage, name='productmanage'),
+    path('organizemanage/organization-management', views.organizemanage, name='organization'),
+    path('organizemanage/production-line-management', views.production_line, name='productionline'),
+    path('organizemanage/location-management', views.location, name='location'),
+    path('organizemanage/organize-production-line', views.org_productline, name='org_prodline'),
+    path('organizemanage/product-management', views.productmanage, name='productmanage'),
 
     # Machine Management
-    path('machinemanage/machine/', views.machine_manage, name='machine_manage'),
-    path('machinemanage/machinetype/', views.machine_type, name='machine_type'),
-    path('machinemanage/machinesubtype/', views.machine_subtype, name='machine_subtype'),
+    path('machinemanage/machine-management', views.machine_manage, name='machine_manage'),
+    path('machinemanage/machine-type/', views.machine_type, name='machine_type'),
+    path('machinemanage/machine-subtype/', views.machine_subtype, name='machine_subtype'),
     path('machinemanage/capacity/', views.machine_capacity, name='machine_capacity'),
-    path('machinemanage/machine_spare_part/', views.machine_and_spare_part, name='machine_and_spare_part'),
+    path('machinemanage/machine-spare-part/', views.machine_and_spare_part, name='machine_and_spare_part'),
 
     # Spare part Management
-    path('sparepartmanage/sparepart/', views.spare_part_manage, name='spare_part_manage'),
+    path('sparepartmanage/spare-part/', views.spare_part_manage, name='spare_part_manage'),
     path('sparepartmanage/subtype/', views.spare_part_subtype, name='spare_part_subtype'),
     path('sparepartmanage/type/', views.spare_part_type, name='spare_part_type'),
     path('sparepartmanage/group/', views.spare_part_group, name='spare_part_group'),
-    path('sparepartmanage/spare_pare_machine/', views.spare_part_and_machine, name='spare_part_and_machine'),
+    path('sparepartmanage/spare-pare-machine/', views.spare_part_and_machine, name='spare_part_and_machine'),
 
     # Repair Inform
     path('repair/inform', views.repair_notice, name='repair_notice'),
