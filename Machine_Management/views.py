@@ -68,23 +68,23 @@ def usermanage(request):
     if request.method == "POST":
         # Form Edituser (Settings of user)
         if 'Edituser' in request.POST:
-            username = request.POST['set_username']  # Get var('username') from HTML
-            update_role = request.POST['select_role']  # Get var('role') from HTML
+            username = request.POST['set_username']                 # Get var('username') from HTML
+            update_role = request.POST['select_role']               # Get var('role') from HTML
             update_org = request.POST['select_org']
-            now = datetime.datetime.now()  # Call Datetime now
-            user = User.objects.get(username=username)  # Query user
+            now = datetime.datetime.now()                           # Call Datetime now
+            user = User.objects.get(username=username)              # Query user
             user.user_active = request.POST.get('set_user_status', False)
-            user.update_date = now  # Update UpdateDate to now
-            user.update_by = str(User_login.username)  # Update UserUpdate of UserSelect
+            user.update_date = now                                  # Update UpdateDate to now
+            user.update_by = str(User_login.username)               # Update UserUpdate of UserSelect
             org = Organization.objects.get(org_id=update_org)
             user.org = org
-            role = Role.objects.get(role_id=update_role)  # Get RoleID of UserSelect
-            user.role = role  # Update Role of UserSelect
-            user.save()  # Save all Update
+            role = Role.objects.get(role_id=update_role)            # Get RoleID of UserSelect
+            user.role = role                                        # Update Role of UserSelect
+            user.save()                                             # Save all Update
             messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         # Form Add User (Add New User)
         elif 'Adduser' in request.POST:
-            username = request.POST['add_username']  # Get var('username') form HTML
+            username = request.POST['add_username']                 # Get var('username') form HTML
             fname = request.POST['add_fname']
             lname = request.POST['add_lname']
             email = request.POST['add_email']
@@ -1484,57 +1484,6 @@ def maintenance_assign(request):
     mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
     mtn_main_menu = Menu.objects.get(pk='maintenance_assign')
 
-    mch_sp_not_gen = Machine_sparepart.objects.filter(gen_mtnchng_date__isnull=True, gen_mtnchk_date__isnull=True)
-
-    for mch_sp in mch_sp_not_gen:
-        if mch_sp.machine.machine_hour:
-            # Change Maintenance
-            if mch_sp.last_mtnchng_hour and mch_sp.mtnchng_life_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchng_hour + mch_sp.mtnchng_life_hour:
-                    mch_sp.gen_mtnchng_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='change')
-                    main_job.save()
-                    continue
-            elif mch_sp.next_mtnchng_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchng_hour:
-                    mch_sp.gen_mtnchng_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='change')
-                    main_job.save()
-                    continue
-            # Checking Maintenance
-            if mch_sp.last_mtnchk_hour and mch_sp.mtnchk_life_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchk_hour + mch_sp.mtnchk_life_hour:
-                    mch_sp.gen_mtnchk_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='checking')
-                    main_job.save()
-                    continue
-            elif mch_sp.next_mtnchk_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchk_hour:
-                    mch_sp.gen_mtnchk_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='checking')
-                    main_job.save()
-                    continue
-
     if request.method == "POST":
         if "assign_submit" in request.POST:
             if request.POST.getlist('assign_list[]') != "":
@@ -1929,7 +1878,6 @@ def maintenance_report(request):
                 machine_model = Machine.objects.get(pk=mch_sp.machine.pk)
                 machine_model.machine_hour_last_update = mch_sp.machine.machine_hour
                 machine_model.machine_hour = mtn_report.job_mch_hour
-                machine_model.save()
 
                 if mtn_report.job_mtn_type in ["change", "repair"]:
                     mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
@@ -1942,6 +1890,8 @@ def maintenance_report(request):
                     mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
                 if mch_sp.mtnchng_life_hour:
                     mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+
+                machine_model.save()
                 mch_sp.save()
                 mtn_report.save()
 
@@ -2352,11 +2302,15 @@ def maintenance_inspect(request):
                     job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchng_date)
                     job_auto.job_status = "ปิดงาน"
                     job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
                     job_auto.save()
                 elif mch_sp.gen_mtnchk_date is not None:
                     job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchk_date)
                     job_auto.job_status = "ปิดงาน"
                     job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
                     job_auto.save()
                 mch_sp.gen_mtnchng_date = datetime.date.today()
                 mch_sp.save()

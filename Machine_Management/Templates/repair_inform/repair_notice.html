@@ -101,7 +101,7 @@
                         <label class="control-label col-5">- สถานะของงาน : {{mtn_job.job_status}}</label><br><br>
                         {% endfor %}
 
-
+                        {% if repair.can_close %}
                         <hr>
                         <h5><u><strong>ปิดใบแจ้งซ่อมเครื่องจักร</strong></u></h5>
                         <div class="form-check">
@@ -119,12 +119,14 @@
                                 <input type="text" class="form-control" name="close_remark"/>
                             </div>
                         </div>
-                        <small># การจะปิดใบแจ้งซ่อมเครื่องจักรได้ งานการซ่อมของอะไหล่ทั้งหมดสถานะงานต้องอยู่ใน 'ปิดงาน' หรือ 'งานเสร็จสิ้น' เท่านั้น</small>
-
+                        <small># สามารถปิดใบแจ้งซ่อมได้ "งาน" ทั้งหมดเสร็จสิ้น</small>
+                        {% else %}
+                        <small># ไม่สามารถปิดงานได้เนื่องจากมี "งาน" ที่อยู่ในการดำเนินการ</small>
+                        {% endif %}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" name="repair_close" value="{{repair.pk}}" {%if repair.is_close %}disabled{% endif %}>Submit</button>
+                        <button type="submit" class="btn btn-primary" name="repair_close" value="{{repair.pk}}" {%if not repair.can_close %}disabled{% endif %}>Submit</button>
                     </div>
                 </form>
             </div>

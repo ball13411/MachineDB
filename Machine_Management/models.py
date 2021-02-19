@@ -428,7 +428,7 @@ class Repair_notice(models.Model):
     repair_no = models.CharField(max_length=25, unique=True)
     department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
     department_receive = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
-    maintenance_jobs = models.ManyToManyField(Maintenance_job)
+    maintenance_jobs = models.ManyToManyField(Maintenance_job, through='Repair_and_maintenance_job')
     notification_date = models.DateField(default=None, null=True)
     problem_report = models.TextField(default=None, null=True)
     effect_problem = models.TextField(default=None, null=True)
@@ -454,6 +454,15 @@ class Repair_notice(models.Model):
 
     class Meta:
         db_table = 'repair_notice'
+
+
+class Repair_and_maintenance_job(models.Model):
+    maintenance_job = models.ForeignKey(Maintenance_job, on_delete=models.CASCADE)
+    repair_notice = models.ForeignKey(Repair_notice, on_delete=models.CASCADE)
+    gen_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Repair_and_maintenance_job'
 
 
 def autoJobNumber():
