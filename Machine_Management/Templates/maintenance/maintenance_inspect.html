@@ -1,22 +1,54 @@
 {% extends "maintenance/maintenance_repair_layout.html" %}
 
-{% block title %}Repair Receive{% endblock %}
+{% block title %}Maintenance Inspect{% endblock %}
 
 {% block css %}
 <style>
     span.orange600 { color: #FB8C00; float:right }
     span.orange600:hover { color: #FB8C00; float:right; opacity: .6; cursor: pointer; }
 </style>
+<style>
+    .filter-machine {
+        margin: 30px 0;
+        padding: 0px 5%;
+    }
+</style>
 {% endblock %}
 
 {% block navbar %}
-<a href="{% url 'maintenance_data' %}" class="nav-item nav-link">ข้อมูลการซ่อมบำรุง</a>
-<a href="{% url 'maintenance_receive' %}" class="nav-item nav-link">รับใบแจ้งซ่อมบำรุง</a>
-<a href="{% url 'maintenance_inspect' %}" class="nav-item nav-link active"><b>ตรวจสอบอะไหล่ซ่อมบำรุง</b></a>
-<a href="{% url 'maintenance_assign' %}" class="nav-item nav-link">มอบหมายงานซ่อมบำรุง</a>
-<a href="{% url 'maintenance_report' %}" class="nav-item nav-link">รายงานการซ่อมบำรุง</a>
-<a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">อัพเดทชั่วโมงทำงานเครื่องจักร</a>
+<!--<a href="{% url 'maintenance_data' %}" class="nav-item nav-link">ข้อมูลการซ่อมบำรุง</a>-->
+<!--<a href="{% url 'maintenance_receive' %}" class="nav-item nav-link">รับใบแจ้งซ่อมบำรุง</a>-->
+<!--<a href="{% url 'maintenance_inspect' %}" class="nav-item nav-link active"><b>ตรวจสอบอะไหล่ซ่อมบำรุง</b></a>-->
+<!--<a href="{% url 'maintenance_assign' %}" class="nav-item nav-link">มอบหมายงานซ่อมบำรุง</a>-->
+<!--<a href="{% url 'maintenance_report' %}" class="nav-item nav-link">รายงานการซ่อมบำรุง</a>-->
+<!--<a href="{% url 'machine_hour_update' %}" class="nav-item nav-link">อัพเดทชั่วโมงทำงานเครื่องจักร</a>-->
+{% endblock %}
 
+
+{% block filter %}
+<!--    <div class="filter-machine" >-->
+<!--        <form method="POST">-->
+<!--            {% csrf_token %}-->
+<!--            <div class="row">-->
+<!--                <div class="form-group col-4">-->
+<!--                    <select  class="form-control" id="production_line" name="production_line" onchange="select_machine(this)">-->
+<!--                        <option value="0">-&#45;&#45; กรุณาเลือกไลน์การผลิต -&#45;&#45;</option>-->
+<!--                        {% for line in line_of_user %}-->
+<!--                        <option value="{{line.pk}}">{{line.location_site}} ไลน์ผลิต {{line.production_line}}</option>-->
+<!--                        {% endfor %}-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--                <div class="form-group col-4">-->
+<!--                    <select  class="form-control" id="machine" name="machine">-->
+<!--                        <option value="">-&#45;&#45; กรุณาเลือกเครื่องจักร -&#45;&#45;</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--                <div class="form-group col-4">-->
+<!--                    <button type="submit" class="btn btn-primary form-control" name="prd_mch">Submit</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
 {% endblock %}
 
 

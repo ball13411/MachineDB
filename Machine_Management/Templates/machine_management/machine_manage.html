@@ -1,0 +1,775 @@
+{% extends "machine_management/machine_layout.html" %}
+
+{% block title %}Machine Management{% endblock %}
+
+{% block css %}
+{% load static %}
+
+    <!--  Container Form -->
+    <link rel="stylesheet" type="text/css" href="{% static 'style/switch.css' %}">
+    <!-- Semantic UI  -->
+    <link rel="stylesheet" type="text/css" href="{% static 'Semantic-UI-CSS-master/components/dropdown.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'Semantic-UI-CSS-master/components/icon.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'Semantic-UI-CSS-master/components/transition.min.css' %}">
+    <!-- Multiselect -->
+    <link href="{% static 'style/multi-select.css' %}" media="screen" rel="stylesheet" type="text/css">
+    <!-- Moment   -->
+    <script src="{% static 'javascript/moment-2.29.0.min.js' %}"></script>
+    <!--  Input Date Format  DD/MM/YYYY -->
+    <link rel="stylesheet" type="text/css" href="{% static 'style/input_date.css' %}">
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <h2>Machine <b>Management</b></h2>
+                    </div>
+
+                    <div class="col-sm-7">
+                        <a href="#create_mch" class="btn btn-secondary" data-toggle="modal" {% if role_and_screen.0.permission_insert == 'N' %}hidden{% endif %}><i class="material-icons">&#xE147;</i> <span>Add Machine</span></a>
+                        <a href="#exportfile" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE24D;</i> <span>Export to File</span></a>
+                    </div>
+                </div>
+            </div>
+        <table class="table table-striped table-hover" id="myTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Line</th>
+                    <th>mName</th>
+                    <th>mBrand</th>
+                    <th>mModel</th>
+                    <th>mSerial</th>
+<!--                        <th>mLine Code</th>-->
+<!--                        <th>mName</th>-->
+                    <th>mType</th>
+                    <th>mSubtype</th>
+                    <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for mch in machine %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{mch.line}}</td>
+                    <td>{{mch.machine_production_line_code}} | {{mch.machine_name}}</td>
+                    <td>{{mch.machine_brand}}</td>
+                    <td>{{mch.machine_model}}</td>
+                    <td>{{mch.serial_id}}</td>
+<!--                        <td>{{mch.machine_production_line_code}}</td>-->
+                    <td>{{mch.mch_type}}</td>
+                    <td>{{mch.sub_type}}</td>
+                    <td {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                        <center>
+                        <a href="#setting{{mch.machine_id}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">&#xE8B8;</i></a>
+                        <a href="#delete{{mch.machine_id}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                        </center>
+                    </td>
+                </tr>
+
+        <!-- Modal Setting -->
+        <div id="setting{{mch.machine_id}}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <form method="POST" id="mch_edit{{forloop.counter}}" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Setting</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="brand">Brand</label>
+                                        <input type="text" id="set_machine_brand{{forloop.counter}}" class="form-control" value="{{mch.machine_brand}}" name="set_machine_brand" readonly>
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="model">Model</label>
+                                        <input type="text" id="set_machine_model{{forloop.counter}}" class="form-control" value="{{mch.machine_model}}" name="set_machine_model" readonly>
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="serial">Serial No.</label>
+                                        <input type="text" id="set_serial{{forloop.counter}}" class="form-control" value="{{mch.serial_id}}" name="set_serial" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Select Production Line</label>
+                                        <select class="form-control" id="select_pline{{forloop.counter}}" name="select_line">
+                                            {% for line in production_line %}
+                                            <option value="{{line.pk}}" {% if line.production_line == mch.line.production_line %} selected {% endif %}>{{line}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Select Machine Type</label>
+                                        <select class="form-control" id="select_mtype{{forloop.counter}}" name="select_type">
+                                            {% for mch_type in mch_type_all %}
+                                            <option value="{{mch_type.pk}}" {% if mch.mch_type.pk == mch_type.pk %}selected{% endif %} >{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Select Machine Subtype</label>
+                                        <select class="form-control" id="select_stype{{forloop.counter}}" name="select_subtype">
+                                            {% for mch_subtype in mch_subtype_all %}
+                                            {% if mch.mch_type.pk == mch_subtype.mch_type_id %}
+                                            <option value="{{mch.sub_type_id}}">{{mch_subtype.subtype_name}} ({{mch_subtype.subtype_code}})</option>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="machine_name">Machine Name</label>
+                                        <input type="text" id="set_mch_name{{forloop.counter}}" class="form-control" value="{{mch.machine_name}}" name="set_mch_name" >
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="mac_prod_code">Machine-Production line Code</label>
+                                        <input type="text" id="set_mch_code{{forloop.counter}}" class="form-control" value="{{mch.machine_production_line_code}}" name="set_mch_code" >
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="set_machine_asset_code">Machine Asset Code</label>
+                                        <input type="text" id="set_machine_asset_code{{forloop.counter}}" class="form-control" value="{{mch.machine_asset_code|default_if_none:''}}" name="set_mch_asset_code" maxlength="30">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-md-4">
+                                        <label class="control-label">Capacity Load</label>
+                                        <input type="number" id="set_cpm{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity}}" name="set_cpm" min="0">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="control-label">Capacity Load unit</label>
+                                        <input type="text" id="set_capacity{{forloop.counter}}" class="form-control" value="{{mch.machine_load_capacity_unit}}" name="set_capacity">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="set_power{{forloop.counter}}">Power (KWatt/Hour) :</label>
+                                        <input type="number" id="set_power{{forloop.counter}}" class="form-control" value="{{mch.machine_power_use_kwatt_per_hour}}" name="set_power" min="0">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Machine Core</label>
+                                        <div class="activeswitch">
+                                            <input type="checkbox" class="activeswitch-checkbox" id="set_mch_core{{forloop.counter}}" name="set_mch_core" value="True"  {% if mch.machine_core == True %}checked{% endif %}>
+                                            <label class="activeswitch-label" for="set_mch_core{{forloop.counter}}">
+                                              <span class="activeswitch-inner"></span>
+                                              <span class="activeswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-3">
+                                        <label>Installation Date</label>
+                                        <input type="date" id="set_installdate{{forloop.counter}}" class="form-control" name="set_installdate" min="2000-01-01" value="{{mch.machine_installed_datetime|date:"Y-m-d"}}">
+                                    </div>
+                                    <div class="col-3">
+                                        <label>Start Date</label>
+                                        <input type="date" id="set_startdate{{forloop.counter}}" class="form-control" name="set_startdate" min="2000-01-01" value="{{mch.machine_start_use_datetime|date:"Y-m-d"}}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Hours</label>
+                                        <input type="number" id="set_hour{{forloop.counter}}" class="form-control" value="{{mch.machine_hour}}" name="set_hour" autocomplete="off" min="0">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Machine Status</label>
+                                        <div class="activeswitch">
+                                            <input type="checkbox" class="activeswitch-checkbox" id="set_mch_status{{forloop.counter}}" name="set_mch_status" value="True"  {% if mch.machine_active == True %}checked{% endif %}>
+                                            <label class="activeswitch-label" for="set_mch_status{{forloop.counter}}">
+                                              <span class="activeswitch-inner"></span>
+                                              <span class="activeswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div><b>Personnel</b></div><hr>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="supplier">Supplier</label>
+                                        <input type="text" id="set_supplier_code{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_code}}" name="set_supplier_code" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="pic">Supplier Emp In Charge</label>
+                                        <input type="text" id="set_supplier_name{{forloop.counter}}" class="form-control" value="{{mch.machine_supplier_name}}" name="set_supplier_name" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="contact">Supplier Contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="set_supplier_contact" id="set_supplier_contact{{forloop.counter}}" value="{{mch.machine_supplier_contact}}" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Engineer Emp ID</label>
+                                        <input type="text" id="set_eng_emp_id{{forloop.counter}}" class="form-control" value="{{mch.machine_eng_emp_id}}" name="set_eng_emp_id" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Engineer Emp In Charge Name</label>
+                                        <input type="text" id="set_eng_emp_name{{forloop.counter}}" class="form-control" value="{{mch.machine_eng_emp_name}}" name="set_eng_emp_name" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Engineer Contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="set_eng_emp_contact" id="set_eng_emp_contact{{forloop.counter}}" value="{{mch.machine_eng_emp_contact}}" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Production Emp ID</label>
+                                        <input type="text" id="set_pro_emp_id{{forloop.counter}}" class="form-control" value="{{mch.machine_pro_emp_id}}" name="set_pro_emp_id" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Production Emp In Charge Name</label>
+                                        <input type="text" id="set_pro_emp_name{{forloop.counter}}" class="form-control" value="{{mch.machine_pro_emp_name}}" name="set_pro_emp_name" autocomplete="off" maxlength="50">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Production Contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="set_pro_emp_contact" id="set_pro_emp_contact{{forloop.counter}}" value="{{mch.machine_pro_emp_contact}}" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-6"><b>File of Machine</b></div>
+                                </div>
+                                <hr>
+                                <div class="form-row">
+                                    <div class="group col-6">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_documentFile1_{{forloop.counter}}" name="set_documentFile1" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                            <label class="custom-file-label" for="set_documentFile1_{{forloop.counter}}">{% if mch.machine_document1 %}{{mch.machine_document1}}{% else %}Choose Document file 1{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_documentFile2_{{forloop.counter}}" name="set_documentFile2" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" >
+                                            <label class="custom-file-label" for="set_documentFile2_{{forloop.counter}}">{% if mch.machine_document2 %}{{mch.machine_document2}}{% else %}Choose Document file 2{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_documentFile3_{{forloop.counter}}" name="set_documentFile3" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                            <label class="custom-file-label" for="set_documentFile3_{{forloop.counter}}">{% if mch.machine_document3 %}{{mch.machine_document3}}{% else %}Choose Document file 3{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_documentFile4_{{forloop.counter}}" name="set_documentFile4" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                            <label class="custom-file-label" for="set_documentFile4_{{forloop.counter}}">{% if mch.machine_document4 %}{{mch.machine_document4}}{% else %}Choose Document file 4{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_documentFile5_{{forloop.counter}}" name="set_documentFile5" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                            <label class="custom-file-label" for="set_documentFile5_{{forloop.counter}}">{% if mch.machine_document5 %}{{mch.machine_document5}}{% else %}Choose Document file 5{% endif %}</label>
+                                        </div>
+                                    </div>
+                                    <div class="group col-6">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_pictureFile1_{{forloop.counter}}" name="set_pictureFile1">
+                                            <label class="custom-file-label" for="set_pictureFile1_{{forloop.counter}}">{% if mch.machine_image1 %}{{mch.machine_image1}}{% else %}Choose Picture file 1{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_pictureFile2_{{forloop.counter}}" name="set_pictureFile2">
+                                            <label class="custom-file-label" for="set_pictureFile2_{{forloop.counter}}">{% if mch.machine_image2 %}{{mch.machine_image2}}{% else %}Choose Picture file 2{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_pictureFile3_{{forloop.counter}}" name="set_pictureFile3">
+                                            <label class="custom-file-label" for="set_pictureFile3_{{forloop.counter}}">{% if mch.machine_image3 %}{{mch.machine_image3}}{% else %}Choose Picture file 3{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_pictureFile4_{{forloop.counter}}" name="set_pictureFile4">
+                                            <label class="custom-file-label" for="set_pictureFile4_{{forloop.counter}}">{% if mch.machine_image4 %}{{mch.machine_image4}}{% else %}Choose Picture file 4{% endif %}</label>
+                                        </div>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="set_pictureFile5_{{forloop.counter}}" name="set_pictureFile5">
+                                            <label class="custom-file-label" for="set_pictureFile5_{{forloop.counter}}">{% if mch.machine_image5 %}{{mch.machine_image5}}{% else %}Choose Picture file 5{% endif %}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <small>Create by : {{mch.create_by}} [ {{mch.create_date}} ]</small><br>
+                            <small>Update by : {% if mch.last_update_by %} {{mch.last_update_by}} [ {{mch.last_update_date}} ] {% else %} - {% endif %}</small>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="EditMch" value="{{mch.machine_id}}">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Delete -->
+        <div id="delete{{mch.machine_id}}" class="modal fade" tabindex="-1" >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="del_machine{{forloop.counter}}" class="form-control" value="Machine Name : {{mch.machine_name}}" name="del_machine" readonly>
+                        <input type="text" class="form-control" value="Machine Code : {{mch.machine_production_line_code}}" readonly>
+                        <br><p>Do you want to delete this machine?</p>
+                        <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" value="{{mch.machine_id}}" name="deletemachine">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Modal Add Machine -->
+        <div id="create_mch" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <form method="POST" id="add_machine" data-mch-subtype-url="{% url 'ajax_machine_subtype' %}" >
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Machine</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="brand">Brand</label>
+                                        <input type="text" class="form-control" name="add_machine_brand" id="add_machine_brand" placeholder="ยี่ห้อของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="model">Model</label>
+                                        <input type="text" class="form-control" name="add_machine_model" id="add_machine_model" placeholder="รุ่นของเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="serial">Serial No.</label>
+                                        <input class="form-control" type="text" name="add_serial" id="add_serial" placeholder="หมายเลขซีเรียลเครื่องจักร" required="True" autocomplete="off" maxlength="50" onkeyup="check_serial(this);return false;" data-url="{% url 'check_serial' %}"/>
+                                        <i class="fas fa-check-circle"></i>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <small>Serial No. already exists</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Select Production Line</label>
+                                        <select class="form-control" id="id_line" name="add_production_line" required="True">
+                                            <option value="">--- กรุณาเลือกสายการผลิต ---</option>
+                                            {% for line in user_org %}
+                                            <option value="{{line.pid}}">{{line}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Select Machine Type</label>
+                                        <select class="form-control" id="id_mch_type" name="add_type" required="True">
+                                            <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                            {% for mch_type in mch_type_all %}
+                                            <option value="{{mch_type.pk}}">{{mch_type.mtype_name}} ({{mch_type.mtype_code}})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Select Machine Subtype</label>
+                                        <select class="form-control" id="id_sub_type" name="add_subtype" required="True">
+                                            <option value="" selected>--- กรุณาเลือกประเภทเครื่องจักร ---</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label for="machine_name">Machine Name</label>
+                                        <input type="text" class="form-control" name="add_machine_name" id="add_machine_name" placeholder="ชื่อเครื่องจักร" required="True" autocomplete="off" maxlength="50" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="mac_prod_code">Machine-Production line Code</label>
+                                        <input type="text" class="form-control" name="add_mpc" id="add_mpc" placeholder="รหัสไลน์ผลิตเครื่องจักร" required="True" autocomplete="off" maxlength="20" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="machine_asset_code">Machine Asset Code</label>
+                                        <input type="text" class="form-control" name="add_machine_asset_code" id="add_machine_asset_code" placeholder="รหัสทรัพย์สิน" autocomplete="off" maxlength="30" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-md-4">
+                                        <label class="control-label">Load Capacity </label>
+                                        <input type="number" class="form-control" id="add_cpm" placeholder="ความจุ" name="add_cpm" maxlength="10" autocomplete="off" min="0" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="control-label">Load Capacity Unit</label>
+                                        <input type="text" class="form-control" id="add_capacity" placeholder="หน่วยความจุ (ชิ้น,กก.)" name="add_capacity" maxlength="10" autocomplete="off">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="power">Power (KWatt/Hour) :</label>
+                                        <input type="number" class="form-control" name="add_power" id="add_power" placeholder="การใช้พลังงานกิโลวัตต์/ชั่วโมง" autocomplete="off" maxlength="50" min="0" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Machine Core</label>
+                                        <div class="activeswitch">
+                                            <input type="checkbox" class="activeswitch-checkbox" id="add_mch_core" name="add_mch_core" value="True">
+                                            <label class="activeswitch-label" for="add_mch_core">
+                                              <span class="activeswitch-inner"></span>
+                                              <span class="activeswitch-switch"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-row">
+                                    <div class="col-4">
+                                        <label>Installation Date</label>
+                                        <input type="date" class="form-control" id="add_install_date" name="add_installdate" min="2000-01-01" value="">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Start Date</label>
+                                        <input type="date" class="form-control" id="add_start_date" name="add_startdate" min="2000-01-01" value="">
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Machine Hours</label>
+                                        <input type="number" class="form-control" id="add_hour" placeholder="เวลาเครื่องจักรทำงาน (ชั่วโมง)" name="add_hour" maxlength="10" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div><b>Personnel</b></div><hr>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Supplier</label>
+                                        <input type="text" class="form-control" name="add_supplier_code" id="add_supplier_code" placeholder="บริษัทผู้ขายเครื่องจักร" autocomplete="off" maxlength="20" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Supplier Emp In Charge</label>
+                                        <input type="text" class="form-control" name="add_supplier_name" id="add_supplier_name" placeholder="ชื่อผู้ขายเครื่องจักร" autocomplete="off" maxlength="50" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Supplier Contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="add_supplier_contact" id="add_supplier_contact" placeholder="เบอร์หรืออีเมลติดต่อผู้ขายเครื่องจักร" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Engineer Emp ID</label>
+                                        <input type="text" class="form-control" name="add_eng_emp_id" id="add_eng_emp_id" placeholder="รหัสพนักงานวิศวะผู้ผิดชอบ" autocomplete="off" maxlength="20" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Engineer Emp In Charge Name</label>
+                                        <input type="text" class="form-control" name="add_eng_emp_name" id="add_eng_emp_name" placeholder="ชื่อพนักงานวิศวะผู้ผิดชอบ" autocomplete="off" maxlength="50" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Engineer contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="add_eng_emp_contact" id="add_eng_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อวิศวะผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <label>Production Emp ID</label>
+                                        <input type="text" class="form-control" name="add_pro_emp_id" id="add_pro_emp_id" placeholder="รหัสพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="20" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Production Emp In Charge Name</label>
+                                        <input type="text" class="form-control" name="add_pro_emp_name" id="add_pro_emp_name" placeholder="ชื่อพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
+                                    </div>
+                                    <div class="col-4">
+                                        <label>Production Contact (Email,PhoneNo)</label>
+                                        <input type="text" class="form-control" name="add_pro_emp_contact" id="add_pro_emp_contact" placeholder="เบอร์หรืออีเมลติดต่อพนักงานไลน์ผลิตผู้รับผิดชอบ" autocomplete="off" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Addmachine" id="AddmachineButton" disabled>Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal Export File -->
+    <div id="exportfile" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" id="export_file" action="{% url 'machine_manage' %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Export File</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-10" id="dropdown-semantic">
+                                        <label>Select Production Line</label>
+                                        <select class="ui fluid dropdown" id="multi-select-lines" name="multi_select_lines" multiple>
+                                            <option value="">Production Lines</option>
+                                            {% for line in user_org %}
+                                            <option value="{{line.pid}}">{{line}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" class="ui button btn" id="clear-button">Clear</button>
+                                    </div>
+                                </div>
+                                <div id="machines_choices">
+                                    <select multiple="multiple" id="machines_choices" name="my-select[]"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label">File Export :</label>
+                                    <select class="col-7 form-control" name="file_type">
+                                        <option value="docx">word report</option>
+                                        <option value="excel">excel report</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="Export_machine" id="ExportButton">Export</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+
+{% block script %}
+
+    <!--Javascript-->
+    <!-- Date Input-->
+    <script src="{% static 'javascript/input_date.js'%}"></script>
+    <!-- Semantic UI -->
+    <script src="{% static 'Semantic-UI-CSS-master/components/dropdown.js' %}"></script>
+    <script src="{% static 'Semantic-UI-CSS-master/components/transition.min.js' %}"></script>
+    <!-- bs-custom-file -->
+    <script src="{% static 'javascript/bs-custom-file-input.js'%}"></script>
+    <script src="{% static 'javascript/bs-custom-file-input.min.js'%}"></script>
+    <!-- Multiselect -->
+    <script src="{% static 'javascript/jquery.multi-select.js' %}" type="text/javascript"></script>
+    <script>
+        var selected_machines = [];
+        var clear_machine = false;
+        $('#machines_choices').multiSelect({
+          afterSelect: function(values){
+            selected_machines.push(values)                                          // Add selected machine to list
+            console.log(typeof selected_machines,selected_machines);
+            var selected = JSON.stringify(selected_machines);
+            $.ajax({
+                type: 'GET',
+                url: '',
+                data: {
+                  'multiple_selected_mch': selected
+                },
+                dataType: 'json',
+            })
+
+          },
+          afterDeselect: function(values){
+            var i;
+            for (i in selected_machines) {
+              if (JSON.stringify(selected_machines[i]) == JSON.stringify(values)) {   // Compare deselected machine to machine in list
+                var index_remove = selected_machines.indexOf(selected_machines[i]);   // Remove matched machine with index
+                selected_machines.splice(index_remove, 1);
+              }
+            }
+            var selected = JSON.stringify(selected_machines);
+            $.ajax({
+                type: 'GET',
+                url: '',
+                data: {
+                  'multiple_selected_mch': selected
+                },
+                dataType: 'json',
+            });
+          }
+        });
+
+        $(function() {
+          $('#multi-select-lines').dropdown({
+            onChange(value, text, $choice) {
+              clear_machine = false;
+              for (i in value) {
+                if (value[0]=="") {
+                  value.shift();
+                }
+              }
+              console.log(value,typeof value)
+              var multiple_selected = JSON.stringify(value);
+
+              $.ajax({
+                type: 'GET',
+                url: '/ajax/load_selected_lines/',
+                data: {
+                  'selected_lines': multiple_selected
+                },
+                dataType: 'json',
+                success: function(data) {
+                    var i;
+                    if (!data.length || clear_machine) {
+                      $('#machines_choices').empty().multiSelect('refresh');
+                      selected_machines = [];
+                    } else {
+                      $('#machines_choices').empty().multiSelect('refresh');
+                      selected_machines = [];
+                      for (i in data) {
+                        var getID = document.getElementById("machines_choices");
+                        var option = document.createElement("option");
+                        option.text = data[i].fields.machine_production_line_code;
+                        option.value = data[i].pk;
+                        $('#machines_choices').multiSelect('addOption', { value: data[i].pk, text: data[i].fields.machine_production_line_code});
+                      }
+                    }
+                }
+              });
+            }
+          });
+          $('.ui.button').on('click', function () {
+            $('#multi-select-lines').dropdown('restore defaults');
+            clear_machine = true;
+
+          });
+
+          $("#ExportButton").click(function(){
+            console.log(JSON.stringify(selected_machines));
+            console.log("mch list:",typeof JSON.stringify(selected_machines));
+            console.log(selected_machines, typeof selected_machines);
+            document.getElementById("ExportButton").value = selected_machines;
+
+          });
+
+        });
+
+
+      </script>
+    <script>
+        $(document).ready(function(){
+            $("#add_machine_brand").keyup(function(){
+                check_serial('#add_serial');
+            });
+            $("#add_machine_model").keyup(function(){
+                check_serial('#add_serial');
+            });
+        });
+    </script>
+    <script>
+            function check_serial(element) {
+                add_serial= $(element).val();
+                var add_brand = document.getElementById("add_machine_brand");
+                var add_model = document.getElementById("add_machine_model");
+                var button = document.getElementById("AddmachineButton");
+
+                $.ajax({
+                    url : $(element).attr("data-url"),
+                    data : {
+                        "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                        "add_serial" : add_serial,
+                        "add_brand" : add_brand.value,
+                        "add_model" : add_model.value,
+                    },
+                    method: "POST",
+                    dataType : "json",
+                    success : function (data) {
+                        //console.log(data);
+                        if (data.serial_success) {
+                            $('#add_serial').parent().removeClass();
+                            $('#add_serial').parent().addClass('form-group success');
+                            button.disabled = false;
+                        } else {
+                            $('#add_serial').parent().removeClass();
+                            $('#add_serial').parent().addClass('form-group error');
+                            button.disabled = true;
+                        }
+                        if (add_serial == "") {
+                            $('#add_serial').parent().removeClass();
+                            $('#add_serial').parent().addClass('form-group');
+                            button.disabled = true;
+                        }
+                    }
+                });
+            }
+    </script>
+    <script>
+        $("#id_mch_type").change(function () {
+            const url = $("#add_machine").attr("data-mch-subtype-url");  // get the url of the `load_cities` view
+            const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'mch_type': mch_typeID       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#id_sub_type").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+        });
+
+    </script>
+    <script>
+        var i;
+        for (i = 0; i <= {{machine|length}}; i++) {
+            $("#select_mtype"+i).change(function () {
+                var numID = this.id.substring(12,);
+                const url = $("#mch_edit"+numID).attr("data-mch-subtype-url");  // get the url of the `load_cities` view
+                const mch_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'mch_type': mch_typeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {   // `data` is the return of the `load_cities` view function
+                        $("#select_stype"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    }
+                });
+            });
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+          bsCustomFileInput.init()
+        })
+    </script>
+
+{% endblock %}

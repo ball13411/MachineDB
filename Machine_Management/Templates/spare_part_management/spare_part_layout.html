@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}{% endblock %}</title>
 
+
     {% load static %}
     <!-- icon -->
     <link rel="stylesheet" type="text/css" href="{% static 'iconfont/material-icons.css' %}">
@@ -16,36 +17,18 @@
     <!-- Bootstrap 4.5.3 -->
     <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap.min.css' %}">
     <script src="{% static 'javascript/bootstrap.min.js' %}"></script>
+    <!--  Popper  -->
+    <script src="{% static 'javascript/popper-1.16.0.min.js' %}"></script>
     <!-- DataTable   -->
     <link rel="stylesheet" type="text/css" href="{% static 'style/jquery.dataTables-1.10.19.min.css' %}">
     <script src="{% static 'javascript/jquery.dataTables.min.js' %}"></script>
-    <!--  Popper  -->
-    <script src="{% static 'javascript/popper-1.16.0.min.js' %}"></script>
-    <!-- Moment   -->
-    <script src="{% static 'javascript/moment-2.29.0.min.js' %}"></script>
-    <!--  Input Date Format  DD/MM/YYYY -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style/input_date.css' %}">
     <!--  Container Form -->
     <link rel="stylesheet" type="text/css" href="{% static 'style/container-fluid.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'style/form-group.css' %}">
 
-    <script>
-        $(document).ready(function(){
-            $("#setting").on("show.bs.modal", function(event){
-                // Get the button that triggered the modal
-                var button = $(event.relatedTarget);
+    {% block css %}
 
-                // Extract value from the custom data-* attribute
-                var titleData = button.data("title");
-                $(this).find(".modal-title").text(titleData);
-            });
-        });
-    </script>
-    <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-    </script>
+    {% endblock %}
 
 </head>
 <body>
@@ -61,16 +44,17 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
             <div class="navbar-nav">
 
-                {% for menu in repair_menu %}
-                    {% if menu == repair_main_menu %}
+                {% for menu in sp_menu %}
+                    {% if menu == sp_main_menu %}
                         <a href="{% url menu.path_url %}" class="nav-item nav-link active"><b>{{menu.name}}</b></a>
-                        {% else %}
+                    {% else %}
                         <a href="{% url menu.path_url %}" class="nav-item nav-link">{{menu.name}}</a>
                     {% endif %}
                 {% endfor %}
 
                 {% block navbar %}
                 {% endblock %}
+
             </div>
             <form method="POST" action="{% url 'signin' %}">
                 {% csrf_token %}
@@ -91,22 +75,39 @@
         </div>
         {% endfor %}
 
-        {% block content %}
 
+        {% block content %}
 
         {% endblock %}
 
     </div>
 </div>
+
+
 <script>
     $(document).ready( function () {
     $('#myTable').DataTable();
 } );
 </script>
-<script src="{% static 'javascript/input_date.js'%}"></script>
+<script>
+    $(document).ready(function(){
+        $("#setting").on("show.bs.modal", function(event){
+            // Get the button that triggered the modal
+            var button = $(event.relatedTarget);
+
+            // Extract value from the custom data-* attribute
+            var titleData = button.data("title");
+            $(this).find(".modal-title").text(titleData);
+        });
+    });
+</script>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
 
 {% block script %}
-
 
 {% endblock %}
 

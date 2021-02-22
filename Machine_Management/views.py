@@ -6,18 +6,19 @@ import Machine_Management
 import datetime
 import django
 from .forms import *
-from .filters import MachineFilter
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.http import HttpResponse
-from django.core import serializers
 import xlwt
-import ast
 from docx import Document
 from docx.shared import Inches
 from collections import Counter
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+# from .filters import MachineFilter
+# from django.http import JsonResponse
+# from django.views.decorators.csrf import csrf_exempt
+# from django.core import serializers
+# import ast
 
 # Create your views here.
 
@@ -55,7 +56,7 @@ def signin(request):
             except Machine_Management.models.User.DoesNotExist:  # Message Wrong username or password
                 messages.error(request, "username หรือ password ไม่ถูกต้อง")
 
-    return render(request, 'signin.html')
+    return render(request, 'account/signin.html')
 
 
 def usermanage(request):
@@ -67,23 +68,23 @@ def usermanage(request):
     if request.method == "POST":
         # Form Edituser (Settings of user)
         if 'Edituser' in request.POST:
-            username = request.POST['set_username']  # Get var('username') from HTML
-            update_role = request.POST['select_role']  # Get var('role') from HTML
+            username = request.POST['set_username']                 # Get var('username') from HTML
+            update_role = request.POST['select_role']               # Get var('role') from HTML
             update_org = request.POST['select_org']
-            now = datetime.datetime.now()  # Call Datetime now
-            user = User.objects.get(username=username)  # Query user
+            now = datetime.datetime.now()                           # Call Datetime now
+            user = User.objects.get(username=username)              # Query user
             user.user_active = request.POST.get('set_user_status', False)
-            user.update_date = now  # Update UpdateDate to now
-            user.update_by = str(User_login.username)  # Update UserUpdate of UserSelect
+            user.update_date = now                                  # Update UpdateDate to now
+            user.update_by = str(User_login.username)               # Update UserUpdate of UserSelect
             org = Organization.objects.get(org_id=update_org)
             user.org = org
-            role = Role.objects.get(role_id=update_role)  # Get RoleID of UserSelect
-            user.role = role  # Update Role of UserSelect
-            user.save()  # Save all Update
+            role = Role.objects.get(role_id=update_role)            # Get RoleID of UserSelect
+            user.role = role                                        # Update Role of UserSelect
+            user.save()                                             # Save all Update
             messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         # Form Add User (Add New User)
         elif 'Adduser' in request.POST:
-            username = request.POST['add_username']  # Get var('username') form HTML
+            username = request.POST['add_username']                 # Get var('username') form HTML
             fname = request.POST['add_fname']
             lname = request.POST['add_lname']
             email = request.POST['add_email']
@@ -150,65 +151,7 @@ def usermanage(request):
                'User_login': User_login,
                'orgs': orgs,
                'departments': departments}
-    return render(request, 'usermanage.html', context)
-
-
-@csrf_exempt
-def check_username(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_username = request.POST["add_username"]
-        userid = User.objects.filter(username=add_username)
-        user = None
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if userid.count():
-                    user = True
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-
-            if not user:
-                response_data["username_success"] = True
-            else:
-                response_data["username_success"] = False
-
-        except Exception:
-            response_data["username_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_email(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_email = request.POST["add_email"]
-        mail = User.objects.filter(email=add_email)
-        email = None
-
-        try:
-            # we are matching the input again hardcoded value to avoid use of DB.
-            # You can use DB and fetch value from table and proceed accordingly.
-            if mail.count():
-                email = True
-
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
-
-        if not email:
-            response_data["email_success"] = True
-        else:
-            response_data["email_success"] = False
-
-        return JsonResponse(response_data)
+    return render(request, 'account/usermanage.html', context)
 
 
 def reset_password(request):
@@ -235,7 +178,7 @@ def reset_password(request):
                 messages.error(request, 'รหัสผ่านเก่าต้องไม่ตรงกับรหัสผ่านใหม่')
         except Machine_Management.models.User.DoesNotExist:  # Failed Connect User in model(DB)
             messages.error(request, 'ชื่อผู้ใช้และรหัสผ่านเก่าไม่ถูกต้อง')
-    return render(request, 'resetpassword.html')
+    return render(request, 'account/resetpassword.html')
 
 
 def rolemanage(request):
@@ -272,7 +215,7 @@ def rolemanage(request):
     roles = Role.objects.all()
     context = {'roles': roles,
                'User_login': User_login}
-    return render(request, 'rolemanage.html', context)
+    return render(request, 'account/rolemanage.html', context)
 
 
 def screenmanage(request):
@@ -319,7 +262,7 @@ def screenmanage(request):
     screens = Screen.objects.all()
     context = {'User_logined': User_login,
                'screens': screens}
-    return render(request, 'screenmanage.html', context)
+    return render(request, 'account/screenmanage.html', context)
 
 
 def role_screen(request):
@@ -396,7 +339,7 @@ def role_screen(request):
                'list_role_screen': list_role_screen,
                'roles': roles,
                'screens': screens}
-    return render(request, 'role_screen_manage.html', context)
+    return render(request, 'account/role_screen_manage.html', context)
 
 
 def home(request):
@@ -409,6 +352,7 @@ def home(request):
         user_role = Role.objects.get(role_id=User_login.role)
     except AttributeError:
         return redirect("signin")
+    user_dep = User_and_department.objects.get(user=User_login, department=UserLoginDepartment)
     List_user_Screen = user_role.members.all()
     list_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
     list_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
@@ -417,15 +361,28 @@ def home(request):
     for menu_role in List_user_Screen:
         try:
             list_menu_role.append(Menu.objects.get(screen=menu_role))
-        except Machine_Management.models.Menu.DoesNotExist:
+        except ObjectDoesNotExist:
             pass
     for root in list_user_menu_lv0:
         if root in list_menu_role:
             dict_menu_level[root] = []
     for child in list_user_menu_lv1:
+        if child.pk == 'repair_notice' and not user_dep.is_inform and not user_dep.is_close:
+            continue
+        elif child.pk == 'repair_inspect' and not user_dep.is_inspect:
+            continue
+        elif child.pk == 'repair_approve' and not user_dep.is_approve:
+            continue
+        elif child.pk == 'maintenance_receive' and not user_dep.is_receive:
+            continue
+        elif child.pk == 'maintenance_assign' and not user_dep.is_assign:
+            continue
+        elif child.pk == 'maintenance_report' and not user_dep.is_report and not user_dep.is_verify:
+            continue
         if child in list_menu_role:
             root = Menu.objects.get(menu_id=child.parent_menu)
             dict_menu_level[root].append(child)
+
     user_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
     repair_inform_model = Repair_notice.objects.filter(repairer_user=User_login)
@@ -450,15 +407,16 @@ def home(request):
                'repair_inspect_incomplete': repair_inspect_incomplete, 'repair_approve_incomplete': repair_approve_incomplete,
                'mtn_receive_incomplete': mtn_receive_incomplete, 'mtn_assign_incomplete': mtn_assign_incomplete, 'mtn_report_incomplete': mtn_report_incomplete,
                'repair_receive_incomplete': repair_receive_incomplete, 'mtn_inspect_incomplete': mtn_inspect_incomplete}
-    return render(request, 'home.html', context)
+    return render(request, 'home/home.html', context)
 
 
 def test(request):
 
     if request.method == "POST":
-        if 'test' in request.POST:
-            print(request.POST.getlist('test'))
-            return redirect('/test/')
+        if 'test_select' in request.POST:
+            print(request.POST['test_select'])
+            print(request.POST.getlist('test_select'))
+        return redirect('/test/')
     context = {}
     return render(request, 'test.html', context)
 
@@ -533,7 +491,7 @@ def menumanage(request):
 
         return redirect('menumanage')
 
-    list_menu = Menu.objects.order_by('level')
+    list_menu = Menu.objects.order_by('level', 'index')
     list_screen = Screen.objects.all()
     screen_of_menu = []
     for menu in list_menu:
@@ -544,7 +502,7 @@ def menumanage(request):
         'list_screen': list_screen,
         'screen_of_menu': screen_of_menu
     }
-    return render(request, 'menumanage.html', context)
+    return render(request, 'account/menumanage.html', context)
 
 
 def organizemanage(request):
@@ -581,22 +539,7 @@ def organizemanage(request):
     context = {
         'orgs': orgs, 'User_login': User_login
     }
-    return render(request, 'organizemanage.html', context)
-
-
-def load_building(request):
-    site_id = request.GET.get('location_site_id')
-    building = Building.objects.filter(site_id=site_id).all()
-    context = {'building': building}
-    return render(request, 'building_dropdown_list.html', context)
-
-
-def load_floor(request):
-    site_id = request.GET.get('location_site_id')
-    building_id = request.GET.get('location_building_id')
-    floors = Floor.objects.filter(building_id=building_id, site_id=site_id).all()
-    context = {'floors': floors}
-    return render(request, 'floor_dropdown_list.html', context)
+    return render(request, 'organization/organizemanage.html', context)
 
 
 def production_line(request):
@@ -656,7 +599,7 @@ def production_line(request):
     context = {
         'User_login': User_login, 'lines': lines, 'sites': sites, 'buildings': buildings, 'floors': floors
     }
-    return render(request, 'production_line.html', context)
+    return render(request, 'organization/production_line.html', context)
 
 
 def location(request):
@@ -726,7 +669,7 @@ def location(request):
     buildings = Building.objects.all()
     floors = Floor.objects.all()
     context = {'User_login': User_login, 'sites': sites, 'buildings': buildings, 'floors': floors}
-    return render(request, 'location.html', context)
+    return render(request, 'organization/location.html', context)
 
 
 def org_productline(request):
@@ -754,43 +697,7 @@ def org_productline(request):
     context = {
         'org_lines': org_lines, 'prod_lines': prod_lines, 'User_login': User_login, 'UserRole': UserRole
     }
-    return render(request, 'org_prodline.html', context)
-
-
-@csrf_exempt
-def check_role(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_roleid = request.POST["add_roleid"]
-        roleid = Role.objects.filter(role_id=add_roleid)
-        role = None
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if roleid.count():
-                    role = True  # alredy exist
-                elif len(add_roleid) == 0:
-                    role = None  # empty input
-                else:
-                    role = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-
-            if not role:
-                response_data["role_success"] = True
-            else:
-                response_data["role_success"] = False
-            if role is None:
-                response_data["role_empty"] = True
-        except Exception:
-            response_data["role_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-
-        return JsonResponse(response_data)
+    return render(request, 'organization/org_prodline.html', context)
 
 
 def productmanage(request):
@@ -830,14 +737,7 @@ def productmanage(request):
     products = Product.objects.all()
     plines = Production_line.objects.all()
     context = {"User_login": User_login, "UserRole": UserRole, "products": products, 'plines': plines}
-    return render(request, 'productmanage.html', context)
-
-
-def load_machine_subtype(request):
-    mch_type = request.GET.get('mch_type')
-    mch_subtype = Machine_subtype.objects.filter(mch_type_id=mch_type).all()
-    context = {'mch_subtype': mch_subtype}
-    return render(request, 'ajax_machine_subtype.html', context)
+    return render(request, 'organization/productmanage.html', context)
 
 
 def machine_manage(request):
@@ -845,6 +745,9 @@ def machine_manage(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_management')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mch_menu = dict_menu_level[Menu.objects.get(pk='machine_manage_menu')]
+    mch_main_menu = Menu.objects.get(pk='machine_management')
 
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
@@ -999,10 +902,17 @@ def machine_manage(request):
             messages.success(request, "ลบรายการสำเร็จ")
 
         elif 'Export_machine' in request.POST:
+            list_line = request.POST.getlist('multi_select_lines')
+            list_machine = request.POST.get('Export_machine').split(',')
+            if list_line == []:
+                list_machine = Machine.objects.filter(line_id__in=user_org)
+            elif list_machine == ['']:
+                list_machine = Machine.objects.filter(line_id__in=list_line)
+
             file_report = request.POST['file_type']
             if file_report == 'docx':
-                machine_id = request.POST.get('Export_machine').split(',')
-                line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
+
+                line_id = Machine.objects.filter(machine_id__in=list_machine).order_by('line_id').values('line_id').distinct()
                 list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
                 document = Document()
                 for line in list_production_line:
@@ -1037,7 +947,7 @@ def machine_manage(request):
                         row_cells[2].text = str(capacity)
 
                     # document.add_heading('เครื่องจักร', level=1)
-                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=machine_id).order_by('machine_production_line_code')
+                    machine_in_line = Machine.objects.filter(line_id=line, machine_id__in=list_machine).order_by('machine_production_line_code')
                     for mch in machine_in_line:
 
                         document.add_heading(f'ชื่อเครื่องจักร : {mch.machine_name}', level=1)
@@ -1059,6 +969,7 @@ def machine_manage(request):
                             ('Machine Subtype', mch.sub_type),
                             ('Machine Production Line', mch.line),
                             ('Machine Line Code', mch.machine_production_line_code),
+                            ('Machine Asset Code', mch.machine_asset_code),
                             ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
                             ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
                             ('Machine Installed Date', mch.machine_installed_datetime),
@@ -1066,8 +977,8 @@ def machine_manage(request):
                             ('Machine Hours', str(mch.machine_hour)),
                             ('Machine Supplier', mch.machine_supplier_code),
                             ('Machine Supplier Name', str(mch.machine_supplier_name)+" (ติดต่อ : "+str(mch.machine_supplier_contact)+" )"),
-                            ('Engineer Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_eng_emp_id)+" ชื่อ: "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
-                            ('Production Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_pro_emp_id)+" ชื่อ: "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
+                            ('Engineer Emp in Charge', str(mch.machine_eng_emp_id)+"  "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
+                            ('Production Emp in Charge', str(mch.machine_pro_emp_id)+"  "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
                         )
 
                         table = document.add_table(rows=1, cols=2)
@@ -1124,7 +1035,7 @@ def machine_manage(request):
                 ws.row(0).height = 200*2
                 style = xlwt.easyxf('pattern: pattern solid, fore_colour gray25;''font: colour black, bold True;''align: vert centre, horiz centre')
 
-                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
+                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Asset Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
                            'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date', 'Start Date']
 
                 for col_num in range(len(columns)):
@@ -1140,13 +1051,12 @@ def machine_manage(request):
                           'pattern: pattern solid, fore_colour tan;' 'align: vert centre, horiz centre',
                           'pattern: pattern solid, fore_colour rose;' 'align: vert centre, horiz centre']
 
-                machine_submit = request.POST.get('Export_machine')
-                queryset = Machine.objects.filter(machine_id__in=machine_submit.split(',')).order_by('line__production_line', 'machine_production_line_code')
+                queryset = Machine.objects.filter(machine_id__in=list_machine).order_by('line__production_line', 'machine_production_line_code')
 
                 rows = queryset.values_list('line__production_line', 'mch_type__mtype_name', 'sub_type__subtype_name', 'machine_name',
-                                            'machine_production_line_code', 'machine_brand', 'machine_model', 'serial_id', 'machine_load_capacity',
-                                            'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour', 'machine_hour', 'machine_installed_datetime',
-                                            'machine_start_use_datetime')
+                                            'machine_production_line_code', 'machine_asset_code', 'machine_brand', 'machine_model', 'serial_id',
+                                            'machine_load_capacity', 'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour',
+                                            'machine_hour', 'machine_installed_datetime', 'machine_start_use_datetime')
 
                 get_lines = rows.values('line__production_line')
 
@@ -1188,33 +1098,12 @@ def machine_manage(request):
         return redirect('machine_manage')
 
     context = {
-        'User_login': User_login,
+        'User_login': User_login, 'user_org': user_org,
         'machine': machine, 'mch_subtype_all': mch_subtype_all,
         'production_line': pd_line, 'mch_type_all': mch_type_all, 'role_and_screen': role_and_screen,
-        'select_line_export': select_line_export, 'filter_mch_line': filter_mch_line}
-    return render(request, 'machine_manage.html', context)
-
-
-@csrf_exempt
-def check_serial(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_machine_serial = request.POST["add_serial"]
-        add_brand = request.POST['add_brand']
-        add_model = request.POST['add_model']
-        serial = Machine.objects.filter(serial_id=add_machine_serial, machine_model=add_model, machine_brand=add_brand)
-
-        if serial.count():
-            serial_status = True  # alredy exist
-        else:
-            serial_status = False  # avialble
-
-        if not serial_status:
-            response_data["serial_success"] = True
-        else:
-            response_data["serial_success"] = False
-
-        return JsonResponse(response_data)
+        'select_line_export': select_line_export, 'filter_mch_line': filter_mch_line,
+        'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+    return render(request, 'machine_management/machine_manage.html', context)
 
 
 def machine_type(request):
@@ -1222,6 +1111,9 @@ def machine_type(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_type')
     if not role_and_screen.exists():
         return redirect('signin')
+    mch_menu = dict_menu_level[Menu.objects.get(pk='machine_manage_menu')]
+    mch_main_menu = Menu.objects.get(pk='machine_type')
+
     mch_types = Machine_type.objects.all()
     if request.method == "POST":
         if 'Addtype' in request.POST:
@@ -1262,44 +1154,9 @@ def machine_type(request):
 
         return redirect('machine_type')
 
-    context = {'mch_types': mch_types, 'User_login': User_login, 'role_and_screen': role_and_screen}
-    return render(request, 'machine_type.html', context)
-
-
-@csrf_exempt
-def check_machine_type_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_type_code = request.POST["add_type_code"]
-        typeid = Machine_type.objects.filter(mtype_code=add_type_code)
-        typecode = None
-
-        try:
-            try:
-                if typeid.count():
-                    typecode = True  # alredy exist
-                elif len(add_type_code) == 0:
-                    typecode = None  # empty input
-                else:
-                    typecode = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-
-            if not typecode:
-                response_data["typecode_success"] = True
-            else:
-                response_data["typecode_success"] = False
-            if typecode is None:
-                response_data["typecode_empty"] = True
-
-        except Exception:
-            response_data["typecode_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-
-        return JsonResponse(response_data)
+    context = {'mch_types': mch_types, 'User_login': User_login, 'role_and_screen': role_and_screen,
+               'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+    return render(request, 'machine_management/machine_type.html', context)
 
 
 def machine_subtype(request):
@@ -1307,6 +1164,10 @@ def machine_subtype(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_sub_type')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mch_menu = dict_menu_level[Menu.objects.get(pk='machine_manage_menu')]
+    mch_main_menu = Menu.objects.get(pk='machine_sub_type')
+
     mch_subtype = Machine_subtype.objects.all()
     mch_type_all = Machine_type.objects.all()
     if request.method == "POST":
@@ -1355,136 +1216,8 @@ def machine_subtype(request):
         return redirect('machine_subtype')
 
     context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login,
-               'role_and_screen': role_and_screen}
-    return render(request, 'machine_subtype.html', context)
-
-
-@csrf_exempt
-def check_screen_id(request):
-    if request.method == 'POST':
-        response_data = {}
-        screen_id = request.POST["screen_id"]
-        screen = Screen.objects.filter(screen_id=screen_id)
-        screen_status = None
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if screen.exists():
-                    screen_status = True  # already exist
-                elif len(screen_id) == 0:
-                    screen_status = None  # empty input
-                else:
-                    screen_status = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-            if not screen_status:
-                response_data["screen_status_success"] = True
-            else:
-                response_data["screen_status_success"] = False
-            if screen_status is None:
-                response_data["screen_status_empty"] = True
-
-        except Exception:
-            response_data["screen_status_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_menu_id(request):
-    if request.method == 'POST':
-        response_data = {}
-        menu_id = request.POST["menu_id"]
-        menu = Menu.objects.filter(menu_id=menu_id)
-        menu_status = None
-
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if menu.exists():
-                    menu_status = True  # already exist
-                elif len(menu_id) == 0:
-                    menu_status = None  # empty input
-                else:
-                    menu_status = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-            if not menu_status:
-                response_data["menu_status_success"] = True
-            else:
-                response_data["menu_status_success"] = False
-            if menu_status is None:
-                response_data["menu_status_empty"] = True
-
-        except Exception:
-            response_data["menu_status_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_org_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        org_code = request.POST["org_code"]
-        organize = Organization.objects.filter(org_code=org_code)
-        org_status = None
-
-        try:
-            try:
-                # we are matching the input again hardcoded value to avoid use of DB.
-                # You can use DB and fetch value from table and proceed accordingly.
-                if organize.exists():
-                    org_status = True  # already exist
-                elif len(request.POST["org_code"]) == 0:
-                    org_status = None  # empty input
-                else:
-                    org_status = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-            if not org_status:
-                response_data["org_status_success"] = True
-            else:
-                response_data["org_status_success"] = False
-            if org_status is None:
-                response_data["org_status_empty"] = True
-
-        except Exception:
-            response_data["org_status_success"] = False
-            response_data["msg"] = "Some error occurred. Please let Admin know."
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_machine_subtype_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        add_subtype_code = request.POST["add_subtype_code"]
-        add_mch_type = request.POST['add_mch_type']
-        subtype_id = Machine_subtype.objects.filter(subtype_code=add_subtype_code, mch_type_id=add_mch_type)
-
-        if subtype_id.count():
-            subtype_code = True  # alredy exist
-        else:
-            subtype_code = False  # avialble
-
-        if not subtype_code:
-            response_data["subtype_code_success"] = True
-        else:
-            response_data["subtype_code_success"] = False
-
-        return JsonResponse(response_data)
+               'role_and_screen': role_and_screen, 'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+    return render(request, 'machine_management/machine_subtype.html', context)
 
 
 def home_machine(request, line):
@@ -1496,7 +1229,7 @@ def home_machine(request, line):
     machine_line = Machine.objects.filter(line__in=product_line)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine_line': machine_line, 'product_line': product_line, 'products': products}
-    return render(request, 'home_machine.html', context)
+    return render(request, 'home/home_machine.html', context)
 
 
 def machine_details(request, line, machine):
@@ -1507,7 +1240,7 @@ def machine_details(request, line, machine):
     spare_part_of_mch = Machine_sparepart.objects.filter(machine_id__in=machine)
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
                'machine': machine, 'spare_part_of_mch': spare_part_of_mch}
-    return render(request, 'machine_details.html', context)
+    return render(request, 'home/machine_details.html', context)
 
 
 def spare_part_manage(request):
@@ -1515,6 +1248,10 @@ def spare_part_manage(request):
     role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_manage')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    sp_menu = dict_menu_level[Menu.objects.get(pk='spare_part_menu')]
+    sp_main_menu = Menu.objects.get(pk='spare_part_manage')
+
     spare_part_all = Spare_part.objects.all()
     spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
@@ -1557,22 +1294,8 @@ def spare_part_manage(request):
         return redirect('spare_part_manage')
 
     context = {'User_login': User_login, 'spare_part_all': spare_part_all, 'spare_part_group_all': spare_part_group_all,
-               'role_and_screen': role_and_screen}
-    return render(request, 'spare_part_manage.html', context)
-
-
-def load_spare_part_subtype(request):
-    sp_type_id = request.GET.get('sp_type_id')
-    spare_part_sub_type = Spare_part_sub_type.objects.filter(spare_part_type_id=sp_type_id).all()
-    context = {'spare_part_subtype': spare_part_sub_type}
-    return render(request, 'ajax_spare_part_subtype.html', context)
-
-
-def load_spare_part(request):
-    sp_subtype_id = request.GET.get('sp_subtype_id')
-    spare_part = Spare_part.objects.filter(spare_part_sub_type=sp_subtype_id).all()
-    context = {'spare_part': spare_part}
-    return render(request, 'ajax_spare_part.html', context)
+               'role_and_screen': role_and_screen, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+    return render(request, 'spare_part_management/spare_part_manage.html', context)
 
 
 def spare_part_subtype(request):
@@ -1580,6 +1303,10 @@ def spare_part_subtype(request):
     role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_subtype')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    sp_menu = dict_menu_level[Menu.objects.get(pk='spare_part_menu')]
+    sp_main_menu = Menu.objects.get(pk='spare_part_subtype')
+
     spare_part_subtype_all = Spare_part_sub_type.objects.all()
     spare_part_group_all = Spare_part_group.objects.all()
     if request.method == 'POST':
@@ -1610,8 +1337,9 @@ def spare_part_subtype(request):
         return redirect('spare_part_subtype')
 
     context = {'User_login': User_login, 'spare_part_subtype_all': spare_part_subtype_all,
-               'spare_part_group_all': spare_part_group_all, 'role_and_screen': role_and_screen}
-    return render(request, 'spare_part_subtype.html', context)
+               'spare_part_group_all': spare_part_group_all, 'role_and_screen': role_and_screen,
+               'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+    return render(request, 'spare_part_management/spare_part_subtype.html', context)
 
 
 def spare_part_type(request):
@@ -1619,6 +1347,10 @@ def spare_part_type(request):
     role_and_screen = Role_Screen.objects.filter(role=UserRole, screen_id='spare_part_type')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    sp_menu = dict_menu_level[Menu.objects.get(pk='spare_part_menu')]
+    sp_main_menu = Menu.objects.get(pk='spare_part_type')
+
     spare_part_group_all = Spare_part_group.objects.all()
     sp_type_all = Spare_part_type.objects.all()
     if request.method == "POST":
@@ -1642,11 +1374,11 @@ def spare_part_type(request):
             spare_type.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
-        return redirect('/sparepartmanage/type/')
+        return redirect('spare_part_subtype')
 
     context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all,
-               'role_and_screen': role_and_screen}
-    return render(request, 'spare_part_type.html', context)
+               'role_and_screen': role_and_screen, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+    return render(request, 'spare_part_management/spare_part_type.html', context)
 
 
 def spare_part_group(request):
@@ -1654,6 +1386,10 @@ def spare_part_group(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='spare_part_group')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    sp_menu = dict_menu_level[Menu.objects.get(pk='spare_part_menu')]
+    sp_main_menu = Menu.objects.get(pk='spare_part_group')
+
     sp_group_all = Spare_part_group.objects.all()
     if request.method == "POST":
         if 'add_spare_part_group' in request.POST:
@@ -1675,103 +1411,11 @@ def spare_part_group(request):
             spare_group.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
-        return redirect('/sparepartmanage/group/')
+        return redirect('spare_part_group')
 
-    context = {'User_login': User_login, 'sp_group_all': sp_group_all, 'role_and_screen': role_and_screen}
-    return render(request, 'spare_part_group.html', context)
-
-
-@csrf_exempt
-def ajax_dropdown_sp_type(request):
-    if request.method == 'POST':
-        if request.POST['filter_sp_type'] != "":
-            sp_type = Spare_part_type.objects.filter(spare_part_group_id=request.POST['filter_sp_type'])
-            data = serializers.serialize('json', sp_type)
-        else:
-            data = [{}]
-    return HttpResponse(data, content_type="application/json")
-
-
-@csrf_exempt
-def ajax_dropdown_sp_subtype(request):
-    if request.method == 'POST':
-        if request.POST['filter_sp_subtype'] != "":
-            sp_type = Spare_part_sub_type.objects.filter(spare_part_type_id=request.POST['filter_sp_subtype'])
-            data = serializers.serialize('json', sp_type)
-        else:
-            data = [{}]
-    return HttpResponse(data, content_type="application/json")
-
-
-@csrf_exempt
-def ajax_dropdown_sp(request):
-    if request.method == 'POST':
-        if request.POST['filter_sp'] != "":
-            sp_type = Spare_part.objects.filter(spare_part_sub_type_id=request.POST['filter_sp'])
-            data = serializers.serialize('json', sp_type)
-        else:
-            data = [{}]
-    return HttpResponse(data, content_type="application/json")
-
-
-@csrf_exempt
-def check_spare_part_group_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        spare_group = Spare_part_group.objects.filter(spare_part_group_code=request.POST['add_code'])
-        spare_group_code = None
-        try:
-            if spare_group.count():
-                spare_group_code = True  # alredy exist
-            elif len(request.POST['add_code']) == 0:
-                spare_group_code = None  # empty input
-            else:
-                spare_group_code = False  # avialble
-
-        except ObjectDoesNotExist:
-            pass
-        except Exception as e:
-            raise e
-        if not spare_group_code:
-            response_data["spare_group_code_success"] = True
-        else:
-            response_data["spare_group_code_success"] = False
-        if spare_group_code is None:
-            response_data["spare_group_code_empty"] = True
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_spare_part_type_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        spare_type = Spare_part_type.objects.filter(spare_part_type_code=request.POST['add_code'], spare_part_group_id=request.POST['group_code'])
-        if spare_type.count():
-            spare_type_code = True  # alredy exist
-        else:
-            spare_type_code = False  # avialble
-        if not spare_type_code:
-            response_data["spare_type_code_success"] = True
-        else:
-            response_data["spare_type_code_success"] = False
-        return JsonResponse(response_data)
-
-
-@csrf_exempt
-def check_spare_part_subtype_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        spare_subtype = Spare_part_sub_type.objects.filter(spare_part_sub_type_code=request.POST['add_subtype_code'], spare_part_type_id=request.POST['add_sp_type'])
-        if spare_subtype.count():
-            spare_subtype_code = True  # alredy exist
-        else:
-            spare_subtype_code = False  # avialble
-
-        if not spare_subtype_code:
-            response_data["spare_subtype_code_success"] = True
-        else:
-            response_data["spare_subtype_code_success"] = False
-        return JsonResponse(response_data)
+    context = {'User_login': User_login, 'sp_group_all': sp_group_all, 'role_and_screen': role_and_screen,
+               'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+    return render(request, 'spare_part_management/spare_part_group.html', context)
 
 
 def machine_and_spare_part(request):
@@ -1779,6 +1423,10 @@ def machine_and_spare_part(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_spare_part')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mch_menu = dict_menu_level[Menu.objects.get(pk='machine_manage_menu')]
+    mch_main_menu = Menu.objects.get(pk='machine_and_spare_part')
+
     dict_mch_sp = {}
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
@@ -1814,7 +1462,7 @@ def machine_and_spare_part(request):
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
 
-        return redirect('/machinemanage/machine_spare_part/')
+        return redirect('machine_and_spare_part')
 
     for mch in machine:
         dict_mch_sp[mch] = []
@@ -1823,8 +1471,9 @@ def machine_and_spare_part(request):
 
     context = {'User_login': User_login,
                'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_all': spare_part_all,
-               'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all, 'machine_all': machine}
-    return render(request, 'machine&spare_part.html', context)
+               'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all, 'machine_all': machine,
+               'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+    return render(request, 'machine_management/machine&spare_part.html', context)
 
 
 def maintenance_assign(request):
@@ -1833,56 +1482,8 @@ def maintenance_assign(request):
     if not role_and_screen.exists():
         return redirect('signin')
 
-    mch_sp_not_gen = Machine_sparepart.objects.filter(gen_mtnchng_date__isnull=True, gen_mtnchk_date__isnull=True)
-
-    for mch_sp in mch_sp_not_gen:
-        if mch_sp.machine.machine_hour:
-            # Change Maintenance
-            if mch_sp.last_mtnchng_hour and mch_sp.mtnchng_life_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchng_hour + mch_sp.mtnchng_life_hour:
-                    mch_sp.gen_mtnchng_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='change')
-                    main_job.save()
-                    continue
-            elif mch_sp.next_mtnchng_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchng_hour:
-                    mch_sp.gen_mtnchng_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='change')
-                    main_job.save()
-                    continue
-            # Checking Maintenance
-            if mch_sp.last_mtnchk_hour and mch_sp.mtnchk_life_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.last_mtnchk_hour + mch_sp.mtnchk_life_hour:
-                    mch_sp.gen_mtnchk_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='checking')
-                    main_job.save()
-                    continue
-            elif mch_sp.next_mtnchk_hour:
-                if mch_sp.machine.machine_hour >= mch_sp.next_mtnchk_hour:
-                    mch_sp.gen_mtnchk_date = datetime.date.today()
-                    mch_sp.save()
-                    main_job = Maintenance_job.objects.create(job_no=autoJobNumber(),
-                                                              job_gen_date=datetime.date.today(),
-                                                              job_mch_sp_id=mch_sp.pk,
-                                                              job_status="รอการมอบหมาย",
-                                                              job_mtn_type='checking')
-                    main_job.save()
-                    continue
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='maintenance_assign')
 
     if request.method == "POST":
         if "assign_submit" in request.POST:
@@ -1900,7 +1501,7 @@ def maintenance_assign(request):
                         job.save()
                     except ObjectDoesNotExist:
                         messages.error(request, "ไม่มีผู้ใช้งานดังกล่าว กรุณากรอกข้อมูลให้ถูกต้อง")
-                        return redirect('/preventive/plan')
+                        return redirect('maintenance_assign')
 
         elif "set_maintenance_data" in request.POST:
             mch_and_sp = Machine_sparepart.objects.get(pk=request.POST['set_maintenance_data'])
@@ -1912,10 +1513,11 @@ def maintenance_assign(request):
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
 
-        return redirect('/preventive/plan')
+        return redirect('maintenance_assign')
 
     maintenance_job_gen = Maintenance_job.objects.all()
-    context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen}
+    context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen,
+               'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_assign.html', context)
 
 
@@ -1924,6 +1526,10 @@ def machine_capacity(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_capacity')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mch_menu = dict_menu_level[Menu.objects.get(pk='machine_manage_menu')]
+    mch_main_menu = Menu.objects.get(pk='machine_capacity')
+
     if request.method == "POST":
         if 'Add_machine_capacity' in request.POST:
             mch_capacity = Machine_capacity.objects.filter(machine=request.POST['add_mch'],
@@ -1955,66 +1561,22 @@ def machine_capacity(request):
             delete_machine_capacity = Machine_capacity.objects.get(pk=request.POST['delete_machine_capacity'])
             delete_machine_capacity.delete()
 
-        return redirect('/machinemanage/capacity/')
+        return redirect('machine_capacity')
 
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
     mch_capacity_all = Machine_capacity.objects.filter(machine__in=machine)
     production_line = Production_line.objects.all()
     context = {'User_login': User_login, 'mch_capacity_all': mch_capacity_all, 'production_line': production_line, 'role_and_screen': role_and_screen,
-               'user_org': user_org}
-    return render(request, 'machine_capacity.html', context)
-
-
-def load_machine_from_line(request):
-    line_id = request.GET.get('line_id')
-    machine = Machine.objects.filter(line_id=line_id).all()
-    context = {'machine': machine}
-    return render(request, 'ajax_machine.html', context)
-
-
-def load_product(request):
-    line_id = request.GET.get('line_id')
-    product_all = Product.objects.filter(line_id=line_id).all()
-    context = {'product_all': product_all}
-    return render(request, 'ajax_product.html', context)
-
-
-@csrf_exempt
-def check_machine_product(request):
-    if request.method == 'POST':
-        try:
-            response_data = {}
-            machine_product = Machine_capacity.objects.filter(machine_id=request.POST['mch_id'],
-                                                              product_id=request.POST['product_id'])
-            machine_product_code = None
-            try:
-                if machine_product.count():
-                    machine_product_code = True  # alredy exist
-                elif len(request.POST['mch_id']) == 0 or len(request.POST['product_id']) == 0:
-                    machine_product_code = None  # empty input
-                else:
-                    machine_product_code = False  # avialble
-
-            except ObjectDoesNotExist:
-                pass
-            except Exception as e:
-                raise e
-            if not machine_product_code:
-                response_data["data_code_success"] = True
-            else:
-                response_data["data_code_success"] = False
-            if machine_product_code is None:
-                response_data["data_code_empty"] = True
-        except ValueError:
-            pass
-        return JsonResponse(response_data)
+               'user_org': user_org, 'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+    return render(request, 'machine_management/machine_capacity.html', context)
 
 
 def document_create1(request):
     from docx import Document
     from docx.shared import Pt
 
+    machine_id = None
     line_id = Machine.objects.filter(machine_id__in=machine_id).order_by('line_id').values('line_id').distinct()
     list_production_line = Production_line.objects.filter(pid__in=line_id).order_by('production_line')
     document = Document()
@@ -2134,23 +1696,6 @@ def document_create1(request):
     return response
 
 
-def load_selected_lines(request):
-    input_line = request.GET['selected_lines']
-    change_type = ast.literal_eval(input_line)
-    machine_list = Machine.objects.filter(line__in=change_type)
-    data = serializers.serialize('json', machine_list)
-    return HttpResponse(data, content_type="application/json")
-
-
-@csrf_exempt
-def load_role_screen(request):
-    role_id = request.POST['role_id']
-    rs = Role_Screen.objects.filter(role_id=role_id).values_list('screen_id', flat="True")
-    screen = Screen.objects.exclude(screen_id__in=rs)
-    data = serializers.serialize('json', screen)
-    return HttpResponse(data, content_type="application/json")
-
-
 def document2_excel(request):
 
     response = HttpResponse(content_type='application/ms-excel')
@@ -2198,6 +1743,10 @@ def spare_part_and_machine(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_capacity')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    sp_menu = dict_menu_level[Menu.objects.get(pk='spare_part_menu')]
+    sp_main_menu = Menu.objects.get(pk='spare_part_and_machine')
+
     dict_mch_sp = {}
     user_org = User_login.org.org_line.all()
     machine = Machine.objects.filter(line__in=user_org)
@@ -2221,7 +1770,7 @@ def spare_part_and_machine(request):
             except ObjectDoesNotExist:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
 
-        return redirect('/sparepartmanage/spare_pare_machine/')
+        return redirect('spare_part_and_machine')
 
     for sp in spare_part_all:
         dict_mch_sp[sp] = []
@@ -2229,28 +1778,8 @@ def spare_part_and_machine(request):
         dict_mch_sp[sp_mch.spare_part].append(sp_mch.machine)
 
     context = {'role_and_screen': role_and_screen, 'spare_part_all': spare_part_all, 'dict_mch_sp': dict_mch_sp, 'user_org': user_org,
-               'machine_type_all': machine_type_all, 'User_login': User_login}
-    return render(request, 'spare_and_machine.html', context)
-
-
-@csrf_exempt
-def load_machine(request):
-    sp_id = request.POST['spID']
-    line_id = request.POST['lineID']
-    sub_type_id = request.POST['subtypeID']
-    machine_spare = Machine_sparepart.objects.filter(spare_part_id=sp_id).values_list('machine')
-    machine = Machine.objects.filter(line_id=line_id, sub_type_id=sub_type_id).exclude(pk__in=machine_spare)
-    data = serializers.serialize('json', machine)
-    return HttpResponse(data, content_type="application/json")
-
-
-@csrf_exempt
-def load_machine_sparepart(request):
-    machine_id = request.POST['machine_id']
-    mch_sp = Machine_sparepart.objects.filter(machine_id=machine_id).values('spare_part_id')
-    spare_part_of_mch = Spare_part.objects.filter(pk__in=mch_sp)
-    data = serializers.serialize('json', spare_part_of_mch)
-    return HttpResponse(data, content_type="application/json")
+               'machine_type_all': machine_type_all, 'User_login': User_login, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+    return render(request, 'spare_part_management/spare_and_machine.html', context)
 
 
 def maintenance_data(request):
@@ -2258,6 +1787,10 @@ def maintenance_data(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_data')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='maintenance_data')
+
     line_of_user = User_login.org.org_line.all()
     mch_sp_all = Machine_sparepart.objects.filter(machine__line__in=line_of_user)
     if request.method == 'POST':
@@ -2282,7 +1815,8 @@ def maintenance_data(request):
             return redirect('maintenance_data')
 
     context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all,
-               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')], 'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+               'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
+               'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_data.html', context)
 
 
@@ -2290,6 +1824,10 @@ def maintenance_report(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_report')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='maintenance_report')
+
     job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username))
     if request.method == "POST":
         if 'report_submit' in request.POST:
@@ -2307,6 +1845,7 @@ def maintenance_report(request):
             mtn_report.after_repair = request.POST['after_repair']
             mtn_report.job_status = "รอการอนุมัติงาน"
             mtn_report.is_approve = False
+            mtn_report.is_report = True
             mtn_report.equipment_code1 = request.POST['equipment_code1'] if request.POST['equipment_code1'] != "" else None
             mtn_report.equipment_code2 = request.POST['equipment_code2'] if request.POST['equipment_code2'] != "" else None
             mtn_report.equipment_code3 = request.POST['equipment_code3'] if request.POST['equipment_code3'] != "" else None
@@ -2340,7 +1879,6 @@ def maintenance_report(request):
                 machine_model = Machine.objects.get(pk=mch_sp.machine.pk)
                 machine_model.machine_hour_last_update = mch_sp.machine.machine_hour
                 machine_model.machine_hour = mtn_report.job_mch_hour
-                machine_model.save()
 
                 if mtn_report.job_mtn_type in ["change", "repair"]:
                     mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
@@ -2353,18 +1891,21 @@ def maintenance_report(request):
                     mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
                 if mch_sp.mtnchng_life_hour:
                     mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+
+                machine_model.save()
                 mch_sp.save()
                 mtn_report.save()
 
             else:
                 mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
+                mtn_report.is_report = False
                 mtn_report.save()
 
         return redirect('maintenance_report')
 
     context = {'User_login': User_login, 'job': job, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
-               'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+               'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_report.html', context)
 
 
@@ -2372,6 +1913,9 @@ def machine_hour_update(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_hour_update')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='machine_hour_update')
 
     if request.method == 'POST':
         if 'hour_submit' in request.POST:
@@ -2392,18 +1936,9 @@ def machine_hour_update(request):
     user_org = User_login.org.org_line.all()
     machine_all = Machine.objects.filter(line__in=user_org)
 
-    context = {'User_login': User_login, 'machine_all': machine_all, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
-               'menu_assign': Menu.objects.get(menu_id='maintenance_assign')}
+    context = {'User_login': User_login, 'machine_all': machine_all,
+               'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/machine_hour_update.html', context)
-
-
-@csrf_exempt
-def assign_check_user(request):
-    machine_id = request.POST['machine_id']
-    mch_sp = Machine_sparepart.objects.filter(machine_id=machine_id).values('spare_part_id')
-    spare_part_of_mch = Spare_part.objects.filter(pk__in=mch_sp)
-    data = serializers.serialize('json', spare_part_of_mch)
-    return HttpResponse(data, content_type="application/json")
 
 
 def repair_notice(request):
@@ -2411,6 +1946,9 @@ def repair_notice(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_notice')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    repair_menu = dict_menu_level[Menu.objects.get(pk='repair_menu')]
+    repair_main_menu = Menu.objects.get(pk='repair_notice')
 
     line_of_user = User_login.org.org_line.all()
     list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login)
@@ -2430,7 +1968,7 @@ def repair_notice(request):
                 rep_no = last_no.repair_no
                 rep_int = int(rep_no.split(date_no+dep_code)[-1])
                 new_rep_int = rep_int + 1
-                new_rep_number = "PR" + date_no + dep_code + '{:03}'.format(new_rep_int)
+                new_rep_number = "RP" + date_no + dep_code + '{:03}'.format(new_rep_int)
             repair_notice_model = Repair_notice.objects.create(
                 repair_no=new_rep_number,
                 department_notifying_id=request.POST['department_notifying'],
@@ -2516,7 +2054,7 @@ def repair_notice(request):
 
     context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice,
                'list_inspect_user': list_inspect_user, 'list_approve_user': list_approve_user, "UserLoginDepartment": UserLoginDepartment,
-               'list_department': list_department}
+               'list_department': list_department, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
     return render(request, 'repair_inform/repair_notice.html', context)
 
 
@@ -2540,24 +2078,10 @@ def department_manage(request):
             delete_dep = Department.objects.get(pk=request.POST['delete_dep'])
             delete_dep.delete()
 
-        return redirect('/usermanage/department')
+        return redirect('department_manage')
 
     context = {'User_login': User_login, 'departments': departments}
-    return render(request, 'department_manage.html', context)
-
-
-@csrf_exempt
-def check_department_code(request):
-    if request.method == 'POST':
-        response_data = {}
-        dep_code = request.POST["department_code"]
-        department_model = Department.objects.filter(department_code=dep_code)
-        if department_model.exists():
-            response_data["department_success"] = False
-        else:
-            response_data["department_success"] = True
-
-    return JsonResponse(response_data)
+    return render(request, 'account/department_manage.html', context)
 
 
 def user_department(request):
@@ -2633,13 +2157,17 @@ def user_department(request):
 
     context = {'User_login': User_login, 'org_all': org_all, 'user_all': user_all, 'user_department_all': user_department_all,
                'department_all': department_all, 'dict_user_department': dict_user_department}
-    return render(request, 'user_department.html', context)
+    return render(request, 'account/user_department.html', context)
 
 
 def repair_inspect(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_inspect')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    repair_menu = dict_menu_level[Menu.objects.get(pk='repair_menu')]
+    repair_main_menu = Menu.objects.get(pk='repair_inspect')
+
     repair_inspect_all = Repair_notice.objects.filter(repair_status="รอการตรวจสอบ", inspect_user=User_login)
     if request.method == "POST":
         if "repair_submit" in request.POST:
@@ -2657,9 +2185,9 @@ def repair_inspect(request):
             repair_inspect_model.inspect_remark = request.POST['inspect_remark'] if request.POST['inspect_remark'] != "" else None
             repair_inspect_model.save()
 
-        return redirect('/repair/inspect')
+        return redirect('repair_inspect')
 
-    context = {'User_login': User_login, 'repair_inspect_all': repair_inspect_all}
+    context = {'User_login': User_login, 'repair_inspect_all': repair_inspect_all, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
     return render(request, 'repair_inform/repair_inspect.html', context)
 
 
@@ -2667,6 +2195,10 @@ def repair_approve(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_approve')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    repair_menu = dict_menu_level[Menu.objects.get(pk='repair_menu')]
+    repair_main_menu = Menu.objects.get(pk='repair_approve')
+
     repair_approve_all = Repair_notice.objects.filter(repair_status="รอการอนุมัติ", approve_user=User_login)
     if request.method == "POST":
         if "repair_submit" in request.POST:
@@ -2684,28 +2216,10 @@ def repair_approve(request):
             repair_approve_model.approve_remark = request.POST['approve_remark'] if request.POST['approve_remark'] != "" else None
             repair_approve_model.save()
 
-        return redirect('/repair/approve')
+        return redirect('repair_approve')
 
-    context = {'User_login': User_login, 'repair_approve_all': repair_approve_all}
+    context = {'User_login': User_login, 'repair_approve_all': repair_approve_all, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
     return render(request, 'repair_inform/repair_approve.html', context)
-
-
-@csrf_exempt
-def load_username(request):
-    if request.method == 'POST':
-        response_data = {}
-        username = request.POST["username"]
-        user_model = User.objects.get(pk=username)
-        if user_model:
-            response_data["user_success"] = True
-            response_data["user_username"] = user_model.username
-            response_data["user_firstname"] = user_model.firstname
-            response_data["user_lastname"] = user_model.lastname
-            response_data["user_email"] = user_model.email
-        else:
-            response_data["user_success"] = False
-
-    return JsonResponse(response_data)
 
 
 def signIn_department(request):
@@ -2722,23 +2236,14 @@ def signIn_department(request):
     return render(request, 'home/signIn_department.html', context)
 
 
-@csrf_exempt
-def load_userInOrg(request):
-    if request.method == 'POST':
-        list_org = request.POST.getlist("list_org[]", [])
-        user_model = User.objects.filter(org__in=list_org)
-        if user_model:
-            data = serializers.serialize('json', user_model, fields=["username", "firstname", "lastname"])
-        else:
-            data = {}
-
-    return HttpResponse(data, content_type="application/json")
-
-
 def maintenance_receive(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_receive')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='maintenance_receive')
+
     # repair_receive_all = Repair_notice.objects.filter(repair_status="รอการรับใบแจ้ง", department_receive=UserLoginDepartment)
     repair_receive_all = Repair_notice.objects.filter(department_receive=UserLoginDepartment)
     if request.method == "POST":
@@ -2759,15 +2264,17 @@ def maintenance_receive(request):
 
         return redirect('maintenance_receive')
 
-    context = {'User_login': User_login, 'repair_receive_all': repair_receive_all}
+    context = {'User_login': User_login, 'repair_receive_all': repair_receive_all, 'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_receive.html', context)
 
 
-@csrf_exempt
 def maintenance_inspect(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='maintenance_inspect')
     if not role_and_screen.exists():
         return redirect('signin')
+
+    mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+    mtn_main_menu = Menu.objects.get(pk='maintenance_inspect')
 
     # mtn_inspect_all = Repair_notice.objects.filter(repair_status="รอการตรวจสอบอะไหล่", department_receive=UserLoginDepartment)
     mtn_inspect_all = Repair_notice.objects.filter(department_receive=UserLoginDepartment)
@@ -2796,11 +2303,15 @@ def maintenance_inspect(request):
                     job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchng_date)
                     job_auto.job_status = "ปิดงาน"
                     job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
                     job_auto.save()
                 elif mch_sp.gen_mtnchk_date is not None:
                     job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchk_date)
                     job_auto.job_status = "ปิดงาน"
                     job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
                     job_auto.save()
                 mch_sp.gen_mtnchng_date = datetime.date.today()
                 mch_sp.save()
@@ -2815,17 +2326,6 @@ def maintenance_inspect(request):
             messages.success(request, "บันทึกรายการสำเร็จ")
             return redirect('maintenance_inspect')
 
-    context = {'User_login': User_login, 'mtn_inspect_all': mtn_inspect_all, 'spare_part_group_all': spare_part_group_all}
+    context = {'User_login': User_login, 'mtn_inspect_all': mtn_inspect_all, 'spare_part_group_all': spare_part_group_all,
+               'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_inspect.html', context)
-
-
-@csrf_exempt
-def load_department_name(request):
-    data = {}
-    if request.method == 'POST':
-        department_code = request.POST["department_code"]
-        dep_model = Department.objects.filter(department_code=department_code)
-        if dep_model:
-            data = serializers.serialize('json', dep_model, fields=["department_name"])
-
-    return HttpResponse(data, content_type="application/json")

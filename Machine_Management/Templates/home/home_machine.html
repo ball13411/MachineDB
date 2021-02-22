@@ -1,16 +1,14 @@
-{% extends 'layout_home.html' %}
+{% extends 'home/layout_home.html' %}
 {% load static %}
 
-
 {% block breadcrumb %}
-    <li class="breadcrumb-item">machine</li>
-    <li class="breadcrumb-item active">data</li>
+    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+    <li class="breadcrumb-item active">Line</li>
 {% endblock %}
 
-
 {% block content %}
+<!--<link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">-->
 
-<link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">
 <style>
     /* status page */
     ol.breadcrumb {
@@ -147,25 +145,31 @@
     <div class="machine-data-header">
 
         <div class="page-header row no-gutters py-4">
+            {% for line in product_line %}
             <div class="col-12 col-sm-4 text-sm-left mb-0">
-            <span class="text-uppercase page-subtitle">Overview</span>
-            <h3 class="page-title">Production Line Data</h3>
+<!--                <span class="text-uppercase page-subtitle">Overview</span>-->
+                <h2 class="page-title">{{line.location_site}} Production Line : {{line.production_line}}</h2>
+                <h5 class="page-title">ผลิตภัณฑ์</h5>
+                {% for pd in products %}
+                &nbsp;&nbsp;<span class="text-uppercase page-subtitle"> - {{pd.product_name}} ({{pd.product_code}})</span><br>
+                {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
     <div class="machine-overview-content">
         <div class="row">
             <div class="col-md-12">
-                {% for production_line in line_of_user %}
+                {% for machine in machine_line %}
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="card mb-4 text-center hover-bg-secondary">
                         <div class="card-body p-5">
-                            <svg width="4em" height="4em" viewBox="0 0 16 16" class="bi bi-house text-color" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                              <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
-                              <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+                            <svg width="4em" height="4em" viewBox="0 0 16 16" class="bi bi-nut text-color" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M11.42 2H4.58L1.152 8l3.428 6h6.84l3.428-6-3.428-6zM4.58 1a1 1 0 0 0-.868.504l-3.429 6a1 1 0 0 0 0 .992l3.429 6A1 1 0 0 0 4.58 15h6.84a1 1 0 0 0 .868-.504l3.428-6a1 1 0 0 0 0-.992l-3.428-6A1 1 0 0 0 11.42 1H4.58z"/>
+                                  <path fill-rule="evenodd" d="M6.848 5.933a2.5 2.5 0 1 0 2.5 4.33 2.5 2.5 0 0 0-2.5-4.33zM5.067 9.848a3.5 3.5 0 1 1 6.062-3.5 3.5 3.5 0 0 1-6.062 3.5z"/>
                             </svg>
-                            <h4 class="card-title">{{production_line}}</h4>
-                            <a href="{% url 'machine_data_line' production_line.pk %}" class="stretched-link"></a>
+                            <h4 class="card-title">{{machine.machine_name}}</h4>
+                            <a href="{% url 'machine_data_machine' machine.line_id machine.pk %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
@@ -174,5 +178,4 @@
             </div>
         </div>
     </div>
-
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-import string, random, datetime
+import datetime
 
 # Create your models here.
 
@@ -31,7 +31,7 @@ class Menu(models.Model):
 
     class Meta:
         db_table = "Menu_management"
-        ordering = ["level", "parent_menu", "index"]
+        ordering = ["level", "index"]
 
 
 class Role(models.Model):
@@ -359,6 +359,9 @@ class User(models.Model):
     user_active = models.BooleanField(default=True)
     departments = models.ManyToManyField(Department, through='User_and_department')
 
+    def __str__(self):
+        return self.username
+
     class Meta:
         db_table = "User_management"
 
@@ -380,30 +383,6 @@ class User_and_department(models.Model):
         ordering = ["department__department_code", "user__firstname"]
 
 
-def randomJobOrder():
-    while True:
-        jobNumber = "MTN"+"".join(random.choices(string.digits, k=7))
-        if Maintenance_job.objects.filter(job_no=jobNumber).count() == 0:
-            break
-    return jobNumber
-
-
-def randomJobRepairOrder():
-    while True:
-        jobRepairNumber = "RP-MTN"+"".join(random.choices(string.digits, k=7))
-        if Maintenance_job.objects.filter(job_no=jobRepairNumber).count() == 0:
-            break
-    return jobRepairNumber
-
-
-def randomRepairOrder():
-    while True:
-        repairNumber = "RP"+"".join(random.choices(string.digits, k=7))
-        if Repair_notice.objects.filter(repair_no=repairNumber).count() == 0:
-            break
-    return repairNumber
-
-
 class Maintenance_job(models.Model):
     job_no = models.CharField(max_length=25, unique=True)
     job_gen_date = models.DateField(auto_now_add=True)
@@ -423,6 +402,7 @@ class Maintenance_job(models.Model):
     corrective_action = models.TextField(default=None, null=True)
     after_repair = models.TextField(default=None, null=True)
     is_approve = models.BooleanField(default=False)
+    is_report = models.BooleanField(default=False)
     job_status = models.CharField(max_length=30, default=None, null=True)
     job_remark = models.TextField(default=None, null=True)
     estimate_cost = models.PositiveIntegerField(default=None, null=True)
@@ -448,7 +428,7 @@ class Repair_notice(models.Model):
     repair_no = models.CharField(max_length=25, unique=True)
     department_notifying = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
     department_receive = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='+')
-    maintenance_jobs = models.ManyToManyField(Maintenance_job)
+    maintenance_jobs = models.ManyToManyField(Maintenance_job, through='Repair_and_maintenance_job')
     notification_date = models.DateField(default=None, null=True)
     problem_report = models.TextField(default=None, null=True)
     effect_problem = models.TextField(default=None, null=True)
@@ -470,9 +450,19 @@ class Repair_notice(models.Model):
     is_approve = models.BooleanField(default=None, null=True)
     is_receive = models.BooleanField(default=None, null=True)
     is_close = models.BooleanField(default=None, null=True)
+    can_close = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'repair_notice'
+
+
+class Repair_and_maintenance_job(models.Model):
+    maintenance_job = models.ForeignKey(Maintenance_job, on_delete=models.CASCADE)
+    repair_notice = models.ForeignKey(Repair_notice, on_delete=models.CASCADE)
+    gen_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Repair_and_maintenance_job'
 
 
 def autoJobNumber():
@@ -501,4 +491,3 @@ def genJobNumber():
         new_mtn_int = mtn_int + 1
         new_mtn_number = "RP-MTN" + date_no + '{:03}'.format(new_mtn_int)
     return new_mtn_number
-

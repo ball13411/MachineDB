@@ -1,0 +1,354 @@
+{% extends "machine_management/machine_layout.html" %}
+
+{% block title %}Machine&SparePart{% endblock %}
+
+
+{% block css %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="table-wrapper">
+        <div class="table-title">
+            <div class="row">
+                <div class="col-sm-5">
+                    <h2>Machine & Spare part <b>Management</b></h2>
+                </div>
+                <div class="col-sm-7" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                    <a href="#setting" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Setting Machine&Sparepart</span></a>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped" id="myTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Line</th>
+                    <th>Machine</th>
+                    <th>Spare part</th>
+                    <th {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for machine,spare_part_of_machine in dict_mch_sp.items %}
+            <tr>
+                <td rowspan="{{spare_part_of_machine|length|add:1}}">{{forloop.counter}}</td>
+                <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.line}}</td>
+                <td rowspan="{{spare_part_of_machine|length|add:1}}">{{machine.machine_production_line_code}} | {{machine.machine_name}}</td>
+                <td>{{spare_part_of_machine.0.spare_part_name}}</td>
+                <td rowspan="{{spare_part_of_machine|length|add:1}}" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
+                    <center>
+                    <a href="#add{{forloop.counter}}" class="settings" title="Settings" data-toggle="modal" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}><i class="material-icons">add_circle</i></a>
+                    <a href="#delete{{forloop.counter}}" class="delete" title="Delete" data-toggle="modal" {% if role_and_screen.0.permission_delete == 'N' %}hidden{% endif %}><i class="material-icons">&#xE5C9;</i></a>
+                    </center>
+                </td>
+            </tr>
+            {% for spare_part in spare_part_of_machine %}
+            <tr>
+                {% if spare_part != spare_part_of_machine.0 %}
+                <td>{{spare_part.spare_part_name}}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        <!-- Modal Add -->
+        <div id="add{{forloop.counter}}" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" id="add_sp{{forloop.counter}}" data-sp-type-url="{% url 'ajax_spare_part_subtype' %}" data-sp-subtype-url="{% url 'load_spare_part' %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Spare Part</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body" >
+                            <div class="form-group">
+                                <label>Machine Code (Machine Name)</label>
+                                <input type="text" id="set_machine{{forloop.counter}}" class="form-control" value="{{machine.machine_production_line_code}} ({{machine.machine_name}})" name="set_machine" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Spare Part Group</label>
+                                <select class="form-control" id="select_sp_group{{forloop.counter}}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                                    <option value="">-------กรุณาเลือกกลุ่มอะไหล่-------</option>
+                                    {% for sp_group in spare_part_group_all %}
+                                    <option value="{{sp_group.pk}}">{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Spare Part Type</label>
+                                <select class="form-control" id="select_sp_type{{forloop.counter}}" name="select_sp_type" required="True">
+                                    <option value="0">-------กรุณาเลือกประเภทอะไหล่-------</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Spare Part Subtype</label>
+                                <select class="form-control" id="select_sp_subtype{{forloop.counter}}" name="select_sp_subtype" required="True">
+                                    <option value="">-------กรุณาเลือกชนิดอะไหล่-------</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Spare Part Name</label>
+                                <select class="form-control" id="select_sp_name{{forloop.counter}}" name="select_sp_name" required="True">
+                                    <option value="">-------กรุณาเลือกอะไหล่-------</option>
+<!--                                        {% for spare_part in spare_part_all %}-->
+<!--                                        {% if spare_part not in spare_part_of_machine %}-->
+<!--                                        <option value="{{spare_part.pk}}">{{spare_part.spare_part_type}} } {{spare_part.spare_part_name}}</option>-->
+<!--                                        {% endif %}-->
+<!--                                        {% endfor %}-->
+                                    {% if spare_part_of_machine|length == spare_part_all|length %}
+                                    <option value="">#Note: Machine have all spare part</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="add_mch_and_sp" value="{{machine.pk}}" {% if spare_part_of_machine|length == spare_part_all|length %} disabled {% endif %}>Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Delete -->
+        <div id="delete{{forloop.counter}}" class="modal fade" tabindex="-1" >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST">
+                        {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Machine</label>
+                            <input type="text" id="del_mch{{forloop.counter}}" class="form-control" value="Machine Code : {{machine.machine_production_line_code}} ({{machine.machine_name}})" name="del_mch" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Spare Part</label>
+                            <select class="form-control" id="select_delete_spare_part{{forloop.counter}}" name="select_delete_spare_part">
+                                {% for spare_part in spare_part_of_machine %}
+                                {% if spare_part in spare_part_all.all %}
+                                <option value="{{spare_part.pk}}"> {{spare_part.spare_part_name}} ({{spare_part.spare_part_type}}) </option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <p>Do you want to delete this spare part of machine?</p>
+                        <p class="text-secondary"><small>If you change your mind, please click cancel.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger" value="{{machine.pk}}" name="delete_spare_part">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <!-- Modal Setting -->
+        <div id="setting" class="modal fade" tabindex="1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Setting</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="form-group col-6">
+                                    <label>Machine Code | Machine Name</label>
+                                    <select class="form-control" id="select_machine" name="select_machine" onchange="machine_sparepart(this)">
+                                        <option value="">-------กรุณาเลือกเครื่องจักร-------</option>
+                                        {% for mch in machine_all %}
+                                        <option value="{{mch.pk}}">{{mch.machine_production_line_code}} | {{mch.machine_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label>Spare Group | Spare Name</label>
+                                    <select class="form-control" id="select_spare_part" name="select_spare_part">
+                                        <option value="">-------กรุณาเลือกอะไหล่-------</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <label><strong>การซ่อมบำรุงรักษา</strong></label><hr>
+                            <div class="row">
+                                <div class="form-group col-4">
+                                    <label>Last Maintenance</label>
+                                    <input type="number" class="form-control" id="last_mtn_change" name="last_mtn_change">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label>Life Maintenance</label>
+                                    <input type="number" class="form-control" id="life_mtn_hour" name="life_mtn_hour">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label>Next Maintenance</label>
+                                    <input type="number" class="form-control" id="next_mtn_change" name="next_mtn_change">
+                                </div>
+                            </div>
+
+                            <label><strong>การตรวจสอบ</strong></label><hr>
+                            <div class="row">
+                                <div class="form-group col-4">
+                                    <label>Last Checking</label>
+                                    <input type="number" class="form-control" id="last_mtn_check" name="last_mtn_check">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label>Life Checking</label>
+                                    <input type="number" class="form-control" id="life_check_hour" name="life_check_hour">
+                                </div>
+                                <div class="form-group col-4">
+                                    <label>Next Checking</label>
+                                    <input type="number" class="form-control" id="next_mtn_check" name="next_mtn_check">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" >Cancel</button>
+                            <button type="submit" class="btn btn-primary" name="setting" >Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
+
+
+{% block script %}
+    <script>
+    var i;
+    for (i = 0; i <= {{dict_mch_sp.keys|length}}; i++) {
+        $("#select_sp_type"+i).change(function () {
+            var numID = this.id.substring(14,);
+            const url = $("#add_sp"+numID).attr("data-sp-type-url");  // get the url of the `load_cities` view
+            const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
+            if (sp_typeID != 0) {
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'sp_type_id': sp_typeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {
+                        $("#select_sp_subtype"+numID).html(data);
+                    }
+                });
+            } else {
+                $("#select_sp_subtype"+numID).empty();
+                var select_type = document.getElementById('select_sp_subtype'+numID);
+                var option_first = document.createElement('option');
+                option_first.appendChild(document.createTextNode("-------กรุณาเลือกประเภทอะไหล่-------"));
+                option_first.value = 0;
+                select_type.appendChild(option_first);
+            }
+        });
+    }
+</script>
+    <script>
+        var i;
+        for (i = 0; i <= {{dict_mch_sp.keys|length}}; i++) {
+            $("#select_sp_subtype"+i).change(function () {
+                var numID = this.id.substring(17,);
+                const url = $("#add_sp"+numID).attr("data-sp-subtype-url");  // get the url of the `load_cities` view
+                const sp_subtypeID = $(this).val();  // get the selected country ID from the HTML input
+
+                $.ajax({                       // initialize an AJAX request
+                    url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                    data: {
+                        'sp_subtype_id': sp_subtypeID       // add the country id to the GET parameters
+                    },
+                    success: function (data) {   // `data` is the return of the `load_cities` view function
+                        $("#select_sp_name"+numID).html(data);  // replace the contents of the city input with the data that came from the server
+                    }
+                });
+
+            });
+        }
+    </script>
+    <script>
+            function ajax_dropdown_type(element) {
+                var filter_sp_type = $(element).val();
+                var numID = element.id.substr(15);
+                $.ajax({
+                    url : $(element).attr("data-url"),
+                    data : {
+                        "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                        "filter_sp_type" : filter_sp_type,
+
+                    },
+                    method: "POST",
+                    dataType : "json",
+                    success : function (data) {
+                        if (data) {
+                            $('#select_sp_type'+numID).empty();
+                            var select_type = document.getElementById('select_sp_type'+numID);
+                            var option_first = document.createElement('option');
+                            option_first.appendChild(document.createTextNode("---------กรุณาเลือกประเภทของอะไหล่---------"));
+                            option_first.value = 0;
+                            select_type.appendChild(option_first);
+                            for (model in data) {
+                                var options = document.createElement('option');
+                                var code = data[model].fields.spare_part_type_code;
+                                var name = data[model].fields.spare_part_type_name;
+                                options.appendChild(document.createTextNode(code+" | "+name));
+                                options.value = data[model].pk;
+                                select_type.appendChild(options);
+                            }
+                        } else {
+                            $('#select_sp_type'+numID).empty();
+                        }
+                    }
+                });
+            }
+    </script>
+    <script>
+        function machine_sparepart(element)
+        {
+            var machine_id = element.value;
+            $.ajax({
+                url : "{% url 'load_machine_sparepart' %}",
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "machine_id" : machine_id,
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    //console.log(data);
+                    if (data) {
+                        console.log("success : ", data);
+                        $('#select_spare_part').empty();
+                        var select_spare = document.getElementById("select_spare_part");
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("-------กรุณาเลือกอะไหล่-------"));
+                        option_first.value = 0;
+                        select_spare.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            options.appendChild( document.createTextNode(data[model].fields.spare_part_name));
+                            options.value = data[model].pk;
+                            select_spare.appendChild(options);
+                        }
+
+                    } else {
+                        $('#select_spare_part').empty();
+                        console.log("non-success : ", data);
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
