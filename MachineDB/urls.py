@@ -67,10 +67,10 @@ urlpatterns = [
     # Preventive Data
     path('preventive/maintenance-receive', views.maintenance_receive, name='maintenance_receive'),
     path('preventive/maintenance-inspect', views.maintenance_inspect, name='maintenance_inspect'),
-    path('preventive/data', views.maintenance_data, name='maintenance_data'),
-    path('preventive/assign', views.maintenance_assign, name='maintenance_assign'),
-    path('preventive/report', views.maintenance_report, name='maintenance_report'),
-    path('preventive/machine', views.machine_hour_update, name='machine_hour_update'),
+    path('preventive/maintenance-data', views.maintenance_data, name='maintenance_data'),
+    path('preventive/maintenance-assign', views.maintenance_assign, name='maintenance_assign'),
+    path('preventive/maintenance-report', views.maintenance_report, name='maintenance_report'),
+    path('preventive/maintenance-machine', views.machine_hour_update, name='machine_hour_update'),
 
     # Home
     path('home/', views.home, name='home'),

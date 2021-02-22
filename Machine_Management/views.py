@@ -969,6 +969,7 @@ def machine_manage(request):
                             ('Machine Subtype', mch.sub_type),
                             ('Machine Production Line', mch.line),
                             ('Machine Line Code', mch.machine_production_line_code),
+                            ('Machine Asset Code', mch.machine_asset_code),
                             ('Machine Load Capacity', str(mch.machine_load_capacity) + " " + str(mch.machine_load_capacity_unit)),
                             ('Machine Power', str(mch.machine_power_use_kwatt_per_hour)+" KWatt/Hour"),
                             ('Machine Installed Date', mch.machine_installed_datetime),
@@ -976,8 +977,8 @@ def machine_manage(request):
                             ('Machine Hours', str(mch.machine_hour)),
                             ('Machine Supplier', mch.machine_supplier_code),
                             ('Machine Supplier Name', str(mch.machine_supplier_name)+" (ติดต่อ : "+str(mch.machine_supplier_contact)+" )"),
-                            ('Engineer Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_eng_emp_id)+" ชื่อ: "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
-                            ('Production Emp in Charge', "รหัสพนักงาน :"+str(mch.machine_pro_emp_id)+" ชื่อ: "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
+                            ('Engineer Emp in Charge', str(mch.machine_eng_emp_id)+"  "+str(mch.machine_eng_emp_name)+" (ติดต่อ : "+str(mch.machine_eng_emp_contact)+" )"),
+                            ('Production Emp in Charge', str(mch.machine_pro_emp_id)+"  "+str(mch.machine_pro_emp_name)+" (ติดต่อ : "+str(mch.machine_pro_emp_contact)+" )")
                         )
 
                         table = document.add_table(rows=1, cols=2)
@@ -1034,7 +1035,7 @@ def machine_manage(request):
                 ws.row(0).height = 200*2
                 style = xlwt.easyxf('pattern: pattern solid, fore_colour gray25;''font: colour black, bold True;''align: vert centre, horiz centre')
 
-                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
+                columns = ['Production Line', 'Machine Type', 'Machine Subtype', 'Machine Name', 'Line Code', 'Asset Code', 'Machine Brand', 'Machine Model', 'Machine Serial',
                            'Load Capacity', 'Load Unit', 'Power (Kwatt/Hour)', 'Machine Hour', 'Installed Date', 'Start Date']
 
                 for col_num in range(len(columns)):
@@ -1053,9 +1054,9 @@ def machine_manage(request):
                 queryset = Machine.objects.filter(machine_id__in=list_machine).order_by('line__production_line', 'machine_production_line_code')
 
                 rows = queryset.values_list('line__production_line', 'mch_type__mtype_name', 'sub_type__subtype_name', 'machine_name',
-                                            'machine_production_line_code', 'machine_brand', 'machine_model', 'serial_id', 'machine_load_capacity',
-                                            'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour', 'machine_hour', 'machine_installed_datetime',
-                                            'machine_start_use_datetime')
+                                            'machine_production_line_code', 'machine_asset_code', 'machine_brand', 'machine_model', 'serial_id',
+                                            'machine_load_capacity', 'machine_load_capacity_unit', 'machine_power_use_kwatt_per_hour',
+                                            'machine_hour', 'machine_installed_datetime', 'machine_start_use_datetime')
 
                 get_lines = rows.values('line__production_line')
 
