@@ -10,7 +10,8 @@
 
 
     {% load static %}
-    <!--     Font Awesome JS-->
+    <!-- Font Awesome JS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome/css/all.css' %}">
     <script src="{% static 'javascript/solid.js' %}"></script>
     <script src="{% static 'javascript/fontawesome.js' %}"></script>
     <!-- icon -->
@@ -24,6 +25,30 @@
     <!-- Bootstrap 4.5.3 -->
     <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap.min.css' %}">
     <script src="{% static 'javascript/bootstrap.min.js' %}"></script>
+    <!-- Datepicker -->
+<!--    <script src="{% static 'javascript/jquery-1.12.4.js' %}"></script>-->
+    <script src="{% static 'javascript/jquery-ui.js' %}"></script>
+    <script>
+        // Set days that have tasks
+        var taskDays =[[2021,01,25,'1 Task'],[2021,01,26,'2 Tasks']];
+        $(function() {
+            $( "#calendar" ).datepicker({
+                todayHighlight: true,
+                // beforeShowDay: setTaskdays
+            });
+            // Set specific day in beforeShowDay
+            // function setTaskdays(date) {
+            //     for (i=0; i< taskDays.length; i++) {
+            //         if (date.getFullYear() == taskDays[i][0]
+            //             && date.getMonth() == taskDays[i][1] - 1
+            //             && date.getDate() == taskDays[i][2]) {
+            //                 return [true, 'highlight', taskDays[i][3]];
+            //             }
+            //     }
+            //     return [true, ''];
+            // }
+        });
+    </script>
     <style>
     	.wrapper {
 		    display: flex;
@@ -341,7 +366,7 @@
                             {% endfor %}
                         </ul>
                     </li>
-                    {% endif %}
+                    {% endif%}
                     {% endfor %}
                     <li><a href="{% url 'signin' %}" name="signout">ออกจากระบบ</a></li>
                 </ul>

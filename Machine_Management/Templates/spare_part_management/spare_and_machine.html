@@ -4,7 +4,44 @@
 
 
 {% block css %}
+    <style>
+        .filter-spare-part {
+            margin: 30px 0;
+            padding: 0px 5%;
+        }
+    </style>
+{% endblock %}
 
+
+{% block filter %}
+    <div class="filter-spare-part" >
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="form-group col-3">
+                    <select  class="form-control" id="sp_group" name="sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                        <option value="0">--- กลุ่มอะไหล่ทั้งหมด ---</option>
+                        {% for group in spare_part_group_all %}
+                        <option value="{{group.pk}}">{{group.spare_part_group_code}} | {{group.spare_part_group_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-3">
+                    <select  class="form-control" id="sp_type" name="sp_type">
+                        <option value="">--- ประเภทอะไหล่ทั้งหมด ---</option>
+                    </select>
+                </div>
+                <div class="form-group col-3">
+                    <select  class="form-control" id="sp_subtype" name="sp_subtype">
+                        <option value="">--- ชนิดอะไหล่ทั้งหมด ---</option>
+                    </select>
+                </div>
+                <div class="form-group col-3">
+                    <button type="submit" class="btn btn-primary form-control" name="filter_spare_part">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 
@@ -231,5 +268,63 @@
             }
 
         }
+    </script>
+    <script>
+        function ajax_dropdown_type(element) {
+            var filter_sp_type = $(element).val();
+            $.ajax({
+                url : $(element).attr("data-url"),
+                data : {
+                    "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                    "filter_sp_type" : filter_sp_type,
+
+                },
+                method: "POST",
+                dataType : "json",
+                success : function (data) {
+                    if (data) {
+                        $('#sp_type').empty();
+                        var select_type = document.getElementById('sp_type');
+                        var option_first = document.createElement('option');
+                        option_first.appendChild(document.createTextNode("--- ประเภทอะไหล่ทั้งหมด ---"));
+                        option_first.value = 0;
+                        select_type.appendChild(option_first);
+                        for (model in data) {
+                            var options = document.createElement('option');
+                            options.appendChild(document.createTextNode(data[model].fields.spare_part_type_code+" | "+data[model].fields.spare_part_type_name));
+                            options.value = data[model].pk;
+                            select_type.appendChild(options);
+                        }
+                    } else {
+                        $('#sp_type').empty();
+                    }
+                    if(select_type.value == 0) {
+                        $('#sp_subtype').empty();
+                        var select_subtype = document.getElementById('sp_subtype');
+                        var option_sub_first = document.createElement('option');
+                        option_sub_first.appendChild(document.createTextNode("--- ชนิดอะไหล่ทั้งหมด ---"));
+                        option_sub_first.value = 0;
+                        select_subtype.appendChild(option_sub_first);
+                    }
+                }
+            });
+        }
+    </script>
+    <script>
+        $("#sp_type").change(function () {
+            const url = "{% url 'ajax_spare_part_subtype2' %}";  // get the url of the `load_cities` view
+            const sp_typeID = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+                data: {
+                    'sp_type_id': sp_typeID       // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#sp_subtype").html(data);  // replace the contents of the city input with the data that came from the server
+                }
+            });
+        });
+
     </script>
 {% endblock %}

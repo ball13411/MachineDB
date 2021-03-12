@@ -84,7 +84,7 @@
         {% endfor %}
         <div class="table-wrapper">
             <div class="table-title">
-                <div class="row">
+                <div class="row ">
                     <div class="col-sm-5">
                         <h2>Department <b>Management</b></h2>
                     </div>
@@ -264,26 +264,17 @@
                         </thead>
                         <tbody>
                         {% for user in user_all %}
-                            <tr>
+                            {% with number_id=forloop.counter %}
+                            <tr><div class="testbadge" id="badge" value="{{user_all|length}}"></div>
                                 <td>{{forloop.counter}}</td>
                                 <td><img src="/static/img/avatar.svg" class="avatar" alt="Avatar">{{user.username}}</td>
                                 <td>{{user.firstname}} {{user.lastname}}</td>
                                 <td>{{user.role}}</td>
                                 <td>{{user.org}}</td>
                                 <td>
-                                    <ul class="avatars">
-                                        {% for dep in user.departments.all %}
-                                            {% if forloop.counter <= 5 %}
-                                            <li>
-                                                <a href="#departments{{user.username}}" data-toggle="modal"><img class="avatar-list" avatar="{{ dep.department_name }}" data-toggle="tooltip" title="{{ dep.department_name }}"></a>
-                                            </li>
-                                            {% elif forloop.counter == user.departments.all.count %}
-                                            <li>
-                                                <a href="#departments{{user.username}}" data-toggle="modal"><span class="more-member">+{{ user.departments.all.count|add:"-5" }}</span></a>
-                                            </li>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </ul>
+                                    {% for dep in user.departments.all %}
+                                    <span class="badge badge{{dep.pk}}" id="badge{{forloop.counter}}" data-toggle="tooltip" title="{{dep.department_name}}">{{dep.department_name|truncatechars:5}}</span>
+                                    {% endfor %}
                                 </td>
                                 <td>
                                     <a href="#edit{{user.username}}" class="settings" title="Settings" data-toggle="modal"><i class="material-icons">&#xE8B8;</i></a>
@@ -327,7 +318,7 @@
                                     </div>
                                 </div>
                             </div>
-
+                            {% endwith %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -390,7 +381,7 @@
                             <form method="POST">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Permissions</h5>
+                                <h5 class="modal-title">Permissions : {{user.username}}</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
@@ -498,11 +489,7 @@
         $('#myTable1').DataTable();
     } );
 </script>
-<script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-</script>
+
 <script src="{% static 'javascript/input_date.js'%}"></script>
 <script>
     // Remove Member Button
@@ -629,6 +616,134 @@
         });
     };
 </script>
+<script>
+    var eventFired = function ( type ) {
+        $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+            var checkid = document.getElementById('badge').getAttribute('value');
 
+            var numcount = parseInt(checkid);
+            console.log("Value: " +numcount+" Type:"+typeof(numcount));
+
+            for (i = 1; i <= numcount; i++) {
+                var theid = "badge"+i;
+
+                switch (i%25) {
+                    case 1:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-a");
+                        break;
+                    case 2:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-b");
+                        break;
+                    case 3:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-c");
+                        break;
+                    case 4:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-d");
+                        break;
+                    case 5:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-e");
+                        break;
+                    case 6:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-f");
+                        break;
+                    case 7:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-g");
+                        break;
+                    case 8:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-h");
+                        break;
+                    case 9:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-i");
+                        break;
+                    case 10:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-j");
+                        break;
+                    case 11:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-k");
+                        break;
+                    case 12:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-l");
+                        break;
+                    case 13:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-m");
+                        break;
+                    case 14:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-n");
+                        break;
+                    case 15:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-o");
+                        break;
+                    case 16:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-p");
+                        break;
+                    case 17:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-q");
+                        break;
+                    case 18:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-r");
+                        break;
+                    case 19:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-s");
+                        break;
+                    case 20:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-t");
+                        break;
+                    case 21:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-u");
+                        break;
+                    case 22:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-v");
+                        break;
+                    case 23:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-w");
+                        break;
+                    case 24:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-x");
+                        break;
+                    case 25:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-y");
+                        break;
+                    case 0:
+                        var element = document.getElementById("badge"+i);
+                        $(".badge"+i).addClass("badge-z");
+                        break;
+                }
+            }
+        });
+    }
+
+    window.onload = eventFired;
+
+    $('#myTable1')
+        .on( 'page.dt',   function () { eventFired( 'Page' ); } )
+        .DataTable();
+</script>
 </body>
 </html>
+

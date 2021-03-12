@@ -1,0 +1,197 @@
+{% extends 'home/layout_home.html' %}
+{% load static %}
+
+{% block content %}
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+  </ol>
+</div>
+<!--<link rel="icon" href="img/favicon/favicon-32x32.png" type="image/x-icon">-->
+<style>
+    /* status page */
+    ol.breadcrumb {
+        background-color: #FAF2F1;
+    }
+    @media (min-width: 576px) {
+        .col-sm-6 {
+            width: 50%;
+            max-width: 50%;
+            float: left;
+        }
+    }
+    @media (min-width: 768px) {
+        .mb-md-0 {
+            margin-bottom: 0!important;
+        }
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            float: left;
+        }
+    }
+    .col-md-6 {
+        position: relative;
+    }
+    /*  menu  */
+    .row {
+        margin-right: -15px;
+    }
+
+    @media (min-width: 992px) {
+        .col-lg-4 {
+            -ms-flex: 0 0 33.333333%;
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+        }
+        .col-md-12 {
+            width: 100%;
+        }
+    }
+    .col-sm-3, .col-md-3, .col-md-12 {
+        position: relative;
+        width: 100%;
+        min-height: 1px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    /* icon menu */
+    .card {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+    }
+
+    .card i {
+    transition: all .3s ease;
+    -moz-transition: all .3s ease;
+    -webkit-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    }
+
+    .card h4, .card i, .card p {
+    position: relative;
+    }
+
+    .card h4 {
+    transition: color 0.3s ease;
+    -moz-transition: color 0.3s ease;
+    -webkit-transition: color 0.3s ease;
+    -o-transition: color 0.3s ease;
+    }
+
+    .card p {
+    transition: color 0.3s ease;
+    -moz-transition: color 0.3s ease;
+    -webkit-transition: color 0.3s ease;
+    -o-transition: color 0.3s ease;
+    }
+
+    .card:hover h4 {
+    color: #fff;
+    }
+
+    .card:hover svg {
+    color: #fff;
+    -webkit-transform: translateY(-10px);
+    transform: translateY(-10px);
+    }
+
+    .card:hover p {
+    color: rgba(255, 255, 255, 0.8);
+    }
+
+    .text-lg {
+    font-size: 50px;
+    }
+
+    .card:before {
+    position: absolute;
+    content: "";
+    left: 0px;
+    bottom: -500px;
+    width: 100%;
+    height: 100%;
+    background: rgba(207, 21, 45, 0.88);
+    transition: all .4s ease;
+    -moz-transition: all .4s ease;
+    -webkit-transition: all .4s ease;
+    -o-transition: all .4s ease;
+    }
+
+    .card:hover:before {
+    bottom: 0px;
+    }
+    h4 {
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 30px;
+    }
+    .text-color{
+        color: #cf152d
+    }
+    .mb-4 {
+        margin-bottom: 1.5rem!important;
+    }
+    .card-title {
+        margin-top: 1.5rem!important;
+    }
+
+</style>
+
+{% csrf_token %}
+    <div class="machine-data-header">
+        <div class="page-header row no-gutters py-4">
+            <div class="">
+                <h1 class="page-title">Announce</h1>
+                <br>
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="page-title px-4"><u>แจ้งใบแจ้งซ่อมเครื่องจักร</u></h3>
+                        <h5 class="page-title px-5">- แจ้งซ่อมทั้งหมด : {{repair_inform_model.count}} | อยู่ในการดำเนินการ : {{repair_inform_incomplete.count}}</h5>
+                        <h5 class="page-title px-5">- ตรวจสอบใบแจ้งทั้งหมด : {{repair_inspect_model.count}} | รอการตรวจสอบใบแจ้งซ่อม : {{repair_inspect_incomplete.count}}</h5>
+                        <h5 class="page-title px-5">- อนุมัติใบแจ้งซ่อมทั้งหมด : {{repair_approve_model.count}} | รอการอนุมัติใบแจ้งซ่อม : {{repair_approve_incomplete.count}}</h5>
+
+                        <h3 class="page-title px-4"><u>รับใบแจ้งซ่อมเครื่องจักร</u></h3>
+                        <h5 class="page-title px-5">- รอการรับใบแจ้งซ่อม : {{repair_receive_incomplete.count}} | รอการตรวจสอบอะไหล่ซ่อมบำรุง : {{mtn_inspect_incomplete.count}}</h5>
+                        <h5 class="page-title px-5">- รับแจ้งซ่อมทั้งหมด : {{mtn_receive_model.count}} | อยู่ในการดำเนินการ : {{mtn_receive_incomplete.count}}</h5>
+                        <h5 class="page-title px-5">- มอบหมายงานทั้งหมด : {{mtn_assign_model.count}} | รอการมอบหมายงาน : {{mtn_assign_incomplete.count}}</h5>
+                        <h5 class="page-title px-5">- รายงานผลการซ่อมทั้งหมด : {{mtn_report_model.count}} | รอการบันทึกผลการซ่อม : {{mtn_report_incomplete.count}}</h5>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="page-header row no-gutters py-4">
+            <div class="col-12 col-sm-4 text-sm-left mb-0">
+                <span class="text-uppercase page-subtitle">Overview</span>
+                <h3 class="page-title">Production Line Data</h3>
+            </div>
+        </div>
+    </div>
+    <div class="machine-overview-content">
+        <div class="row">
+            <div class="col-md-12">
+                {% for production_line in line_of_user %}
+                <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="card mb-4 text-center hover-bg-secondary">
+                        <div class="card-body p-5">
+                            <svg width="4em" height="4em" viewBox="0 0 16 16" class="bi bi-house text-color" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                              <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
+                              <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+                            </svg>
+                            <h4 class="card-title">{{production_line}}</h4>
+                            <a href="{% url 'machine_data_line' production_line.pk %}" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

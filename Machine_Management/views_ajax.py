@@ -563,3 +563,28 @@ def load_department_name(request):
             data = serializers.serialize('json', dep_model, fields=["department_name"])
 
     return HttpResponse(data, content_type="application/json")
+
+
+@csrf_exempt
+def load_round_username(request):
+    if request.method == 'POST':
+        response_data = {}
+        round_engineer = request.POST["round_engineer"]
+        round_user_model = User.objects.get(pk=round_engineer)
+
+        if round_user_model:
+            response_data["round_success"] = True
+            response_data["round_username"] = round_user_model.username
+            response_data["round_firstname"] = round_user_model.firstname
+            response_data["round_lastname"] = round_user_model.lastname
+        else:
+            response_data["round_success"] = False
+
+    return JsonResponse(response_data)
+
+
+def load_spare_part_subtype2(request):
+    sp_type_id = request.GET.get('sp_type_id')
+    spare_part_sub_type = Spare_part_sub_type.objects.filter(spare_part_type_id=sp_type_id).all()
+    context = {'spare_part_subtype': spare_part_sub_type}
+    return render(request, 'ajax_response/ajax_spare_part_subtype2.html', context)

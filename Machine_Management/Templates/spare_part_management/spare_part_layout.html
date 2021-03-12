@@ -67,6 +67,12 @@
     </nav>
 </div>
 <div class="container-fluid">
+
+    {% block filter %}
+
+    {% endblock %}
+
+
     <div class="table-responsive">
         {% for message in messages %}
         <div class="alert {{ message.tags }} alert-dismissible" role="alert">

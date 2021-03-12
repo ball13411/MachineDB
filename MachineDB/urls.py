@@ -92,6 +92,7 @@ urlpatterns = [
     path('check_menu_id', views_ajax.check_menu_id, name='check_menu_id'),
     path('check_org_code', views_ajax.check_org_code, name='check_org_code'),
     path('ajax/load-spare-part-subtype/', views_ajax.load_spare_part_subtype, name='ajax_spare_part_subtype'),
+    path('ajax/load-spare-part-subtype2/', views_ajax.load_spare_part_subtype2, name='ajax_spare_part_subtype2'),
     path('check_spare_part_type_code', views_ajax.check_spare_part_type_code, name='check_spare_part_type_code'),
     path('check_spare_part_subtype_code', views_ajax.check_spare_part_subtype_code, name='check_spare_part_subtype_code'),
     # path('check_spare_part_code', views_ajax.check_spare_part_code, name='check_spare_part_code'),
@@ -111,11 +112,14 @@ urlpatterns = [
     path('ajax/load_username/', views_ajax.load_username, name='load_username'),
     path('ajax/load_userInOrg', views_ajax.load_userInOrg, name='load_userInOrg'),
     path('ajax/load_department_name', views_ajax.load_department_name, name='load_department_name'),
+    path('ajax/load_round_username', views_ajax.load_round_username, name='load_round_username'),
 
     # Test File
     path('download', views.document_create1, name='download_docx'),
     path('download1', views.document2_excel, name='download_sp'),
-    path('test/', views.test)
+    path('test/', views.test),
+    path('test1/', views.test1, name='maintenance_plan_grid'),
+    path('test2/', views.test2, name='maintenance_plan_list'),
 
 
 ]
