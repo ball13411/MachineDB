@@ -290,7 +290,7 @@ class Machine(models.Model):
 
     class Meta:
         db_table = "Machine_master"
-        ordering = ["machine_production_line_code"]
+        ordering = ["line__production_line", "machine_production_line_code"]
 
 
 class Machine_capacity(models.Model):

@@ -1,0 +1,330 @@
+.home-content {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+}
+/* status page */
+ol.breadcrumb {
+    background-color: #FAF2F1;
+}
+@media (min-width: 576px) {
+    .col-sm-6 {
+        width: 50%;
+        max-width: 50%;
+        float: left;
+    }
+}
+@media (min-width: 768px) {
+    .mb-md-0 {
+        margin-bottom: 0!important;
+    }
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        float: left;
+    }
+}
+.col-md-8 {
+    position: relative;
+}
+/*  menu  */
+.row {
+    margin-right: -15px;
+}
+
+@media (min-width: 992px) {
+    .col-lg-4 {
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+    .col-md-12 {
+        width: 100%;
+    }
+}
+.col-sm-3, .col-md-3, .col-md-12 {
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+/* Tasks Card */
+.scrollable-y{
+    position: relative;
+    overflow: auto;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollable-y::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollable-y {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.all-tasks{
+    padding-left: 0px;
+}
+
+.card-hearder{
+    padding: 1.25rem 1.75rem;
+    padding-top: 30px;
+}
+
+.task-count{
+    margin-bottom: 0px;
+}
+
+.task-list{
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.btn{
+    cursor: pointer;
+    background: 0;
+    border: 0;
+    padding: 0;
+    color: inherit;
+}
+/* checkbox */
+[type="checkbox"]{
+    opacity: 0;
+    position: absolute;
+}
+.task{
+    position: relative;
+}
+.task label{
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+.task::after{
+    content: "";
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: -0.5em;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.1;
+}
+.custom-checkbox{
+    display: inline-block;
+    width: 1.3em;
+    height: 1.3em;
+    margin-right: 0.75em;
+    cursor: pointer;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    transform: scale(1);
+    transition: transform 300ms ease-in-out;
+}
+/* Check icon */
+[type="checkbox"] + label .cr-icon{
+    opacity: 0;
+  }
+  [type="checkbox"]:checked + label .cr-icon{
+    opacity: 1;
+  }
+.task:hover .custom-checkbox,
+[type="checkbox"]:focus + label .custom-checkbox{
+    transform: scale(1.2);
+    color: #810000;
+}
+
+[type="checkbox"]:checked + label .custom-checkbox{
+    background: #810000;
+    border: #810000;
+    box-shadow: 0 0 0px 2px white;
+}
+[type="checkbox"]:checked + label{
+    opacity: 0.5;
+}
+.task label::after{
+    content: "";
+    position: absolute;
+    left: 1.9em;
+    right: 0;
+    height: 3px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 150ms ease-in-out;
+}
+[type="checkbox"]:checked + label::after{
+    transform: scaleX(1);
+    transform-origin: left;
+}
+.cr-icon{
+    position: absolute;
+    font-size: .8em;
+    line-height: 0;
+    top: 22%;
+    left: 20%;
+}
+/* Delete button */
+.delete-task{
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    position: absolute;
+    width: 100%;
+    left: 0;
+}
+.btn.delete{
+    opacity: 0.8;
+    font-size: 0.9rem;
+    transition: color 200ms;
+}
+.btn.delete:hover{
+    color: #810000;
+    font-weight: 800;
+}
+.btn.delete:focus{
+    border: none !important;
+    outline:none !important;
+    -webkit-box-shadow: none;
+
+}
+
+/* icon menu */
+.menu-card {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card i {
+    transition: all .3s ease;
+    -moz-transition: all .3s ease;
+    -webkit-transition: all .3s ease;
+    -o-transition: all .3s ease;
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+}
+
+.menu-card h4, .menu-card i, .menu-card p {
+    position: relative;
+}
+
+.menu-card h4 {
+    transition: color 0.3s ease;
+    -moz-transition: color 0.3s ease;
+    -webkit-transition: color 0.3s ease;
+    -o-transition: color 0.3s ease;
+}
+
+.menu-card p {
+    transition: color 0.3s ease;
+    -moz-transition: color 0.3s ease;
+    -webkit-transition: color 0.3s ease;
+    -o-transition: color 0.3s ease;
+}
+
+.menu-card:hover h4 {
+    color: #fff;
+}
+
+.menu-card:hover svg {
+    color: #fff;
+    -webkit-transform: translateY(-10px);
+    transform: translateY(-10px);
+}
+
+.menu-card:hover p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.text-lg {
+    font-size: 50px;
+}
+
+.menu-card:before {
+    position: absolute;
+    content: "";
+    left: 0px;
+    bottom: -500px;
+    width: 100%;
+    height: 100%;
+    background: rgba(207, 21, 45, 0.88);
+    transition: all .4s ease;
+    -moz-transition: all .4s ease;
+    -webkit-transition: all .4s ease;
+    -o-transition: all .4s ease;
+}
+
+.menu-card:hover:before {
+bottom: 0px;
+}
+h4 {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 30px;
+}
+.text-color{
+    color: #cf152d
+}
+.mb-4 {
+    margin-bottom: 1.5rem!important;
+}
+.card-title {
+    margin-top: 1.5rem!important;
+}
+
+/* Notification Card */
+.maintenance-notify {
+    display: flex;
+    align-items: flex-start;
+}
+.maintenance-notify-body {
+    flex: 1;
+}
+.stat {
+    background: #FAF2F1;
+    border-radius: 50%;
+    padding: .75rem;
+    width: 48px;
+    height: 48px;
+}
+.stat svg {
+    color: #810000!important;
+}
+.request-badge {
+    color: #2BAFB2;
+    background-color: #E8E6F3;
+    padding: .50rem 1.25rem;
+    border-radius: .25rem;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.pending-badge {
+    color: #E04D6A;
+    background-color: #E1EDF9;
+    padding: .50rem 1.25rem;
+    border-radius: .25rem;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+/* Daily Tasks */
+.card-hearder {
+    background-color: #fff !important;
+}
+.task-icon {
+    background: #FAF2F1;
+    border-radius: 50%;
+    padding: .25rem;
+    width: 32px;
+    height: 32px;
+    margin-right: .5rem;
+}
+.task-icon svg {
+    color: #810000!important;
+    margin-left: .25rem;
+}

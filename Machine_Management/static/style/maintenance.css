@@ -1,0 +1,226 @@
+/* Button at table header */
+.request-notify, .list-view, .grid-view {
+    border-radius: 6px !important;
+}
+/* ## Maintenance Status ## */
+.jobs-status {
+    margin-top:25px;
+}
+/* maintenance card */
+.row .card{
+    background: #f5f5f5;
+    margin-top: 0px !important;
+    margin-bottom: 15px;
+    position: relative;
+    margin-top: 20px;
+    border-radius: .75rem;
+}
+.card-hearder {
+    padding: 1.25rem;
+}
+.card-body {
+    padding: 1.25rem;
+}
+.request-header {
+    padding: 1.25rem 1.25rem 0rem 1.25rem;
+}
+.request {
+    padding: 0rem 1.25rem 1.25rem 1.25rem;
+}
+/* vertical scroll */
+.scroll-area{
+    margin-top:15px;
+    height: 485px;
+    position: relative;
+    overflow: auto;
+}
+.scrollable-y{
+    white-space: nowrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scroll-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scroll-area {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.my-3{
+    margin-top: 1rem!important;
+    margin-bottom: 1rem!important;
+}
+
+hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+}
+label + hr {
+    margin-top: .2rem;
+    margin-bottom: .5rem;
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+}
+.card .h5{
+    color: #810000;
+}
+.card h6{
+    line-height: 1.5;
+    color: #161a1d;
+}
+
+.action-item{
+    color: #161a1d;
+}
+
+.action-item:hover{
+    color: #810000;
+}
+
+/* Badges */
+.card-body .complete-badge {
+    color: #28a745;
+    background-color: #D8E8DB;
+    padding: .375rem .75rem;
+    font-weight: 500;
+}
+.card-body .request-badge {
+    color: #72157E;
+    background-color: #D3DEF7;
+    padding: .50rem 1.25rem;
+    border-radius: .25rem;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+td .complete-badge {
+    color: #28a745;
+    background-color: #D8E8DB;
+    padding: .375rem .75rem;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.card-body .duedate-badge {
+    color: #dc3545;
+    background-color: #FAE3E5;
+    display: inline-block;
+    border-radius: .25rem;
+    padding: .375rem .75rem;
+    font-weight: 500;
+}
+
+td .todo-badge {
+    color: #dc3545;
+    background-color: #FAE3E5;
+    display: inline-block;
+    border-radius: .25rem;
+    padding: .375rem .75rem;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+td .inprogress-badge {
+    color: #f0ad4e;
+    background-color: #FDF3E6;
+    display: inline-block;
+    border-radius: .25rem;
+    padding: .375rem .75rem;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+/* Status selection */
+.bootstrap-select {
+    background: transparent !important;
+}
+.bootstrap-select>.dropdown-toggle {
+    border-radius: 50px;
+    background:  #fff;
+}
+.bootstrap-select .dropdown-toggle .filter-option {
+    font-size: 14px;
+}
+.action-label > a {
+    display: inline-block;
+    width: 130px;
+}
+.btn-white {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+    vertical-align: baseline;
+    text-align: left;
+}
+.dropdown-toggle::after {
+    margin-top: .750em;
+    float: right;
+}
+.fa-circle {
+    color: #d9534f !important;
+}
+.fa-spinner {
+    color:#f0ad4e !important;
+}
+.fa-check-circle {
+    color:#5cb85c;
+}
+.task-status {
+    font-size: 14px;
+}
+table.table td i {
+    margin-top: .100em;
+}
+
+/* List view table */
+.card-header h5 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.list-header,
+.list-header:hover, 
+.list-header:active, 
+.list-header:focus, 
+.list-header:visited {
+    color: #566787;
+    font-size: 16px;
+    outline:none !important;
+    box-shadow: none;
+    text-decoration: none;
+}
+/* Add maintenance part */
+.more-maintenance-part-btn {
+    position: relative;
+    margin-left: 10px;
+    color: #ffc107;
+}
+.maintenance-request-badge {
+    float: right !important;
+    top: 0px !important;
+    margin-left: 3px;
+    background-color: #C52221;
+    color: #fff;
+}
+#maintenance-request-table {
+    margin: 0px !important;
+}
+table.maintenance-request-table tr th {
+    border-top: none;
+}
+
+@media screen and (min-width: 992px) {
+    .modal-request {
+        max-width: 1500px;
+    }
+}
+#newjob_wrapper {
+    margin-top: 3em;
+}
+/* Radio Button */
+/*  */

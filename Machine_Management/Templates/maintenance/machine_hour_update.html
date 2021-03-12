@@ -18,7 +18,7 @@
                     <div class="col-sm-8">
                         <h2>Maintenance <b>Plan</b></h2>
                     </div>
-                    <div class="col-2">
+                    <!-- <div class="col-2">
                         <h2 align="right">Hour Update</h2>
                     </div>
                     <div class="col-sm-1">
@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-sm-1">
                         <button type="submit" class="btn btn-primary form-control-sm" name="hour_submit">Submit</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <table class="table table-hover" id="myTable">
@@ -38,26 +38,28 @@
                         <th>Machine Name</th>
                         <th>Hour Last Update</th>
                         <th>Machine Hour</th>
-                        <th><center>Action</center></th>
+                        <th>Hour Update</th>
                     </tr>
                 </thead>
                 <tbody>
-            {% for mch in machine_all %}
+
+                    {% for mch in machine_all %}
                     <tr>
-                        <td>{{forloop.counter}}</td>
+                        <td><input type="checkbox" id="mch_update{{forloop.counter}}" name="mch_update[]" value="{{mch.pk}}"></td>
                         <td>{{mch.line}}</td>
                         <td>{{mch.machine_production_line_code}}</td>
                         <td>{{mch.machine_name}}</td>
                         <td>{{mch.machine_hour_last_update}}</td>
                         <td>{{mch.machine_hour}}</td>
                         <td>
-                            <center><input type="checkbox" id="mch_update{{forloop.counter}}" name="mch_update[]" value="{{mch.pk}}"></center>
+                            <input type="text" id="row-{{forloop.counter}}-hour" name="hour_update" autocomplete="off">
                         </td>
                     </tr>
-            {% endfor %}
+                    {% endfor %}
+
                 </tbody>
             </table>
-            </form>
+        </form>
 
         </div>
 
@@ -76,6 +78,66 @@
 <!--    -->
 <!--    } );-->
 <!--</script>-->
+<script>
+    var eventFired = function ( type ) {
+        $(document).ready(function() {
+            var table = $('#myTable').DataTable();
 
+            $('input').keyup(function(event) {
+                if(event.which === 13){
+                    var inputVal = $(this).val();
+                    event.preventDefault();
+                    $('form').submit();
+                }
+            });
+
+            var checkboxes = $(this).find('input[type="checkbox"]');
+            var mch = $(this).find('input[type="text"]');
+            var ID = [];
+            $("input[type=checkbox]").change(function () {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked) {
+                        var select_value = $(mch[i]).attr("id")
+                        if (!ID.includes(select_value) && (typeof select_value!=='undefined')) {
+                            ID.push(select_value);
+                        };
+
+                    } else if (!checkboxes[i].checked && ID.length) {
+                        var unselect_value = $(mch[i]).attr("id");
+                        if (ID.includes(unselect_value)) {
+                            ID = ID.filter((item) => item!==unselect_value);
+                        };
+                    }; // End of checking checkboxes
+                }; // End for loop
+                function Get_Selector_For_Select(select_id) {
+                    return select_id.reduce(function(lID, id) {
+                        if (lID == "") {
+                            return lID = "#"+id;
+                        } else {
+                            return lID = lID + ", #" + id;
+                        };
+                    },
+                    "");
+                } // End of Get_Selector_For_Select function
+                var select = $(Get_Selector_For_Select(ID));
+                select.keyup(function () {
+                    select = $(Get_Selector_For_Select(ID)); // Update selector
+                    var selectIDs = $(this).attr("id"); // Return select id
+                    if (ID.includes(selectIDs)) { // If select id is in ID list
+                        select.not(this).val(this.value);
+                    };
+                }); // End of select.change()
+            });
+        });
+    }
+
+    window.onload = eventFired;
+
+    var table = $('#myTable').on( 'page.dt',   function () { eventFired( 'Page' ); } ).DataTable({
+        'paging': false,
+    });
+
+    table.destroy();
+</script>
 {% endblock %}
 

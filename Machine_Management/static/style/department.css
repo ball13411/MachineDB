@@ -252,3 +252,161 @@ label[class*='col'] {
     font-weight: 600;
     box-shadow: none !important;
   }
+
+/* Department Badge */
+.badge-a {
+    color: #2BAFB2;
+    background-color: #E8E6F3;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-b {
+    color: #4E6A14;
+    background-color: #FEF1EB;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-c {
+    color: #E04D6A;
+    background-color: #E1EDF9;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-d {
+    color: #FDE8E7;
+    background-color: #12527E;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-e {
+    color: #FFFFFF;
+    background-color: #37B98B;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-f {
+    color: #D56638;
+    background-color: #E6F4F4;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-g {
+    color: #6B658B;
+    background-color: #FEF1EB;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-h {
+    color: #EF5160;
+    background-color: #F7F4BD;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-i {
+    color: #00B0C8;
+    background-color: #FFF8F2;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-j {
+    color: #F1F8F1;
+    background-color: #ED174B;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-k {
+    color: #EF5160;
+    background-color: #FEF1EB;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-l {
+    color: #F1F8F1;
+    background-color: #F05622;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-m {
+    color: #FFFCDF;
+    background-color: #997663;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-n {
+    color: #275FA5;
+    background-color: #EAF2D9;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-o {
+    color: #F0E8F3;
+    background-color: #207B5C;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-p {
+    color: #CA7D66;
+    background-color: #EBEBEB;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-q {
+    color: #FFFFFF;
+    background-color: #7D2B42;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-r {
+    color: #FCE9DF;
+    background-color: #928F00;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-s {
+    color: #207B5C;
+    background-color: #E5DEF0;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-t {
+    color: #EEEBF6;
+    background-color: #F26655;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-u {
+    color: #FFEAD7;
+    background-color: #394458;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-v {
+    color: #41BEB0;
+    background-color: #E7EC92;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-w {
+    color: #7D2B42;
+    background-color: #EBC9B0;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-x {
+    color: #486F6A;
+    background-color: #FCE5EA;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-y {
+    color: #F05622;
+    background-color: #E5DEF0;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}
+.badge-z {
+    color: #1D65AF;
+    background-color: #E7EC92;
+    padding: .375rem .75rem;
+    font-size: 14px;
+}

@@ -4,7 +4,39 @@
 
 
 {% block css %}
+    <style>
+        .filter-machine {
+            margin: 30px 0;
+            padding: 0px 5%;
+        }
+    </style>
+{% endblock %}
 
+
+{% block filter %}
+    <div class="filter-machine" >
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="form-group col-4">
+                    <select  class="form-control" id="production_line" name="production_line" onchange="select_machine(this)">
+                        <option value="0">--- กรุณาเลือกไลน์การผลิต ---</option>
+                        {% for line in line_of_user %}
+                        <option value="{{line.pk}}">{{line.location_site}} ไลน์ผลิต {{line.production_line}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-4">
+                    <select  class="form-control" id="machine" name="machine">
+                        <option value="">--- กรุณาเลือกเครื่องจักร ---</option>
+                    </select>
+                </div>
+                <div class="form-group col-4">
+                    <button type="submit" class="btn btn-primary form-control" name="prd_mch">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 
@@ -17,7 +49,7 @@
                     <h2>Machine & Spare part <b>Management</b></h2>
                 </div>
                 <div class="col-sm-7" {% if role_and_screen.0.permission_update == 'N' %}hidden{% endif %}>
-                    <a href="#setting" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Setting Machine&Sparepart</span></a>
+                    <a href="#setting" class="btn btn-secondary" data-toggle="modal"><i class="material-icons">&#xE8B8;</i> <span>Setting Machine&Sparepart</span></a>
                 </div>
             </div>
         </div>
@@ -346,6 +378,20 @@
                         $('#select_spare_part').empty();
                         console.log("non-success : ", data);
                     }
+                }
+            });
+        }
+    </script>
+    <script>
+        function select_machine(element) {
+            var line_id = document.getElementById('production_line').value;
+            $.ajax({
+                url: "{% url 'ajax_load_machine' %}",
+                data: {
+                    'line_id': line_id
+                },
+                success: function (data) {
+                    $("#machine").html(data);
                 }
             });
         }

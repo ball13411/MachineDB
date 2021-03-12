@@ -385,28 +385,34 @@ def home(request):
 
     user_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
-    repair_inform_model = Repair_notice.objects.filter(repairer_user=User_login)
+
+    list_repair_notice = Repair_notice.objects.filter(repair_status='รอการมอบหมายงาน')
+    maintenance_job_gen = Maintenance_job.objects.filter(~Q(job_status='งานเสร็จสิ้น'))
+
+    today = datetime.date.today()
+    today_request_tasks = Repair_notice.objects.filter(repair_gen_date=today).exclude(repair_status='ปิดใบแจ้งซ่อม')
+    today_maintenance_tasks = Maintenance_job.objects.filter(~Q(job_status='งานเสร็จสิ้น'), job_gen_date=today)
+    # repair_inform_model = Repair_notice.objects.filter(repairer_user=User_login)
     repair_inform_incomplete = Repair_notice.objects.filter(repairer_user=User_login).exclude(repair_status='ปิดใบแจ้งซ่อม')
-    repair_inspect_model = Repair_notice.objects.filter(inspect_user=User_login)
-    repair_inspect_incomplete = Repair_notice.objects.filter(inspect_user=User_login, repair_status='รอการตรวจสอบ')
-    repair_approve_model = Repair_notice.objects.filter(approve_user=User_login)
-    repair_approve_incomplete = Repair_notice.objects.filter(approve_user=User_login, repair_status='รอการอนุมัติ')
-    repair_receive_incomplete = Repair_notice.objects.filter(repair_status='รอการรับใบแจ้ง', department_receive=UserLoginDepartment)
-    mtn_inspect_incomplete = Repair_notice.objects.filter(repair_status='รอการตรวจสอบอะไหล่', department_receive=UserLoginDepartment)
-    mtn_receive_model = Maintenance_job.objects.filter(job_gen_user=User_login)
-    mtn_receive_incomplete = Maintenance_job.objects.filter(job_gen_user=User_login).exclude(job_status='งานเสร็จสิ้น')
-    mtn_assign_model = Maintenance_job.objects.filter(job_assign_user=User_login)
-    mtn_assign_incomplete = Maintenance_job.objects.filter(job_assign_user=User_login).exclude(job_status='งานเสร็จสิ้น')
-    mtn_report_model = Maintenance_job.objects.filter(job_response_user=User_login)
-    mtn_report_incomplete = Maintenance_job.objects.filter(job_response_user=User_login, job_status='รอการดำเนินการ')
+    # repair_inspect_model = Repair_notice.objects.filter(inspect_user=User_login)
+    # repair_inspect_incomplete = Repair_notice.objects.filter(inspect_user=User_login, repair_status='รอการตรวจสอบ')
+    # repair_approve_model = Repair_notice.objects.filter(approve_user=User_login)
+    # repair_approve_incomplete = Repair_notice.objects.filter(approve_user=User_login, repair_status='รอการอนุมัติ')
+    # repair_receive_incomplete = Repair_notice.objects.filter(repair_status='รอการรับใบแจ้ง', department_receive=UserLoginDepartment)
+    # mtn_inspect_incomplete = Repair_notice.objects.filter(repair_status='รอการตรวจสอบอะไหล่', department_receive=UserLoginDepartment)
+    # mtn_receive_model = Maintenance_job.objects.filter(job_gen_user=User_login)
+    # mtn_receive_incomplete = Maintenance_job.objects.filter(job_gen_user=User_login).exclude(job_status='งานเสร็จสิ้น')
+    # mtn_assign_model = Maintenance_job.objects.filter(job_assign_user=User_login)
+    # mtn_assign_incomplete = Maintenance_job.objects.filter(job_assign_user=User_login).exclude(job_status='งานเสร็จสิ้น')
+    # mtn_report_model = Maintenance_job.objects.filter(job_response_user=User_login)
+    mtn_report_incomplete = Maintenance_job.objects.filter(Q(job_response_user=User_login), Q(job_status='รอการดำเนินงาน') | Q(job_status='รอการอนุมัติงาน'))
 
     context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
-               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org, 'repair_inform_model': repair_inform_model,
-               'repair_inspect_model': repair_inspect_model, 'repair_approve_model': repair_approve_model, 'mtn_receive_model': mtn_receive_model,
-               'mtn_assign_model': mtn_assign_model, 'mtn_report_model': mtn_report_model, 'repair_inform_incomplete': repair_inform_incomplete,
-               'repair_inspect_incomplete': repair_inspect_incomplete, 'repair_approve_incomplete': repair_approve_incomplete,
-               'mtn_receive_incomplete': mtn_receive_incomplete, 'mtn_assign_incomplete': mtn_assign_incomplete, 'mtn_report_incomplete': mtn_report_incomplete,
-               'repair_receive_incomplete': repair_receive_incomplete, 'mtn_inspect_incomplete': mtn_inspect_incomplete}
+               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org,
+               'repair_receive': list_repair_notice, 'maintenance_job_gen': maintenance_job_gen,
+               'today_request_tasks': today_request_tasks, 'today_maintenance_tasks': today_maintenance_tasks,
+               'repair_inform_incomplete': repair_inform_incomplete, 'mtn_report_incomplete': mtn_report_incomplete}
+
     return render(request, 'home/home.html', context)
 
 
@@ -1446,10 +1452,14 @@ def machine_and_spare_part(request):
                 mch_and_sp.save()
             else:
                 messages.error(request, "การทำรายการผิดพลาด เครื่องจักรนี้ มีอะไหล่นี้แล้ว")
+            return redirect('machine_and_spare_part')
+
         elif "delete_spare_part" in request.POST:
             mch_and_sp = Machine_sparepart.objects.filter(machine_id=request.POST['delete_spare_part'],
                                                           spare_part_id=request.POST['select_delete_spare_part'])
             mch_and_sp.delete()
+            return redirect('machine_and_spare_part')
+
         elif "setting" in request.POST:
             mch_and_sp = Machine_sparepart.objects.get(machine_id=request.POST['select_machine'],
                                                        spare_part_id=request.POST['select_spare_part'])
@@ -1461,8 +1471,16 @@ def machine_and_spare_part(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
+            return redirect('machine_and_spare_part')
 
-        return redirect('machine_and_spare_part')
+        elif 'prd_mch' in request.POST:
+            if request.POST['production_line'] == "0":
+                machine = Machine.objects.filter(line__in=user_org)
+            elif request.POST['production_line'] != "0" and request.POST['machine'] == "":
+                machine = Machine.objects.filter(line__in=request.POST['production_line'])
+            elif request.POST['production_line'] != "0" and request.POST['machine'] != 0:
+                machine = Machine.objects.filter(machine_id=request.POST['machine'])
+            mch_and_sp_all = Machine_sparepart.objects.filter(machine__in=machine)
 
     for mch in machine:
         dict_mch_sp[mch] = []
@@ -1470,9 +1488,9 @@ def machine_and_spare_part(request):
         dict_mch_sp[mch_sp.machine].append(mch_sp.spare_part)
 
     context = {'User_login': User_login,
-               'mch_and_sp_all': mch_and_sp_all, 'dict_mch_sp': dict_mch_sp, 'spare_part_all': spare_part_all,
+               'dict_mch_sp': dict_mch_sp, 'spare_part_all': spare_part_all,
                'role_and_screen': role_and_screen, 'spare_part_group_all': spare_part_group_all, 'machine_all': machine,
-               'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu}
+               'mch_menu': mch_menu, 'mch_main_menu': mch_main_menu, 'line_of_user': user_org}
     return render(request, 'machine_management/machine&spare_part.html', context)
 
 
@@ -1753,6 +1771,7 @@ def spare_part_and_machine(request):
     sp_and_mch_all = Machine_sparepart.objects.filter(machine__in=machine)
     spare_part_all = Spare_part.objects.all()
     machine_type_all = Machine_type.objects.all()
+    spare_part_group_all = Spare_part_group.objects.all()
 
     if request.method == "POST":
         if "add_sp_and_mch" in request.POST:
@@ -1762,6 +1781,7 @@ def spare_part_and_machine(request):
                 messages.success(request, 'บันทึกรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
             except ObjectDoesNotExist:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
+            return redirect('spare_part_and_machine')
         elif "delete_machine" in request.POST:
             try:
                 sp_and_mch = Machine_sparepart.objects.filter(machine_id=request.POST['select_delete_machine'], spare_part_id=request.POST['delete_machine'])
@@ -1769,8 +1789,17 @@ def spare_part_and_machine(request):
                 messages.success(request, 'ลบรายการเครื่องจักรออกจากอะไหล่สำเร็จ')
             except ObjectDoesNotExist:
                 messages.error(request, 'ลบรายการเครื่องจักรออกจากอะไหล่ไม่สำเร็จ')
-
-        return redirect('spare_part_and_machine')
+            return redirect('spare_part_and_machine')
+        elif "filter_spare_part" in request.POST:
+            if request.POST['sp_group'] == "0":
+                pass
+            elif request.POST['sp_group'] != "0" and request.POST['sp_type'] == "0":
+                spare_part_all = Spare_part.objects.filter(spare_part_group_id=request.POST['sp_group'])
+            elif request.POST['sp_group'] != "0" and request.POST['sp_type'] != 0 and request.POST['sp_subtype'] == "":
+                spare_part_all = Spare_part.objects.filter(spare_part_type_id=request.POST['sp_type'])
+            elif request.POST['sp_group'] != "0" and request.POST['sp_type'] != 0 and request.POST['sp_subtype'] != 0:
+                spare_part_all = Spare_part.objects.filter(spare_part_sub_type_id=request.POST['sp_subtype'])
+            sp_and_mch_all = Machine_sparepart.objects.filter(machine__in=machine, spare_part__in=spare_part_all)
 
     for sp in spare_part_all:
         dict_mch_sp[sp] = []
@@ -1778,7 +1807,8 @@ def spare_part_and_machine(request):
         dict_mch_sp[sp_mch.spare_part].append(sp_mch.machine)
 
     context = {'role_and_screen': role_and_screen, 'spare_part_all': spare_part_all, 'dict_mch_sp': dict_mch_sp, 'user_org': user_org,
-               'machine_type_all': machine_type_all, 'User_login': User_login, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}
+               'machine_type_all': machine_type_all, 'User_login': User_login, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu,
+               'spare_part_group_all': spare_part_group_all}
     return render(request, 'spare_part_management/spare_and_machine.html', context)
 
 
@@ -1909,29 +1939,66 @@ def maintenance_report(request):
     return render(request, 'maintenance/maintenance_report.html', context)
 
 
+# def machine_hour_update(request):
+#     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_hour_update')
+#     if not role_and_screen.exists():
+#         return redirect('signin')
+#
+#     mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
+#     mtn_main_menu = Menu.objects.get(pk='machine_hour_update')
+#
+#     if request.method == 'POST':
+#         if 'hour_submit' in request.POST:
+#             hour_update = request.POST['hour_update']
+#             if request.POST.get('mch_update[]', False) and request.POST['hour_update']:
+#                 mch_pk = request.POST.getlist('mch_update[]')
+#                 for mch in Machine.objects.filter(pk__in=mch_pk):
+#                     if mch.machine_hour_update_date == datetime.date.today():
+#                         mch.machine_hour = mch.machine_hour_last_update + int(hour_update)
+#                     else:
+#                         mch.machine_hour_update_date = datetime.date.today()
+#                         mch.machine_hour_last_update = mch.machine_hour
+#                         mch.machine_hour += int(hour_update)
+#                     mch.save()
+#
+#         return redirect('machine_hour_update')
+#
+#     user_org = User_login.org.org_line.all()
+#     machine_all = Machine.objects.filter(line__in=user_org)
+#
+#     context = {'User_login': User_login, 'machine_all': machine_all,
+#                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
+#     return render(request, 'maintenance/machine_hour_update.html', context)
+
+
 def machine_hour_update(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_hour_update')
     if not role_and_screen.exists():
-        return redirect('signin')
+        return redirect('/')
 
     mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
     mtn_main_menu = Menu.objects.get(pk='machine_hour_update')
 
     if request.method == 'POST':
-        if 'hour_submit' in request.POST:
-            hour_update = request.POST['hour_update']
-            if request.POST.get('mch_update[]', False) and request.POST['hour_update']:
-                mch_pk = request.POST.getlist('mch_update[]')
-                for mch in Machine.objects.filter(pk__in=mch_pk):
-                    if mch.machine_hour_update_date == datetime.date.today():
-                        mch.machine_hour = mch.machine_hour_last_update + int(hour_update)
-                    else:
-                        mch.machine_hour_update_date = datetime.date.today()
-                        mch.machine_hour_last_update = mch.machine_hour
-                        mch.machine_hour += int(hour_update)
-                    mch.save()
-
-        return redirect('machine_hour_update')
+        if request.POST.get('mch_update[]', False):
+            print(request.POST.getlist('mch_update[]'))
+            hour_update = set(request.POST.getlist('hour_update'))
+            print(hour_update)
+            if '' in hour_update:hour_update.remove('')
+            print(hour_update)
+            hour_update = list(hour_update)[0] if len(hour_update) == 1 else 0
+            mch_pk = request.POST.getlist('mch_update[]')
+            for mch in Machine.objects.filter(pk__in=mch_pk):
+                if mch.machine_hour_update_date == datetime.date.today():
+                    mch.machine_hour = mch.machine_hour_last_update + int(hour_update)
+                else:
+                    mch.machine_hour_update_date = datetime.date.today()
+                    mch.machine_hour_last_update = mch.machine_hour
+                    mch.machine_hour += int(hour_update)
+                mch.save()
+            return redirect('machine_hour_update')
+        else:
+            return redirect('machine_hour_update')
 
     user_org = User_login.org.org_line.all()
     machine_all = Machine.objects.filter(line__in=user_org)
@@ -2329,3 +2396,34 @@ def maintenance_inspect(request):
     context = {'User_login': User_login, 'mtn_inspect_all': mtn_inspect_all, 'spare_part_group_all': spare_part_group_all,
                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_inspect.html', context)
+
+
+def test1(request):
+    global User_login
+    role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_notice')
+    if not role_and_screen.exists():
+        return redirect('/')
+    username = str(User_login.username)
+    line_of_user = User.objects.all()
+    list_repair_notice = Repair_notice.objects.filter(repair_status='อยู่ในระหว่างการทำงาน')
+    maintenance_job_gen = Maintenance_job.objects.all()
+    spare_part_group_all = Spare_part_group.objects.all()
+    engineer = User.objects.filter(role_id='engineer')
+    context = {'line_of_user': line_of_user, 'repair_receive_all': list_repair_notice,
+               'maintenance_job_gen': maintenance_job_gen, 'spare_part_group_all': spare_part_group_all, 'engineer': engineer}
+    return render(request, 'plan_gridview.html', context)
+
+
+def test2(request):
+    engineer = User.objects.filter(role_id='engineer')
+    list_repair_notice = Repair_notice.objects.filter(repair_status='อยู่ในระหว่างการทำงาน')
+    maintenance_job_gen = Maintenance_job.objects.all()
+    new_job = Maintenance_job.objects.filter(job_status='รอการมอบหมาย')
+    inprogress_job = Maintenance_job.objects.filter(job_status='รอการดำเนินงาน')
+    completed_job = Maintenance_job.objects.filter(job_status='งานเสร็จสิ้น')
+    spare_part_group_all = Spare_part_group.objects.all()
+
+    context= {'engineer': engineer, 'maintenance_job_gen': maintenance_job_gen, 'repair_receive': list_repair_notice,
+              'spare_part_group_all': spare_part_group_all, 'new_job': new_job, 'inprogress_job': inprogress_job,
+              'completed_job': completed_job}
+    return render(request, 'plan_listview.html', context)
