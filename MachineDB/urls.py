@@ -117,7 +117,6 @@ urlpatterns = [
     # Test File
     path('download', views.document_create1, name='download_docx'),
     path('download1', views.document2_excel, name='download_sp'),
-    path('test/', views.test),
     path('test1/', views.test1, name='maintenance_plan_grid'),
     path('test2/', views.test2, name='maintenance_plan_list'),
 

@@ -416,17 +416,6 @@ def home(request):
     return render(request, 'home/home.html', context)
 
 
-def test(request):
-
-    if request.method == "POST":
-        if 'test_select' in request.POST:
-            print(request.POST['test_select'])
-            print(request.POST.getlist('test_select'))
-        return redirect('/test/')
-    context = {}
-    return render(request, 'test.html', context)
-
-
 def menumanage(request):
     global User_login
     if not Role_Screen.objects.filter(role=UserRole, screen_id='menumanage').exists():
