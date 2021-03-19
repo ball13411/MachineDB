@@ -22,9 +22,12 @@
     <script src="{% static 'javascript/jquery-3.5.1.min.js' %}"></script>
     <!--  Popper  -->
     <script src="{% static 'javascript/popper-1.16.0.min.js' %}"></script>
-    <!-- Bootstrap 4.5.3 -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap.min.css' %}">
-    <script src="{% static 'javascript/bootstrap.min.js' %}"></script>
+    <!-- bootstrap-select -->
+    <script src="{% static 'javascript/bootstrap-select.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'style/bootstrap-select.min.css' %}">
+    <!-- Bootstrap 4.6.0 -->
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.6.0-dist/css/bootstrap.min.css' %}">
+    <script src="{% static 'bootstrap-4.6.0-dist/js/bootstrap.min.js' %}"></script>
     <!-- Datepicker -->
 <!--    <script src="{% static 'javascript/jquery-1.12.4.js' %}"></script>-->
     <script src="{% static 'javascript/jquery-ui.js' %}"></script>
@@ -316,6 +319,9 @@
             padding: 0!important;
         }
     </style>
+    {% block css %}
+
+    {% endblock %}
 
 </head>
 

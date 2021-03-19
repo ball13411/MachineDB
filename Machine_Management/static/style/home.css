@@ -82,14 +82,22 @@ ol.breadcrumb {
     padding-left: 10px;
     padding-top: 10px;
 }
-
-.btn{
+.material-icons{
+    line-height: inherit;
+}
+.row-index{
+    color: #566787;
+}
+a.delete{
+    color: #F44336;
+}
+/* .btn{
     cursor: pointer;
     background: 0;
     border: 0;
     padding: 0;
     color: inherit;
-}
+} */
 /* checkbox */
 [type="checkbox"]{
     opacity: 0;
@@ -327,4 +335,9 @@ h4 {
 .task-icon svg {
     color: #810000!important;
     margin-left: .25rem;
+}
+
+/* Select */
+select{
+    font-size: 16px;
 }

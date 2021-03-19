@@ -385,7 +385,7 @@ def home(request):
 
     user_org = User_login.org.org_line.all()
     User_org_machine_line = Machine.objects.filter(line__in=user_org)
-
+    engineers = User.objects.filter(role__role_id__contains="engineer")
     list_repair_notice = Repair_notice.objects.filter(repair_status='รอการมอบหมายงาน')
     maintenance_job_gen = Maintenance_job.objects.filter(~Q(job_status='งานเสร็จสิ้น'))
 
@@ -411,7 +411,8 @@ def home(request):
                'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org,
                'repair_receive': list_repair_notice, 'maintenance_job_gen': maintenance_job_gen,
                'today_request_tasks': today_request_tasks, 'today_maintenance_tasks': today_maintenance_tasks,
-               'repair_inform_incomplete': repair_inform_incomplete, 'mtn_report_incomplete': mtn_report_incomplete}
+               'repair_inform_incomplete': repair_inform_incomplete, 'mtn_report_incomplete': mtn_report_incomplete,
+               'engineers': engineers}
 
     return render(request, 'home/home.html', context)
 
@@ -1495,6 +1496,8 @@ def maintenance_assign(request):
     maintenance_job_gen = Maintenance_job.objects.all()
     if request.method == "POST":
         if "assign_submit" in request.POST:
+            print("211111111111")
+            print(request.POST.getlist('assign_list[]'))
             if request.POST.getlist('assign_list[]') != "":
                 for job_pk in request.POST.getlist('assign_list[]'):
                     job = Maintenance_job.objects.get(pk=job_pk)
@@ -1502,15 +1505,17 @@ def maintenance_assign(request):
                         messages.error(request, 'ไม่สามารถมอบหมายงานได้ เนื่องจากงานอยู่ในสถานะรอการอนุมัติงานแล้วหรืองานเสร็จสิ้น')
                         continue
                     try:
+                        print("SUCCESSSSSSS")
                         job.job_assign_user = User_login
                         job.job_response_user = User.objects.get(pk=request.POST['user_response']) if request.POST['user_response'] != "" else None
                         job.job_assign_date = datetime.date.today()
                         job.job_status = "รอการดำเนินงาน" if request.POST['user_response'] != "" else "รอการมอบหมาย"
+                        print("SUCCESSSSSSS")
                         job.save()
                     except ObjectDoesNotExist:
                         messages.error(request, "ไม่มีผู้ใช้งานดังกล่าว กรุณากรอกข้อมูลให้ถูกต้อง")
                         return redirect('maintenance_assign')
-                return redirect('maintenance_assign')
+            return redirect('maintenance_assign')
 
         elif "set_maintenance_data" in request.POST:
             mch_and_sp = Machine_sparepart.objects.get(pk=request.POST['set_maintenance_data'])
@@ -2004,6 +2009,160 @@ def maintenance_report(request):
                 elif request.POST['filter_status'] == "5":
                     job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__year=this_year))
 
+        elif 'export' in request.POST:
+            if request.POST['people_file'] == "1":
+                if request.POST['date_file'] == "1":
+                    date_today = datetime.date.today()
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date=date_today).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date=date_today, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date=date_today)
+                elif request.POST['date_file'] == "2":
+                    end_date = datetime.date.today()
+                    start_date = datetime.date.today()-datetime.timedelta(days=7)
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__range=[start_date, end_date]).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__range=[start_date, end_date], job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__range=[start_date, end_date])
+                elif request.POST['date_file'] == "3":
+                    this_month = datetime.date.today().month
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__month=this_month).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__month=this_month, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__month=this_month)
+                elif request.POST['date_file'] == "4":
+                    this_year = datetime.date.today().year
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__year=this_year).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__year=this_year, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_response_user=User_login, job_gen_date__year=this_year)
+            elif request.POST['people_file'] == "2":
+                if request.POST['date_file'] == "1":
+                    date_today = datetime.date.today()
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date=date_today).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date=date_today, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date=date_today)
+                elif request.POST['date_file'] == "2":
+                    end_date = datetime.date.today()
+                    start_date = datetime.date.today()-datetime.timedelta(days=7)
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__range=[start_date, end_date]).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__range=[start_date, end_date], job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__range=[start_date, end_date])
+                elif request.POST['date_file'] == "3":
+                    this_month = datetime.date.today().month
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__month=this_month).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__month=this_month, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__month=this_month)
+                elif request.POST['date_file'] == "4":
+                    this_year = datetime.date.today().year
+                    if request.POST['status_file'] == "1":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__year=this_year).exclude(job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "2":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__year=this_year, job_status="งานเสร็จสิ้น")
+                    elif request.POST['status_file'] == "3":
+                        mtn_job = Maintenance_job.objects.filter(job_gen_date__year=this_year)
+
+            document = Document()
+            if request.POST['status_file'] == "1":
+                document.add_heading(f'งานระบบซ่อมบำรุงเครื่องจักร (ค้างซ่อม)', 0)
+            elif request.POST['status_file'] == "2":
+                document.add_heading(f'งานระบบซ่อมบำรุงเครื่องจักร (เสร็จสิ้น)', 0)
+            elif request.POST['status_file'] == "3":
+                document.add_heading(f'งานระบบซ่อมบำรุงเครื่องจักร (ทั้งหมด)', 0)
+
+            for index, job_export in enumerate(mtn_job):
+                document.add_heading(f'{index+1}. หมายเลขงานซ่อมบำรุงเครื่องจักร : {job_export.job_no}', level=1)
+                if job_export.job_mch_sp.machine.machine_image1:
+                    picture_mch = document.add_picture(job_export.job_mch_sp.machine.machine_image1, width=Inches(2))
+                    last_paragraph = document.paragraphs[-1]
+                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+                document.add_paragraph('ข้อมูลงานซ่อมบำรุงเครื่องจักร', style='List Bullet')
+                document.add_paragraph(f'\tวันที่สร้างงานซ่อมบำรุง : {job_export.job_gen_date}')
+                if job_export.job_assign_user:
+                    document.add_paragraph(f'\tผู้มอบหมายงาน: {job_export.job_assign_user.firstname}  {job_export.job_assign_user.lastname} \tวันที่มอบหมายงาน : {job_export.job_assign_date}')
+                if job_export.job_response_user:
+                    document.add_paragraph(f'\tผู้รับผิดชอบงาน : {job_export.job_response_user.firstname}  {job_export.job_response_user.lastname} \tวันที่รายงาน : {job_export.job_report_date}')
+                p = document.add_paragraph(f'\tสถานะใบแจ้งซ่อมเครื่องจักร : ')
+                p.add_run(job_export.job_status).bold = True
+                if job_export.job_approve_date:
+                    p.add_run(f'\tวันที่อนุมัติงานซ่อมบำรุง : {job_export.job_approve_date}')
+
+                document.add_paragraph('ข้อมูลเครื่องจักรและอะไหล่ที่ซ่อมบำรุง', style='List Bullet')
+                document.add_paragraph(f'\tสายการผลิตที่ : {job_export.job_mch_sp.machine.line}')
+                document.add_paragraph(f'\tเครื่องจักร : {job_export.job_mch_sp.machine.machine_production_line_code} | {job_export.job_mch_sp.machine.machine_name}')
+                document.add_paragraph(f'\tเครื่องจักร : {job_export.job_mch_sp.spare_part.spare_part_group} | {job_export.job_mch_sp.spare_part}')
+
+                document.add_paragraph('ข้อมูลงานและปัญหา', style='List Bullet')
+                document.add_paragraph(f'\tสาเหตุของปัญหา : {job_export.problem_cause}')
+                document.add_paragraph(f'\tวิธีการแก้ไข : {job_export.corrective_action}')
+                document.add_paragraph(f'\tวิธีการดูแลหลังซ่อมบำรุง : {job_export.after_repair}')
+
+                document.add_paragraph('รายการอุปกรณ์ / ชิ้นส่วนในการใช้ซ่อมบำรุง', style='List Bullet')
+                if not job_export.equipment_code1 and not job_export.equipment_code2 and not job_export.equipment_code3:
+                    document.add_paragraph(f'\tไม่มีอุปกรณ์ที่ใช้')
+                    document.add_paragraph(f'\tค่าใช้จ่ายโดยประมาณ : ไม่มี')
+                else:
+                    records = []
+                    if job_export.equipment_code1:
+                        columns = [job_export.equipment_code1, job_export.equipment_detail1, job_export.equipment_quantity1, job_export.equipment_note1]
+                        records.append(columns)
+                    if job_export.equipment_code2:
+                        columns = [job_export.equipment_code2, job_export.equipment_detail2, job_export.equipment_quantity2, job_export.equipment_note2]
+                        records.append(columns)
+                    if job_export.equipment_code3:
+                        columns = [job_export.equipment_code3, job_export.equipment_detail3, job_export.equipment_quantity3, job_export.equipment_note3]
+                        records.append(columns)
+                    table = document.add_table(rows=1, cols=4)
+                    table.style = 'Light List Accent 1'
+                    hdr_cells = table.rows[0].cells
+                    hdr_cells[0].text = 'Equipment Code'
+                    hdr_cells[1].text = 'Equipment Name'
+                    hdr_cells[2].text = 'Quantity'
+                    hdr_cells[3].text = 'Note'
+                    for code, name, quantity, note in records:
+                        row_cells = table.add_row().cells
+                        row_cells[0].text = code
+                        row_cells[1].text = name
+                        row_cells[2].text = str(quantity)
+                        row_cells[3].text = note
+                    document.add_paragraph(f'')
+
+                if job_export.job_result_type:
+                    document.add_paragraph('ข้อมูลการซ่อมบำรุงรักษา', style='List Bullet')
+                    document.add_paragraph(f'\tประเภทการซ่อมบำรุงรักษา : {job_export.job_mtn_type}')
+                    document.add_paragraph(f'\tผลการซ่อมบำรุง/ตรวจสอบ : {job_export.job_result_type}')
+                    document.add_paragraph(f'\tรายละเอียดเพิ่มเติม : {job_export.job_result_description}')
+                    document.add_paragraph(f'\tชั่วโมงเครื่องจักรที่บันทึกผล : {job_export.job_mch_hour}')
+                    document.add_paragraph(f'\tอายุการใช้การเปลี่ยนของอะไหล่ที่บันทึกผล : {job_export.job_fix_plan_hour}')
+                    document.add_paragraph(f'\tอายุการใช้การตรวจสอบของอะไหล่ที่บันทึกผล : {job_export.job_plan_hour}')
+
+
+                if index+1 != len(mtn_job):
+                    document.add_page_break()
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response['Content-Disposition'] = 'attachment; filename=maintenance_job.docx'
+            document.save(response)
+            return response
+
     context = {'User_login': User_login, 'job': job, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_report.html', context)
@@ -2229,17 +2388,85 @@ def repair_notice(request):
                     list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม", notification_date__year=this_year)
 
         elif 'export' in request.POST:
-            if request.POST['status_file'] == "1":
-                repair_export = Repair_notice.objects.filter(repairer_user=User_login).exclude(repair_status="ปิดใบแจ้งซ่อม")
-            elif request.POST['status_file'] == "2":
-                repair_export = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม")
-            elif request.POST['status_file'] == "3":
-                repair_export = Repair_notice.objects.filter(repairer_user=User_login)
+            if request.POST['department_file'] == "1":
+                if request.POST['date_file'] == "1":
+                    date_today = datetime.date.today()
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date=date_today).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date=date_today, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date=date_today)
+                elif request.POST['date_file'] == "2":
+                    end_date = datetime.date.today()
+                    start_date = datetime.date.today()-datetime.timedelta(days=7)
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__range=[start_date, end_date]).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__range=[start_date, end_date], repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__range=[start_date, end_date])
+                elif request.POST['date_file'] == "3":
+                    this_month = datetime.date.today().month
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__month=this_month).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__month=this_month, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__month=this_month)
+                elif request.POST['date_file'] == "4":
+                    this_year = datetime.date.today().year
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__year=this_year).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__year=this_year, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(repairer_user=User_login, notification_date__year=this_year)
+            elif request.POST['department_file'] == "2":
+                if request.POST['date_file'] == "1":
+                    date_today = datetime.date.today()
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date=date_today).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date=date_today, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date=date_today)
+                elif request.POST['date_file'] == "2":
+                    end_date = datetime.date.today()
+                    start_date = datetime.date.today()-datetime.timedelta(days=7)
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__range=[start_date, end_date]).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__range=[start_date, end_date], repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__range=[start_date, end_date])
+                elif request.POST['date_file'] == "3":
+                    this_month = datetime.date.today().month
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__month=this_month).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__month=this_month, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__month=this_month)
+                elif request.POST['date_file'] == "4":
+                    this_year = datetime.date.today().year
+                    if request.POST['status_file'] == "1":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__year=this_year).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "2":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__year=this_year, repair_status="ปิดใบแจ้งซ่อม")
+                    elif request.POST['status_file'] == "3":
+                        repair_export = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__year=this_year)
 
             document = Document()
             document.add_heading(f'ใบแจ้งซ่อมเครื่องจักร', 0)
             for index, repair in enumerate(repair_export):
                 document.add_heading(f'{index+1}. หมายเลขใบแจ้งซ่อม : {repair.repair_no}', level=1)
+
+                if repair.machine.machine_image1:
+                    picture_mch = document.add_picture(repair.machine.machine_image1, width=Inches(2))
+                    last_paragraph = document.paragraphs[-1]
+                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
                 document.add_paragraph('ข้อมูลใบแจ้งซ่อม', style='List Bullet')
                 document.add_paragraph(f'\tวันที่แจ้งซ่อมเครื่องจักร : {repair.notification_date}')
                 document.add_paragraph(f'\tหน่วยงานที่แจ้งซ่อมเครื่องจักร : {repair.department_notifying.department_code} | {repair.department_notifying.department_name}')
@@ -2258,6 +2485,7 @@ def repair_notice(request):
                 if repair.maintenance_jobs:
                     document.add_paragraph('ข้อมูลงานการซ่อมบำรุงเครื่องจักร', style='List Bullet')
                     for number, job in enumerate(repair.maintenance_jobs.all()):
+                        # document.add_heading(f'{index+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}', level=2)
                         document.add_paragraph(f'{number+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}')
                         document.add_paragraph(f'\tอะไหล่ที่ซ่อมบำรุงเครื่องจักร : {job.job_mch_sp.spare_part.spare_part_name}')
                         document.add_paragraph(f'\tวันที่สร้างงาน : {job.job_gen_date}')
@@ -2276,13 +2504,13 @@ def repair_notice(request):
                             document.add_paragraph(f'\tอายุการมาซ่อมบำรุง : {job.job_fix_plan_hour}')
                             document.add_paragraph(f'\tผลการซ่อมบำรุง : {job.job_result_type}')
                             if job.job_result_description: document.add_paragraph(f'\tหมายเหตุ : {job.job_result_description}')
-                document.add_page_break()
+                if index+1 != len(repair_export):
+                    document.add_page_break()
 
             response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
             response['Content-Disposition'] = 'attachment; filename=repair_notice.docx'
             document.save(response)
             return response
-
 
     context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice,
                'list_inspect_user': list_inspect_user, 'list_approve_user': list_approve_user, "UserLoginDepartment": UserLoginDepartment,
