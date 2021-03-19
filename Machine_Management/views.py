@@ -427,7 +427,7 @@ def menumanage(request):
                 add_menu_name = request.POST['add_menu_name']
                 add_menu_level = request.POST['add_menu_level']
                 select_screen = request.POST['select_screen']
-                select_parent = request.POST['select_parent'] if request.POST.get('select_parent',False) else None
+                select_parent = request.POST['select_parent'] if request.POST.get('select_parent', False) else None
                 add_menu_index = request.POST['add_menu_index']
                 add_menu_path = request.POST['add_menu_path']
                 screen = Screen.objects.get(screen_id=select_screen)
@@ -1492,6 +1492,7 @@ def maintenance_assign(request):
     mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
     mtn_main_menu = Menu.objects.get(pk='maintenance_assign')
 
+    maintenance_job_gen = Maintenance_job.objects.all()
     if request.method == "POST":
         if "assign_submit" in request.POST:
             if request.POST.getlist('assign_list[]') != "":
@@ -1509,6 +1510,7 @@ def maintenance_assign(request):
                     except ObjectDoesNotExist:
                         messages.error(request, "ไม่มีผู้ใช้งานดังกล่าว กรุณากรอกข้อมูลให้ถูกต้อง")
                         return redirect('maintenance_assign')
+                return redirect('maintenance_assign')
 
         elif "set_maintenance_data" in request.POST:
             mch_and_sp = Machine_sparepart.objects.get(pk=request.POST['set_maintenance_data'])
@@ -1519,10 +1521,16 @@ def maintenance_assign(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
+            return redirect('maintenance_assign')
 
-        return redirect('maintenance_assign')
+        elif "filter" in request.POST:
+            if request.POST['filter_status'] == "0":
+                maintenance_job_gen = Maintenance_job.objects.all()
+            elif request.POST['filter_status'] == "1":
+                maintenance_job_gen = Maintenance_job.objects.filter(job_status="รอการมอบหมาย")
+            elif request.POST['filter_status'] == "2":
+                maintenance_job_gen = Maintenance_job.objects.exclude(job_status="รอการมอบหมาย")
 
-    maintenance_job_gen = Maintenance_job.objects.all()
     context = {'User_login': User_login, 'maintenance_job_gen': maintenance_job_gen,
                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_assign.html', context)
@@ -1884,7 +1892,7 @@ def maintenance_report(request):
                 mch_sp.save()
             except ValueError:
                 messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
-                return redirect('maintenance_report')
+            return redirect('maintenance_report')
 
         elif "approve_job" in request.POST:
             if request.POST.get('is_approve', False):
@@ -1902,8 +1910,10 @@ def maintenance_report(request):
                 if mtn_report.job_mtn_type in ["change", "repair"]:
                     mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
                     mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
+                    mch_sp.last_mtnchng_job_id = mtn_report.id
                 elif mtn_report.job_mtn_type == "checking":
                     mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                    mch_sp.last_mtnchk_job_id = mtn_report.id
                 mch_sp.mtnchng_life_hour = mtn_report.job_fix_plan_hour
                 mch_sp.mtnchk_life_hour = mtn_report.job_plan_hour
                 if mch_sp.mtnchk_life_hour:
@@ -1920,44 +1930,83 @@ def maintenance_report(request):
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
                 mtn_report.is_report = False
                 mtn_report.save()
+            return redirect('maintenance_report')
 
-        return redirect('maintenance_report')
+        elif "filter" in request.POST:
+            if request.POST['filter_date'] == "0":
+                if request.POST['filter_status'] == "0":
+                    pass
+                elif request.POST['filter_status'] == "1":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username)).exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "2":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "3":
+                    job = Maintenance_job.objects.all()
+                elif request.POST['filter_status'] == "4":
+                    job = Maintenance_job.objects.exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "5":
+                    job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+            elif request.POST['filter_date'] == "1":
+                date_today = datetime.date.today()
+                if request.POST['filter_status'] == "0":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date=date_today))
+                elif request.POST['filter_status'] == "1":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date=date_today)).exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "2":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") | Q(job_gen_date=date_today))
+                elif request.POST['filter_status'] == "3":
+                    job = Maintenance_job.objects.filter(job_gen_date=date_today)
+                elif request.POST['filter_status'] == "4":
+                    job = Maintenance_job.objects.exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date=date_today))
+                elif request.POST['filter_status'] == "5":
+                    job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date=date_today))
+            elif request.POST['filter_date'] == "2":
+                end_date = datetime.date.today()
+                start_date = datetime.date.today()-datetime.timedelta(days=7)
+                if request.POST['filter_status'] == "0":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__range=[start_date, end_date]))
+                elif request.POST['filter_status'] == "1":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__range=[start_date, end_date])).exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "2":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") | Q(job_gen_date__range=[start_date, end_date]))
+                elif request.POST['filter_status'] == "3":
+                    job = Maintenance_job.objects.filter(job_gen_date__range=[start_date, end_date])
+                elif request.POST['filter_status'] == "4":
+                    job = Maintenance_job.objects.exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__range=[start_date, end_date]))
+                elif request.POST['filter_status'] == "5":
+                    job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__range=[start_date, end_date]))
+            elif request.POST['filter_date'] == "3":
+                this_month = datetime.date.today().month
+                if request.POST['filter_status'] == "0":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__month=this_month))
+                elif request.POST['filter_status'] == "1":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__month=this_month)).exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "2":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") | Q(job_gen_date__month=this_month))
+                elif request.POST['filter_status'] == "3":
+                    job = Maintenance_job.objects.filter(job_gen_date__month=this_month)
+                elif request.POST['filter_status'] == "4":
+                    job = Maintenance_job.objects.exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__month=this_month))
+                elif request.POST['filter_status'] == "5":
+                    job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__month=this_month))
+            elif request.POST['filter_date'] == "4":
+                this_year = datetime.date.today().year
+                if request.POST['filter_status'] == "0":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__year=this_year))
+                elif request.POST['filter_status'] == "1":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_gen_date__year=this_year)).exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน"))
+                elif request.POST['filter_status'] == "2":
+                    job = Maintenance_job.objects.filter(Q(job_response_user_id=User_login.username) | Q(job_assign_user_id=User_login.username) | Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") | Q(job_gen_date__year=this_year))
+                elif request.POST['filter_status'] == "3":
+                    job = Maintenance_job.objects.filter(job_gen_date__year=this_year)
+                elif request.POST['filter_status'] == "4":
+                    job = Maintenance_job.objects.exclude(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__year=this_year))
+                elif request.POST['filter_status'] == "5":
+                    job = Maintenance_job.objects.filter(Q(job_status="งานเสร็จสิ้น") | Q(job_status="ปิดงาน") & Q(job_gen_date__year=this_year))
 
     context = {'User_login': User_login, 'job': job, 'menu_job': dict_menu_level[Menu.objects.get(menu_id='preventive_data')],
                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_report.html', context)
-
-
-# def machine_hour_update(request):
-#     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='machine_hour_update')
-#     if not role_and_screen.exists():
-#         return redirect('signin')
-#
-#     mtn_menu = dict_menu_level[Menu.objects.get(pk='preventive_data')]
-#     mtn_main_menu = Menu.objects.get(pk='machine_hour_update')
-#
-#     if request.method == 'POST':
-#         if 'hour_submit' in request.POST:
-#             hour_update = request.POST['hour_update']
-#             if request.POST.get('mch_update[]', False) and request.POST['hour_update']:
-#                 mch_pk = request.POST.getlist('mch_update[]')
-#                 for mch in Machine.objects.filter(pk__in=mch_pk):
-#                     if mch.machine_hour_update_date == datetime.date.today():
-#                         mch.machine_hour = mch.machine_hour_last_update + int(hour_update)
-#                     else:
-#                         mch.machine_hour_update_date = datetime.date.today()
-#                         mch.machine_hour_last_update = mch.machine_hour
-#                         mch.machine_hour += int(hour_update)
-#                     mch.save()
-#
-#         return redirect('machine_hour_update')
-#
-#     user_org = User_login.org.org_line.all()
-#     machine_all = Machine.objects.filter(line__in=user_org)
-#
-#     context = {'User_login': User_login, 'machine_all': machine_all,
-#                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
-#     return render(request, 'maintenance/machine_hour_update.html', context)
 
 
 def machine_hour_update(request):
@@ -1970,11 +2019,9 @@ def machine_hour_update(request):
 
     if request.method == 'POST':
         if request.POST.get('mch_update[]', False):
-            print(request.POST.getlist('mch_update[]'))
             hour_update = set(request.POST.getlist('hour_update'))
-            print(hour_update)
-            if '' in hour_update:hour_update.remove('')
-            print(hour_update)
+            if '' in hour_update:
+                hour_update.remove('')
             hour_update = list(hour_update)[0] if len(hour_update) == 1 else 0
             mch_pk = request.POST.getlist('mch_update[]')
             for mch in Machine.objects.filter(pk__in=mch_pk):
@@ -2081,10 +2128,12 @@ def repair_notice(request):
                 repair_notice_model.receive_remark = None
 
             repair_notice_model.save()
+            return redirect('repair_notice')
 
         elif "delete_repair_notice" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['delete_repair_notice'])
             repair_notice_model.delete()
+            return redirect('repair_notice')
 
         elif "repair_close" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['repair_close'])
@@ -2105,8 +2154,135 @@ def repair_notice(request):
             messages.success(request, 'บันทึกข้อมูลสำเร็จ')
             repair_notice_model.close_remark = request.POST['close_remark'] if request.POST['close_remark'] != "" else None
             repair_notice_model.save()
+            return redirect('repair_notice')
 
-        return redirect('repair_notice')
+        elif "filter" in request.POST:
+            if request.POST['filter_date'] == "0":
+                if request.POST['filter_status'] == "0":
+                    pass
+                elif request.POST['filter_status'] == "1":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "2":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "3":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment)
+                elif request.POST['filter_status'] == "4":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "5":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม")
+            elif request.POST['filter_date'] == "1":
+                date_today = datetime.date.today()
+                if request.POST['filter_status'] == "0":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date=date_today)
+                elif request.POST['filter_status'] == "1":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date=date_today).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "2":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม", notification_date=date_today)
+                elif request.POST['filter_status'] == "3":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date=date_today)
+                elif request.POST['filter_status'] == "4":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date=date_today).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "5":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม", notification_date=date_today)
+            elif request.POST['filter_date'] == "2":
+                end_date = datetime.date.today()
+                start_date = datetime.date.today()-datetime.timedelta(days=7)
+                if request.POST['filter_status'] == "0":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__range=[start_date, end_date])
+                elif request.POST['filter_status'] == "1":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__range=[start_date, end_date]).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "2":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม", notification_date__range=[start_date, end_date])
+                elif request.POST['filter_status'] == "3":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__range=[start_date, end_date])
+                elif request.POST['filter_status'] == "4":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__range=[start_date, end_date]).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "5":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม", notification_date__range=[start_date, end_date])
+            elif request.POST['filter_date'] == "3":
+                this_month = datetime.date.today().month
+                if request.POST['filter_status'] == "0":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__month=this_month)
+                elif request.POST['filter_status'] == "1":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__month=this_month).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "2":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม", notification_date__month=this_month)
+                elif request.POST['filter_status'] == "3":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__month=this_month)
+                elif request.POST['filter_status'] == "4":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__month=this_month).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "5":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม", notification_date__month=this_month)
+            elif request.POST['filter_date'] == "4":
+                this_year = datetime.date.today().year
+                if request.POST['filter_status'] == "0":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__year=this_year)
+                elif request.POST['filter_status'] == "1":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, notification_date__year=this_year).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "2":
+                    list_repair_notice = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม", notification_date__year=this_year)
+                elif request.POST['filter_status'] == "3":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__year=this_year)
+                elif request.POST['filter_status'] == "4":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, notification_date__year=this_year).exclude(repair_status="ปิดใบแจ้งซ่อม")
+                elif request.POST['filter_status'] == "5":
+                    list_repair_notice = Repair_notice.objects.filter(department_notifying=UserLoginDepartment, repair_status="ปิดใบแจ้งซ่อม", notification_date__year=this_year)
+
+        elif 'export' in request.POST:
+            if request.POST['status_file'] == "1":
+                repair_export = Repair_notice.objects.filter(repairer_user=User_login).exclude(repair_status="ปิดใบแจ้งซ่อม")
+            elif request.POST['status_file'] == "2":
+                repair_export = Repair_notice.objects.filter(repairer_user=User_login, repair_status="ปิดใบแจ้งซ่อม")
+            elif request.POST['status_file'] == "3":
+                repair_export = Repair_notice.objects.filter(repairer_user=User_login)
+
+            document = Document()
+            document.add_heading(f'ใบแจ้งซ่อมเครื่องจักร', 0)
+            for index, repair in enumerate(repair_export):
+                document.add_heading(f'{index+1}. หมายเลขใบแจ้งซ่อม : {repair.repair_no}', level=1)
+                document.add_paragraph('ข้อมูลใบแจ้งซ่อม', style='List Bullet')
+                document.add_paragraph(f'\tวันที่แจ้งซ่อมเครื่องจักร : {repair.notification_date}')
+                document.add_paragraph(f'\tหน่วยงานที่แจ้งซ่อมเครื่องจักร : {repair.department_notifying.department_code} | {repair.department_notifying.department_name}')
+                p = document.add_paragraph(f'\tสถานะใบแจ้งซ่อมเครื่องจักร : ')
+                p.add_run(repair.repair_status).bold = True
+                document.add_paragraph(f'\tพนักงานแจ้งใบแจ้งซ่อมเครื่องจักร : {repair.repairer_user.firstname} {repair.repairer_user.lastname}')
+                document.add_paragraph(f'\tพนักงานตรวจสอบใบแจ้งซ่อมเครื่องจักร : {repair.inspect_user.firstname} {repair.inspect_user.lastname}')
+                document.add_paragraph(f'\tพนักงานอนุมัติใบแจ้งซ่อมเครื่องจักร : {repair.approve_user.firstname} {repair.approve_user.lastname}')
+
+                document.add_paragraph('ข้อมูลเครื่องจักรที่แจ้งซ่อม', style='List Bullet')
+                document.add_paragraph(f'\tวันที่ต้องการใช้งาน : {repair.use_date}')
+                document.add_paragraph(f'\tสายการผลิตที่ : {repair.machine.line}')
+                document.add_paragraph(f'\tเครื่องจักร : {repair.machine.machine_production_line_code} | {repair.machine.machine_name}')
+                document.add_paragraph(f'\tปัญหาเครื่องจักรที่พบ : {repair.problem_report}')
+                document.add_paragraph(f'\tผลกระทบของปัญหา : {repair.effect_problem}')
+                if repair.maintenance_jobs:
+                    document.add_paragraph('ข้อมูลงานการซ่อมบำรุงเครื่องจักร', style='List Bullet')
+                    for number, job in enumerate(repair.maintenance_jobs.all()):
+                        document.add_paragraph(f'{number+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}')
+                        document.add_paragraph(f'\tอะไหล่ที่ซ่อมบำรุงเครื่องจักร : {job.job_mch_sp.spare_part.spare_part_name}')
+                        document.add_paragraph(f'\tวันที่สร้างงาน : {job.job_gen_date}')
+                        document.add_paragraph(f'\tประเภทของงานซ่อมบำรุง : {job.job_mtn_type}')
+                        p = document.add_paragraph(f'\tสถานะของงานซ่อมบำรง : ')
+                        p.add_run(job.job_status).bold = True
+                        if job.job_response_user:
+                            document.add_paragraph(f'\tผู้มอบหมายงานซ่อมบำรุง : {job.job_assign_user.firstname} {job.job_assign_user.lastname}')
+                            document.add_paragraph(f'\tผู้รับผิดชอบงานซ่อมบำรุง : {job.job_response_user.firstname} {job.job_response_user.lastname}')
+                        if job.is_approve:
+                            document.add_paragraph(f'\tสาเหตุของปัญหา : {job.problem_cause}')
+                            document.add_paragraph(f'\tวิธีการแก้ไขปัญหา : {job.corrective_action}')
+                            document.add_paragraph(f'\tวิธีการดูแลหลังซ่อมบำรุง : {job.after_repair}')
+                            document.add_paragraph(f'\tชั่วโมงเครื่องจักรที่บันทึก : {job.job_mch_hour}')
+                            document.add_paragraph(f'\tอายุการมาตรวจสอบ : {job.job_plan_hour}')
+                            document.add_paragraph(f'\tอายุการมาซ่อมบำรุง : {job.job_fix_plan_hour}')
+                            document.add_paragraph(f'\tผลการซ่อมบำรุง : {job.job_result_type}')
+                            if job.job_result_description: document.add_paragraph(f'\tหมายเหตุ : {job.job_result_description}')
+                document.add_page_break()
+
+            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            response['Content-Disposition'] = 'attachment; filename=repair_notice.docx'
+            document.save(response)
+            return response
+
 
     context = {'line_of_user': line_of_user, 'User_login': User_login, 'list_repair_notice': list_repair_notice,
                'list_inspect_user': list_inspect_user, 'list_approve_user': list_approve_user, "UserLoginDepartment": UserLoginDepartment,
@@ -2392,7 +2568,6 @@ def test1(request):
     role_and_screen = Role_Screen.objects.filter(role_id=UserRole, screen_id='repair_notice')
     if not role_and_screen.exists():
         return redirect('/')
-    username = str(User_login.username)
     line_of_user = User.objects.all()
     list_repair_notice = Repair_notice.objects.filter(repair_status='อยู่ในระหว่างการทำงาน')
     maintenance_job_gen = Maintenance_job.objects.all()
@@ -2412,7 +2587,7 @@ def test2(request):
     completed_job = Maintenance_job.objects.filter(job_status='งานเสร็จสิ้น')
     spare_part_group_all = Spare_part_group.objects.all()
 
-    context= {'engineer': engineer, 'maintenance_job_gen': maintenance_job_gen, 'repair_receive': list_repair_notice,
+    context = {'engineer': engineer, 'maintenance_job_gen': maintenance_job_gen, 'repair_receive': list_repair_notice,
               'spare_part_group_all': spare_part_group_all, 'new_job': new_job, 'inprogress_job': inprogress_job,
               'completed_job': completed_job}
     return render(request, 'plan_listview.html', context)

@@ -6,37 +6,10 @@
 {% block css %}
     <style>
         .filter-machine {
-            margin: 30px 0;
-            padding: 0px 5%;
+            margin: 20px 0;
+            padding: 0px;
         }
     </style>
-{% endblock %}
-
-
-{% block filter %}
-    <div class="filter-machine" >
-        <form method="POST">
-            {% csrf_token %}
-            <div class="row">
-                <div class="form-group col-4">
-                    <select  class="form-control" id="production_line" name="production_line" onchange="select_machine(this)">
-                        <option value="0">--- กรุณาเลือกไลน์การผลิต ---</option>
-                        {% for line in line_of_user %}
-                        <option value="{{line.pk}}">{{line.location_site}} ไลน์ผลิต {{line.production_line}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group col-4">
-                    <select  class="form-control" id="machine" name="machine">
-                        <option value="">--- กรุณาเลือกเครื่องจักร ---</option>
-                    </select>
-                </div>
-                <div class="form-group col-4">
-                    <button type="submit" class="btn btn-primary form-control" name="prd_mch">Submit</button>
-                </div>
-            </div>
-        </form>
-    </div>
 {% endblock %}
 
 
@@ -53,6 +26,36 @@
                 </div>
             </div>
         </div>
+
+            <div class="filter-machine" >
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group" style="padding-bottom: 0px; margin: 0px 10px;">
+                            <select  class="form-control" id="production_line" name="production_line" onchange="select_machine(this)">
+                                <option value="0">--- กรุณาเลือกไลน์การผลิต ---</option>
+                                {% for line in line_of_user %}
+                                <option value="{{line.pk}}">{{line.location_site}} ไลน์ผลิต {{line.production_line}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group" style="padding-bottom: 0px; margin-bottom: 0px;">
+                            <select  class="form-control" id="machine" name="machine">
+                                <option value="">--- กรุณาเลือกเครื่องจักร ---</option>
+                            </select>
+                        </div>
+                        <div class="" style="margin-left: 10px;">
+                            <button type="submit" class="btn btn-light" name="prd_mch" style="width:42px; height:38px; color: #495057; border-radius: .25rem; border: 1px solid #ced4da;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
         <table class="table table-striped" id="myTable">
             <thead>
                 <tr>
@@ -397,4 +400,3 @@
         }
     </script>
 {% endblock %}
-

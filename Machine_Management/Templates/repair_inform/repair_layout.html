@@ -42,10 +42,14 @@
         });
     </script>
     <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
+
+    {% block css %}
+
+    {% endblock %}
 
 </head>
 <body>

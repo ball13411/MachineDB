@@ -140,7 +140,7 @@
                                                 <div class="form-group row" style="margin-top: 10px; padding-bottom: 0px;">
                                                     <div class="col-sm-6">
                                                         <label>ค้นหาด้วยรหัสพนักงาน :</label>
-                                                        <select  class="selectpicker" data-live-search="true" id="engineer_user{{forloop.counter}}" name="engineer_username" onchange="load_selected_engineer(this)" required="True" data-url="{% url 'load_username' %}" required="True">
+                                                        <select  class="selectpicker" data-live-search="true" id="engineer_user{{forloop.counter}}" name="engineer_username" onchange="load_selected_engineer(this)" required="True" data-url="{% url 'load_username' %}">
                                                             <option value="">-- กรุณาเลือกผู้ตรวจสอบ --</option>
                                                             {% for user in line_of_user %}
                                                             <option value="{{user.pk}}">{{user.pk}}</option>
@@ -149,7 +149,7 @@
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <label>ค้นหาด้วยชื่อพนักงาน :</label>
-                                                        <select  class="selectpicker" data-live-search="true" id="engineer_name{{forloop.counter}}" name="engineer_name" onchange="load_selected_engineer(this)" required="True" data-url="{% url 'load_username' %}" required="True">
+                                                        <select  class="selectpicker" data-live-search="true" id="engineer_name{{forloop.counter}}" name="engineer_name" onchange="load_selected_engineer(this)" required="True" data-url="{% url 'load_username' %}" >
                                                             <option value="">-- กรุณาเลือกผู้ตรวจสอบ --</option>
                                                             {% for user in line_of_user %}
                                                             <option value="{{user.pk}}">{{user.firstname}}  {{user.lastname}}</option>
@@ -254,7 +254,7 @@
                                                 <div class="form-group row" style="margin-top: 10px; padding-bottom: 0px;">
                                                     <div class="col-sm-6">
                                                         <label>ค้นหาด้วยรหัสพนักงาน :</label>
-                                                        <select  class="selectpicker" data-live-search="true" id="round_engineer_user{{forloop.counter}}" name="engineer_username" onchange="load_selected_engineer_round(this)" required="True" data-url="{% url 'load_round_username' %}" required="True">
+                                                        <select  class="selectpicker" data-live-search="true" id="round_engineer_user{{forloop.counter}}" name="engineer_username" onchange="load_selected_engineer_round(this)" required="True" data-url="{% url 'load_round_username' %}">
                                                             <option value="">-- กรุณาเลือกผู้ตรวจสอบ --</option>
                                                             {% for user in line_of_user %}
                                                             <option value="{{user.pk}}">{{user.pk}}</option>
@@ -263,7 +263,7 @@
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <label>ค้นหาด้วยชื่อพนักงาน :</label>
-                                                        <select  class="selectpicker" data-live-search="true" id="round_engineer_name{{forloop.counter}}" name="engineer_name" onchange="load_selected_engineer_round(this)" required="True" data-url="{% url 'load_round_username' %}" required="True">
+                                                        <select  class="selectpicker" data-live-search="true" id="round_engineer_name{{forloop.counter}}" name="engineer_name" onchange="load_selected_engineer_round(this)" required="True" data-url="{% url 'load_round_username' %}">
                                                             <option value="">-- กรุณาเลือกผู้ตรวจสอบ --</option>
                                                             {% for user in line_of_user %}
                                                             <option value="{{user.pk}}">{{user.firstname}}  {{user.lastname}}</option>
@@ -802,7 +802,7 @@
             
             // console.log(rowDict);
             rowIdx = rowDict[rowKey];
-            console.log(rowDict);
+            //console.log(rowDict);
             $(`#add-more-part-table${num_loop}`).append(`<tr id="R${rowIdx}">
                 <td class="row-index">${rowIdx}</td>
                 <td>
@@ -842,11 +842,11 @@
 
             $(`#delete${rowIdx}`).click(function(){ 
                 var tableID =  $(`#add-more-part-table${num_loop}`).attr('id');
-                console.log(tableID);
+                //console.log(tableID);
                 var removerowKey = tableID.substr(19);
                 var removeValue = rowDict[removerowKey]
                 rowDict[removerowKey] = --removeValue; 
-                console.log(rowDict);
+                //console.log(rowDict);
             });
             // Delete row on delete button click 
             $(`#add-more-part-table${num_loop}`).on("click", ".delete", function(){  
@@ -861,7 +861,7 @@
 
                 // Getting <tr> id. 
                 var id = $(this).attr('id'); 
-                console.log('<tr> id'+id);
+                //console.log('<tr> id'+id);
 
                 // Getting the <p> inside the .row-index class. 
                 var idx = $(this).children('.row-index'); 
@@ -1030,8 +1030,8 @@
     function load_selected_engineer_round(element) {
             var round_engineer = $(element).val();
             var num_loop = element.id.substr(19);
-            console.log(round_engineer);
-            console.log(num_loop);
+            //console.log(round_engineer);
+            //console.log(num_loop);
             var engineer_username = document.getElementById('round_engineer_user'+num_loop);
             var engineer_name = document.getElementById('round_engineer_name'+num_loop);
             var set_engineer = document.getElementById('set_round_engineer'+num_loop);
