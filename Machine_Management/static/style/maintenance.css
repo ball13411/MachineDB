@@ -18,12 +18,12 @@
 }
 .jobs-status .card-hearder {
     padding: 1.25rem;
-    border-radius: .75rem !important;
+    border-radius: .75rem .75rem 0rem 0rem !important;
 }
 .jobs-status .card-body {
     background-color: #fff;
     padding: 1.25rem;
-    border-radius: .75rem !important;
+    border-radius: 0rem 0rem .75rem .75rem !important;
 }
 .jobs-status .request-header {
     padding: 1.25rem 1.25rem 0rem 1.25rem;
@@ -42,7 +42,6 @@
     overflow: auto;
 }
 .scrollable-y{
-    white-space: nowrap;
     overflow-x: hidden;
     overflow-y: auto;
 }

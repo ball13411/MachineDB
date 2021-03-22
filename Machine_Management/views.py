@@ -1496,8 +1496,6 @@ def maintenance_assign(request):
     maintenance_job_gen = Maintenance_job.objects.all()
     if request.method == "POST":
         if "assign_submit" in request.POST:
-            print("211111111111")
-            print(request.POST.getlist('assign_list[]'))
             if request.POST.getlist('assign_list[]') != "":
                 for job_pk in request.POST.getlist('assign_list[]'):
                     job = Maintenance_job.objects.get(pk=job_pk)
@@ -1505,12 +1503,10 @@ def maintenance_assign(request):
                         messages.error(request, 'ไม่สามารถมอบหมายงานได้ เนื่องจากงานอยู่ในสถานะรอการอนุมัติงานแล้วหรืองานเสร็จสิ้น')
                         continue
                     try:
-                        print("SUCCESSSSSSS")
                         job.job_assign_user = User_login
                         job.job_response_user = User.objects.get(pk=request.POST['user_response']) if request.POST['user_response'] != "" else None
                         job.job_assign_date = datetime.date.today()
                         job.job_status = "รอการดำเนินงาน" if request.POST['user_response'] != "" else "รอการมอบหมาย"
-                        print("SUCCESSSSSSS")
                         job.save()
                     except ObjectDoesNotExist:
                         messages.error(request, "ไม่มีผู้ใช้งานดังกล่าว กรุณากรอกข้อมูลให้ถูกต้อง")
@@ -1665,25 +1661,6 @@ def document_create1(request):
                 row_cells[0].text = title
                 row_cells[1].text = str(data)
 
-            # mch_and_spare = Machine_and_spare_part.objects.filter(machine_id=mch.machine_id)
-            # if mch_and_spare.exists():
-            #     document.add_paragraph(' ')
-            #     document.add_paragraph('ข้อมูลอะไหล่', style='List Bullet')
-            #     list_table = []
-            #     for mch_spare_part in mch_and_spare:
-            #         list_table.append([str(mch_spare_part.spare_part), str(mch_spare_part.spare_part.spare_part_code), str(mch_spare_part.spare_part.spare_part_model)])
-            #     table = document.add_table(rows=1, cols=3)
-            #     table.style = 'Light List Accent 2'
-            #     hdr_cells = table.rows[0].cells
-            #     hdr_cells[0].text = 'Spare Part Name'
-            #     hdr_cells[1].text = 'Spare Part Code'
-            #     hdr_cells[2].text = 'Spare Part Model'
-            #     for name, code, model in list_table:
-            #         row_cells = table.add_row().cells
-            #         row_cells[0].text = name
-            #         row_cells[1].text = code
-            #         row_cells[2].text = model
-            #
             mch_capacity = Machine_capacity.objects.filter(machine_id=mch.machine_id)
             if mch_capacity.exists():
                 document.add_paragraph(' ')
@@ -2467,43 +2444,49 @@ def repair_notice(request):
                     last_paragraph = document.paragraphs[-1]
                     last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-                document.add_paragraph('ข้อมูลใบแจ้งซ่อม', style='List Bullet')
-                document.add_paragraph(f'\tวันที่แจ้งซ่อมเครื่องจักร : {repair.notification_date}')
-                document.add_paragraph(f'\tหน่วยงานที่แจ้งซ่อมเครื่องจักร : {repair.department_notifying.department_code} | {repair.department_notifying.department_name}')
-                p = document.add_paragraph(f'\tสถานะใบแจ้งซ่อมเครื่องจักร : ')
+                text1 = document.add_paragraph('')
+                text1.add_run('บันทึกผู้แจ้งซ่อมเครื่องจักร').bold = True
+                text1.alignment = 1
+                document.add_paragraph(f'วันที่แจ้งซ่อมเครื่องจักร : {repair.notification_date}')
+                document.add_paragraph(f'หน่วยงานที่แจ้งซ่อมเครื่องจักร : {repair.department_notifying.department_code} | {repair.department_notifying.department_name}')
+                p = document.add_paragraph(f'สถานะใบแจ้งซ่อมเครื่องจักร : ')
                 p.add_run(repair.repair_status).bold = True
-                document.add_paragraph(f'\tพนักงานแจ้งใบแจ้งซ่อมเครื่องจักร : {repair.repairer_user.firstname} {repair.repairer_user.lastname}')
-                document.add_paragraph(f'\tพนักงานตรวจสอบใบแจ้งซ่อมเครื่องจักร : {repair.inspect_user.firstname} {repair.inspect_user.lastname}')
-                document.add_paragraph(f'\tพนักงานอนุมัติใบแจ้งซ่อมเครื่องจักร : {repair.approve_user.firstname} {repair.approve_user.lastname}')
+                document.add_paragraph(f'ผู้แจ้งใบแจ้งซ่อมเครื่องจักร : {repair.repairer_user.firstname} {repair.repairer_user.lastname}')
+                document.add_paragraph(f'ผู้ตรวจสอบใบแจ้งซ่อมเครื่องจักร : {repair.inspect_user.firstname} {repair.inspect_user.lastname}')
+                document.add_paragraph(f'ผู้อนุมัติใบแจ้งซ่อมเครื่องจักร : {repair.approve_user.firstname} {repair.approve_user.lastname}')
 
-                document.add_paragraph('ข้อมูลเครื่องจักรที่แจ้งซ่อม', style='List Bullet')
-                document.add_paragraph(f'\tวันที่ต้องการใช้งาน : {repair.use_date}')
-                document.add_paragraph(f'\tสายการผลิตที่ : {repair.machine.line}')
-                document.add_paragraph(f'\tเครื่องจักร : {repair.machine.machine_production_line_code} | {repair.machine.machine_name}')
-                document.add_paragraph(f'\tปัญหาเครื่องจักรที่พบ : {repair.problem_report}')
-                document.add_paragraph(f'\tผลกระทบของปัญหา : {repair.effect_problem}')
+                # text2 = document.add_paragraph('')
+                # text2.add_run('ข้อมูลเครื่องจักรที่แจ้งซ่อม').bold = True
+                # text2.alignment = 1
+                document.add_paragraph(f'วันที่ต้องการใช้งาน : {repair.use_date}')
+                document.add_paragraph(f'สายการผลิตที่ : {repair.machine.line}')
+                document.add_paragraph(f'ชื่อเครื่องจักร : {repair.machine.machine_name} \t รหัสเครื่องจักร : {repair.machine.machine_production_line_code}')
+                document.add_paragraph(f'ปัญหาเครื่องจักรที่พบ : {repair.problem_report}')
+                document.add_paragraph(f'ผลกระทบของปัญหา : {repair.effect_problem}')
                 if repair.maintenance_jobs:
-                    document.add_paragraph('ข้อมูลงานการซ่อมบำรุงเครื่องจักร', style='List Bullet')
+                    text3 = document.add_paragraph()
+                    text3.add_run('ข้อมูลงานการซ่อมบำรุงเครื่องจักร').bold = True
+                    text3.alignment = 1
                     for number, job in enumerate(repair.maintenance_jobs.all()):
                         # document.add_heading(f'{index+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}', level=2)
                         document.add_paragraph(f'{number+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}')
-                        document.add_paragraph(f'\tอะไหล่ที่ซ่อมบำรุงเครื่องจักร : {job.job_mch_sp.spare_part.spare_part_name}')
-                        document.add_paragraph(f'\tวันที่สร้างงาน : {job.job_gen_date}')
-                        document.add_paragraph(f'\tประเภทของงานซ่อมบำรุง : {job.job_mtn_type}')
-                        p = document.add_paragraph(f'\tสถานะของงานซ่อมบำรง : ')
+                        document.add_paragraph(f'อะไหล่ที่ซ่อมบำรุงเครื่องจักร : {job.job_mch_sp.spare_part.spare_part_name}')
+                        document.add_paragraph(f'วันที่สร้างงาน : {job.job_gen_date}')
+                        document.add_paragraph(f'ประเภทของงานซ่อมบำรุง : {job.job_mtn_type}')
+                        p = document.add_paragraph(f'สถานะของงานซ่อมบำรง : ')
                         p.add_run(job.job_status).bold = True
                         if job.job_response_user:
-                            document.add_paragraph(f'\tผู้มอบหมายงานซ่อมบำรุง : {job.job_assign_user.firstname} {job.job_assign_user.lastname}')
-                            document.add_paragraph(f'\tผู้รับผิดชอบงานซ่อมบำรุง : {job.job_response_user.firstname} {job.job_response_user.lastname}')
+                            document.add_paragraph(f'ผู้มอบหมายงานซ่อมบำรุง : {job.job_assign_user.firstname} {job.job_assign_user.lastname}')
+                            document.add_paragraph(f'ผู้รับผิดชอบงานซ่อมบำรุง : {job.job_response_user.firstname} {job.job_response_user.lastname}')
                         if job.is_approve:
-                            document.add_paragraph(f'\tสาเหตุของปัญหา : {job.problem_cause}')
-                            document.add_paragraph(f'\tวิธีการแก้ไขปัญหา : {job.corrective_action}')
-                            document.add_paragraph(f'\tวิธีการดูแลหลังซ่อมบำรุง : {job.after_repair}')
-                            document.add_paragraph(f'\tชั่วโมงเครื่องจักรที่บันทึก : {job.job_mch_hour}')
-                            document.add_paragraph(f'\tอายุการมาตรวจสอบ : {job.job_plan_hour}')
-                            document.add_paragraph(f'\tอายุการมาซ่อมบำรุง : {job.job_fix_plan_hour}')
-                            document.add_paragraph(f'\tผลการซ่อมบำรุง : {job.job_result_type}')
-                            if job.job_result_description: document.add_paragraph(f'\tหมายเหตุ : {job.job_result_description}')
+                            document.add_paragraph(f'สาเหตุของปัญหา : {job.problem_cause}')
+                            document.add_paragraph(f'วิธีการแก้ไขปัญหา : {job.corrective_action}')
+                            document.add_paragraph(f'วิธีการดูแลหลังซ่อมบำรุง : {job.after_repair}')
+                            document.add_paragraph(f'ชั่วโมงเครื่องจักรที่บันทึก : {job.job_mch_hour}')
+                            document.add_paragraph(f'อายุการมาตรวจสอบ : {job.job_plan_hour}')
+                            document.add_paragraph(f'อายุการมาซ่อมบำรุง : {job.job_fix_plan_hour}')
+                            document.add_paragraph(f'ผลการซ่อมบำรุง : {job.job_result_type}')
+                            if job.job_result_description: document.add_paragraph(f'หมายเหตุ : {job.job_result_description}')
                 if index+1 != len(repair_export):
                     document.add_page_break()
 

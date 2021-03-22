@@ -109,7 +109,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <hr>
+                    <hr class="daily-task-hr">
                     {% endfor %}
                     {% for maintenance in today_maintenance_tasks %}
                     {% if maintenance.job_status == 'รอการมอบหมาย' or maintenance.job_status == 'รอการมอบหมายงาน' %}
@@ -124,7 +124,7 @@
                             รอการมอบหมายงานซ่อม<strong>{{maintenance.job_mch_sp.spare_part}}</strong> {{maintenance.job_mch_sp.machine.machine_name}} {{maintenance.job_mch_sp.machine.line}}
                         </div>
                     </div>
-                    <hr>
+                    <hr class="daily-task-hr">
                     {% elif maintenance.job_status == 'รอการดำเนินงาน' %}
                     <div class="media">
                         <div class="task-icon">
@@ -136,7 +136,7 @@
                             <strong>{{maintenance.job_response_user.firstname}} {{maintenance.job_response_user.lastname}}</strong> กำลังดำเนินการซ่อม{{maintenance.job_mch_sp.machine.machine_name}} {{maintenance.job_mch_sp.machine.line}}
                         </div>
                     </div>
-                    <hr>
+                    <hr class="daily-task-hr">
                     {% elif maintenance.job_status == 'รอการอนุมัติงาน' %}
                     <div class="media">
                         <div class="task-icon">
@@ -149,7 +149,7 @@
                             รออนุมัติผลการซ่อม<strong>{{maintenance.job_mch_sp.spare_part}}</strong> {{maintenance.job_mch_sp.machine.machine_name}} {{maintenance.job_mch_sp.machine.line}}
                         </div>
                     </div>
-                    <hr>
+                    <hr class="daily-task-hr">
                     {% endif %}
                     {% endfor %}
                 </div>
@@ -179,7 +179,7 @@
                     <div class="scroll-area" data-spy="scroll" data-offset="0">
 
                         <!-- For loop maintenance requests -->
-                        {% for repair in repair_receive_all %}
+                        {% for repair in repair_receive %}
                             <div class="card">
                                 <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                         <div>
@@ -322,9 +322,10 @@
                                             <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#round-setting{{forloop.counter}}"></i>
                                         </div>
                                 </div>
-                                <div class="card-body">
-                                    <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
+                                <div class="card-body request">
+                                    <span class="badge request-badge">งานซ่อมบำรุงรักษา</span>
                                     <p class="text-sm text-muted">{{mtn_job.job_mch_sp.machine.machine_name}} {{mtn_job.job_mch_sp.machine.line}}</p>
+                                    <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
                                     <span class="card-details">
                                         <i class="far fa-clock"></i> {{mtn_job.job_gen_date}}
                                     </span>
@@ -856,7 +857,7 @@
                 </div>
             </div>
         </div>
-<div class="machine-data-header">
+<div class="machine-data-header" style="margin-top:25px;">
 
     <div class="page-header row no-gutters py-4">
         <div class="col-12 col-sm-4 text-sm-left mb-0">
@@ -887,6 +888,107 @@
     </div>
 </div>
 <script src="{% static 'javascript/greeting.js' %}" type="text/javascript"></script>
+<!-- Add more maintenance part -->
+<script>
+        // Append table with add row form on add new button click
+        var rowIdx = 0;
+        var rowDict = {};
+        function morePart(element){
+            var table = element.id;
+            var rowKey = element.id.substr(9);
+            var num_loop = element.id.substr(9);
+            if (rowDict[rowKey]) {
+                rowValue = rowDict[rowKey]
+                rowDict[rowKey] = ++rowValue;
+
+            } else {
+                rowDict[rowKey] = 1;
+            }
+
+            // console.log(rowDict);
+            rowIdx = rowDict[rowKey];
+            console.log(rowDict);
+            $(`#add-more-part-table${num_loop}`).append(`<tr id="R${rowIdx}">
+                <td class="row-index"><i class="material-icons">settings</i></td>
+                <td>
+                    <select class="form-control" id="select_sp_group${rowIdx}_${table}" name="select_sp_group" onchange="ajax_dropdown_type(this)" data-url="{% url 'ajax_dropdown_sp_type' %}">
+                        <option value="0">เลือกกลุ่มอะไหล่</option>
+                        {% for sp_group in spare_part_group_all %}
+                        <option value="{{sp_group.pk}}" {% if mtn.spare_part_1.spare_part_group_id == sp_group.pk %}selected{% endif %}>{{sp_group.spare_part_group_code}} | {{sp_group.spare_part_group_name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control" id="select_sp_type${rowIdx}_${table}" name="select_sp_type" required="True" onchange="ajax_dropdown_subtype(this)" data-url="{% url 'ajax_dropdown_sp_subtype' %}" >
+                        <option value="0">เลือกประเภทอะไหล่</option>
+                        {% if mtn.spare_part_1_id %}
+                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_type.spare_part_type_code}} | {{mtn.spare_part_1.spare_part_type.spare_part_type_name}}</option>
+                        {% endif %}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control" id="select_sp_subtype${rowIdx}_${table}" name="select_sp_subtype" required="True" onchange="ajax_dropdown_sp(this)" data-url="{% url 'ajax_dropdown_sp' %}" >
+                        <option value="0">เลือกชนิดอะไหล่</option>
+                        {% if mtn.spare_part_1_id %}
+                        <option value="{{mtn.spare_part_1.spare_part_type_id}}" selected>{{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_code}} | {{mtn.spare_part_1.spare_part_sub_type.spare_part_sub_type_name}}</option>
+                        {% endif %}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control" id="select_sp_name${rowIdx}_${table}" name="select_sp_name1" required="True"  >
+                        <option value="0">เลือกอะไหล่</option>
+                        {% if mtn.spare_part_1_id %}<option value="{{mtn.spare_part_1_id}}" selected>{{mtn.spare_part_1.spare_part_name}}</option>{% endif %}
+                    </select>
+                </td>
+                <td>
+                    <a class="delete" id="delete${rowIdx}" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                </td>
+            </tr>`);
+
+            $(`#delete${rowIdx}`).click(function(){
+                var tableID =  $(`#add-more-part-table${num_loop}`).attr('id');
+                console.log(tableID);
+                var removerowKey = tableID.substr(19);
+                var removeValue = rowDict[removerowKey]
+                rowDict[removerowKey] = removeValue-1;
+                console.log(rowDict);
+            });
+            // Delete row on delete button click
+            $(`#add-more-part-table${num_loop}`).on("click", ".delete", function(){
+
+                // Getting all the rows next to the row
+                // containing the clicked button
+                var child = $(this).closest('tr').nextAll();
+
+                // Iterating across all the rows
+                // obtained to change the index
+                child.each(function () {
+
+                // Getting <tr> id.
+                var id = $(this).attr('id');
+                console.log('<tr> id'+id);
+
+                // Getting the <p> inside the .row-index class.
+                var idx = $(this).children('.row-index');
+
+                // Gets the row number from <tr> id.
+                var dig = parseInt(id.substring(1));
+
+                // Modifying row index.
+                idx.html(`<i class="material-icons">settings</i>`);
+
+                // Modifying row id.
+                $(this).attr('id', `R${dig - 1}`);
+                });
+
+                // Removing the current row.
+                $(this).closest('tr').remove();
+
+            });
+
+        };
+
+</script>
 <!-- Function assign job to engineer -->
 <script>
     // Requested maintenance
@@ -945,6 +1047,117 @@
                     }
                 }
             });
+    }
+</script>
+<!-- SPARE PART-->
+<script>
+    function ajax_dropdown_type(element) {
+        var filter_sp_type = $(element).val();
+        var numID = element.id.substr(17);
+        var indexID = element.id.substr(15,2);
+        $.ajax({
+            url : $(element).attr("data-url"),
+            data : {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "filter_sp_type" : filter_sp_type,
+
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                if (data) {
+                    $('#select_sp_type'+indexID+numID).empty();
+                    var select_type = document.getElementById('select_sp_type'+indexID+numID);
+                    var option_first = document.createElement('option');
+                    option_first.appendChild(document.createTextNode("เลือกประเภทอะไหล่"));
+                    option_first.value = 0;
+                    select_type.appendChild(option_first);
+                    for (model in data) {
+                        var options = document.createElement('option');
+                        var code = data[model].fields.spare_part_type_code;
+                        var name = data[model].fields.spare_part_type_name;
+                        options.appendChild(document.createTextNode(code+" | "+name));
+                        options.value = data[model].pk;
+                        select_type.appendChild(options);
+                    }
+                } else {
+                    $('#select_sp_type'+indexID+numID).empty();
+                }
+            }
+        });
+    }
+</script>
+<script>
+    function ajax_dropdown_subtype(element) {
+        var filter_sp_subtype = $(element).val();
+        var numID = element.id.substr(16);
+        var indexID = element.id.substr(14,2);
+        $.ajax({
+            url : $(element).attr("data-url"),
+            data : {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "filter_sp_subtype" : filter_sp_subtype,
+
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                if (data) {
+                    $('#select_sp_subtype'+indexID+numID).empty();
+                    var select_subtype = document.getElementById('select_sp_subtype'+indexID+numID);
+                    var option_first_subtype = document.createElement('option');
+                    option_first_subtype.appendChild(document.createTextNode("เลือกชนิดอะไหล่"));
+                    option_first_subtype.value = 0;
+                    select_subtype.appendChild(option_first_subtype);
+                    for (model in data) {
+                        var options = document.createElement('option');
+                        var code = data[model].fields.spare_part_sub_type_code;
+                        var name = data[model].fields.spare_part_sub_type_name;
+                        options.appendChild(document.createTextNode(code+" | "+name));
+                        options.value = data[model].pk;
+                        select_subtype.appendChild(options);
+                    }
+                } else {
+                    $('#select_sp_subtype'+indexID+numID).empty();
+                }
+            }
+        });
+    }
+</script>
+<script>
+    function ajax_dropdown_sp(element) {
+        var filter_sp = $(element).val();
+        var numID = element.id.substr(19);
+        var indexID = element.id.substr(17,2);
+        $.ajax({
+            url : $(element).attr("data-url"),
+            data : {
+                "csrfmiddlewaretoken" : $(element).siblings("input[name='csrfmiddlewaretoken']" ).val(),
+                "filter_sp" : filter_sp,
+
+            },
+            method: "POST",
+            dataType : "json",
+            success : function (data) {
+                if (data) {
+                    $('#select_sp_name'+indexID+numID).empty();
+                    var select_sp = document.getElementById('select_sp_name'+indexID+numID);
+                    var option_first_subtype = document.createElement('option');
+                    option_first_subtype.appendChild(document.createTextNode("เลือกชนิดอะไหล่"));
+                    option_first_subtype.value = 0;
+                    select_sp.appendChild(option_first_subtype);
+                    for (model in data) {
+                        var options = document.createElement('option');
+                        var name = data[model].fields.spare_part_name;
+                        options.appendChild(document.createTextNode(name));
+                        options.value = data[model].pk;
+                        select_sp.appendChild(options);
+                    }
+                } else {
+                    $('#select_sp_subtype'+indexID+numID).empty();
+                }
+            }
+        });
     }
 </script>
 {% endblock %}
