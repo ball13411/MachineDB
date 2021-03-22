@@ -336,7 +336,9 @@ h4 {
     color: #810000!important;
     margin-left: .25rem;
 }
-
+.daily-task-hr{
+    margin: .75rem;
+}
 /* Select */
 select{
     font-size: 16px;
