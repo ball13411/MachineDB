@@ -30,8 +30,8 @@ UserLoginDepartment = None
 def signin(request):
     # Functions for Sign In to webapp
     # Templates/signin.html
-    global User_login, UserRole
-    User_login, UserRole = None, None
+    global User_login, UserRole, dict_menu_level
+    User_login, UserRole, dict_menu_level = None, None, None
     if request.method == "POST":
         # Form Sign In
         if 'signin' in request.POST:
@@ -343,76 +343,198 @@ def role_screen(request):
 
 
 def home(request):
-    global User_login, UserRole, dict_menu_level, List_user_Screen
+    global User_login, dict_menu_level, List_user_Screen
     if request.method == "POST":
         if 'signout' in request.POST:
             User_login = None
-            UserRole = None
     try:
         user_role = Role.objects.get(role_id=User_login.role)
     except AttributeError:
         return redirect("signin")
+
     user_dep = User_and_department.objects.get(user=User_login, department=UserLoginDepartment)
-    List_user_Screen = user_role.members.all()
-    list_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
-    list_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
-    list_menu_role = []
-    dict_menu_level = {}
-    for menu_role in List_user_Screen:
-        try:
-            list_menu_role.append(Menu.objects.get(screen=menu_role))
-        except ObjectDoesNotExist:
-            pass
-    for root in list_user_menu_lv0:
-        if root in list_menu_role:
-            dict_menu_level[root] = []
-    for child in list_user_menu_lv1:
-        if child.pk == 'repair_notice' and not user_dep.is_inform and not user_dep.is_close:
-            continue
-        elif child.pk == 'repair_inspect' and not user_dep.is_inspect:
-            continue
-        elif child.pk == 'repair_approve' and not user_dep.is_approve:
-            continue
-        elif child.pk == 'maintenance_receive' and not user_dep.is_receive:
-            continue
-        elif child.pk == 'maintenance_assign' and not user_dep.is_assign:
-            continue
-        elif child.pk == 'maintenance_report' and not user_dep.is_report and not user_dep.is_verify:
-            continue
-        if child in list_menu_role:
-            root = Menu.objects.get(menu_id=child.parent_menu)
-            dict_menu_level[root].append(child)
+    if dict_menu_level is None or dict_menu_level == {}:
+        List_user_Screen = user_role.members.all()
+        list_user_menu_lv0 = Menu.objects.filter(level=0).order_by('index')
+        list_user_menu_lv1 = Menu.objects.filter(level=1).order_by('index')
+        list_menu_role = []
+        dict_menu_level = {}
+        for menu_role in List_user_Screen:
+            try:
+                list_menu_role.append(Menu.objects.get(screen=menu_role))
+            except ObjectDoesNotExist:
+                pass
+        for root in list_user_menu_lv0:
+            if root in list_menu_role:
+                dict_menu_level[root] = []
+        for child in list_user_menu_lv1:
+            if child.pk == 'repair_notice' and not user_dep.is_inform and not user_dep.is_close:
+                continue
+            elif child.pk == 'repair_inspect' and not user_dep.is_inspect:
+                continue
+            elif child.pk == 'repair_approve' and not user_dep.is_approve:
+                continue
+            elif child.pk == 'maintenance_receive' and not user_dep.is_receive:
+                continue
+            elif child.pk == 'maintenance_assign' and not user_dep.is_assign:
+                continue
+            elif child.pk == 'maintenance_report' and not user_dep.is_report and not user_dep.is_verify:
+                continue
+            if child in list_menu_role:
+                root = Menu.objects.get(menu_id=child.parent_menu)
+                dict_menu_level[root].append(child)
+
+    if request.method == "POST":
+        if "assign_repair_job" in request.POST:
+            engineer_pk = request.POST.get('engineer_username', False)
+            repair_notice_model = Repair_notice.objects.get(pk=request.POST['assign_repair_job'])
+            repair_notice_model.repair_status = 'อยู่ในระหว่างการทำงาน'
+
+            list_check = request.POST.getlist('select_sp_name1')
+            if len(list_check) != len(set(list_check)):
+                messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากเลือกชิ้นส่วนอะไหล่ซ้ำ")
+                return redirect('home')
+            elif "0" in list_check:
+                messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากไม่ได้เลือกชิ้นส่วนอะไหล่")
+                return redirect('home')
+            for sp_id_test in list_check:
+                try:
+                    mch_sp = Machine_sparepart.objects.get(machine=repair_notice_model.machine, spare_part_id=sp_id_test)
+                except ObjectDoesNotExist:
+                    messages.error(request, "ทำรายการไม่สำเร็จ เนื่องจากเครื่องจักรยังไม่ได้เชื่อมต่อกับอะไหล่")
+                    return redirect('home')
+                if mch_sp.gen_mtnchng_date is not None:
+                    job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchng_date)
+                    job_auto.job_status = "ปิดงาน"
+                    job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
+                    job_auto.save()
+                elif mch_sp.gen_mtnchk_date is not None:
+                    job_auto = Maintenance_job.objects.exclude(job_status__in=["ปิดงาน", "งานเสร็จสิ้น"]).get(job_mch_sp=mch_sp, job_gen_date=mch_sp.gen_mtnchk_date)
+                    job_auto.job_status = "ปิดงาน"
+                    job_auto.job_remark = "เนื่องจากมีการสร้างงานนี้ในใบแจ้งซ่อม"
+                    job_auto.is_report = True
+                    job_auto.is_approve = True
+                    job_auto.save()
+                mch_sp.gen_mtnchng_date = datetime.date.today()
+                mch_sp.save()
+                mtn_repair_job = Maintenance_job.objects.create(job_no=genJobNumber(),
+                                                                job_assign_user=User_login,
+                                                                job_response_user_id=engineer_pk,
+                                                                job_assign_date=datetime.date.today(),
+                                                                job_status="รอการดำเนินงาน",
+                                                                job_mtn_type="repair",
+                                                                job_gen_user=User_login,
+                                                                job_mch_sp=mch_sp)
+                repair_notice_model.maintenance_jobs.add(mtn_repair_job)
+                mtn_repair_job.save()
+            repair_notice_model.save()
+            messages.success(request, "บันทึกรายการสำเร็จ")
+            return redirect('home')
+        elif "assign_mtn_job" in request.POST:
+            job = Maintenance_job.objects.get(pk=request.POST['assign_mtn_job'])
+            if job.job_status in ['รอการอนุมัติงาน', 'งานเสร็จสิ้น', 'ปิดงาน']:
+                messages.error(request, 'ไม่สามารถมอบหมายงานได้ เนื่องจากงานอยู่ในสถานะรอการอนุมัติงานแล้วหรืองานเสร็จสิ้น')
+                return redirect('home')
+            job.job_assign_user = User_login
+            job.job_response_user = User.objects.get(pk=request.POST['engineer_username'])
+            job.job_assign_date = datetime.date.today()
+            job.job_status = "รอการดำเนินงาน"
+            job.save()
+            return redirect('home')
+        elif 'report_submit' in request.POST:
+            mtn_report = Maintenance_job.objects.get(pk=request.POST['report_submit'])
+            mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+            mtn_report.job_mtn_type = request.POST['mtn_type']
+            mtn_report.job_result_type = request.POST['mtn_result']
+            mtn_report.job_result_description = request.POST['mtn_result_description'] if request.POST['mtn_result_description'] != "" else None
+            mtn_report.job_fix_plan_hour = request.POST['chang_life_hour_sp'] if request.POST['chang_life_hour_sp'] != "" else request.POST['chang_life_hour_pv']
+            mtn_report.job_mch_hour = request.POST['machine_hour_sp'] if request.POST['machine_hour_sp'] != "" else request.POST['machine_hour_pv']
+            mtn_report.job_plan_hour = request.POST['check_life_hour_sp'] if request.POST['check_life_hour_sp'] != "" else request.POST['check_life_hour_pv']
+            mtn_report.job_report_date = datetime.datetime.today()
+            mtn_report.problem_cause = request.POST['problem_cause']
+            mtn_report.corrective_action = request.POST['corrective_action']
+            mtn_report.after_repair = request.POST['after_repair']
+            mtn_report.job_status = "รอการอนุมัติงาน"
+            mtn_report.is_approve = False
+            mtn_report.is_report = True
+            mtn_report.equipment_code1 = request.POST['equipment_code1'] if request.POST['equipment_code1'] != "" else None
+            mtn_report.equipment_code2 = request.POST['equipment_code2'] if request.POST['equipment_code2'] != "" else None
+            mtn_report.equipment_code3 = request.POST['equipment_code3'] if request.POST['equipment_code3'] != "" else None
+            mtn_report.equipment_detail1 = request.POST['equipment_detail1'] if request.POST['equipment_detail1'] != "" else None
+            mtn_report.equipment_detail2 = request.POST['equipment_detail2'] if request.POST['equipment_detail2'] != "" else None
+            mtn_report.equipment_detail3 = request.POST['equipment_detail3'] if request.POST['equipment_detail3'] != "" else None
+            mtn_report.equipment_quantity1 = request.POST['equipment_quantity1'] if request.POST['equipment_quantity1'] != "" else None
+            mtn_report.equipment_quantity2 = request.POST['equipment_quantity2'] if request.POST['equipment_quantity2'] != "" else None
+            mtn_report.equipment_quantity3 = request.POST['equipment_quantity3'] if request.POST['equipment_quantity3'] != "" else None
+            mtn_report.equipment_note1 = request.POST['equipment_note1'] if request.POST['equipment_note1'] != "" else None
+            mtn_report.equipment_note2 = request.POST['equipment_note2'] if request.POST['equipment_note2'] != "" else None
+            mtn_report.equipment_note3 = request.POST['equipment_note3'] if request.POST['equipment_note3'] != "" else None
+            mtn_report.job_remark = request.POST['job_remark'] if request.POST['job_remark'] != "" else None
+            mtn_report.estimate_cost = request.POST['estimate_cost'] if request.POST['estimate_cost'] != "" else None
+            try:
+                mtn_report.save()
+                mch_sp.save()
+            except ValueError:
+                messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
+            return redirect('home')
+        elif "approve_job" in request.POST:
+            if request.POST.get('is_approve', False):
+                mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
+                mch_sp = Machine_sparepart.objects.get(pk=mtn_report.job_mch_sp_id)
+                mtn_report.is_approve = True
+                mtn_report.job_approve_date = datetime.datetime.today()
+                mtn_report.job_status = "งานเสร็จสิ้น" if request.POST.get('is_approve', False) else "รอการอนุมัติงาน"
+                mch_sp.gen_mtnchng_date = None
+                mch_sp.gen_mtnchk_date = None
+                machine_model = Machine.objects.get(pk=mch_sp.machine.pk)
+                machine_model.machine_hour_last_update = mch_sp.machine.machine_hour
+                machine_model.machine_hour = mtn_report.job_mch_hour
+
+                if mtn_report.job_mtn_type in ["change", "repair"]:
+                    mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                    mch_sp.last_mtnchng_hour = mtn_report.job_mch_hour
+                    mch_sp.last_mtnchng_job_id = mtn_report.id
+                elif mtn_report.job_mtn_type == "checking":
+                    mch_sp.last_mtnchk_hour = mtn_report.job_mch_hour
+                    mch_sp.last_mtnchk_job_id = mtn_report.id
+                mch_sp.mtnchng_life_hour = mtn_report.job_fix_plan_hour
+                mch_sp.mtnchk_life_hour = mtn_report.job_plan_hour
+                if mch_sp.mtnchk_life_hour:
+                    mch_sp.next_mtnchk_hour = int(mch_sp.last_mtnchk_hour) + int(mch_sp.mtnchk_life_hour)
+                if mch_sp.mtnchng_life_hour:
+                    mch_sp.next_mtnchng_hour = int(mch_sp.last_mtnchng_hour) + int(mch_sp.mtnchng_life_hour)
+
+                machine_model.save()
+                mch_sp.save()
+                mtn_report.save()
+
+            else:
+                mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
+                mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
+                mtn_report.is_report = False
+                mtn_report.save()
+            return redirect('home')
 
     user_org = User_login.org.org_line.all()
-    User_org_machine_line = Machine.objects.filter(line__in=user_org)
     engineers = User.objects.filter(role__role_id__contains="engineer")
-    list_repair_notice = Repair_notice.objects.filter(repair_status='รอการมอบหมายงาน')
+    list_repair_notice = Repair_notice.objects.filter(repair_status='รอการตรวจสอบอะไหล่')
     maintenance_job_gen = Maintenance_job.objects.filter(~Q(job_status='งานเสร็จสิ้น'))
+    spare_part_group_all = Spare_part_group.objects.all()
 
     today = datetime.date.today()
     today_request_tasks = Repair_notice.objects.filter(repair_gen_date=today).exclude(repair_status='ปิดใบแจ้งซ่อม')
     today_maintenance_tasks = Maintenance_job.objects.filter(~Q(job_status='งานเสร็จสิ้น'), job_gen_date=today)
-    # repair_inform_model = Repair_notice.objects.filter(repairer_user=User_login)
     repair_inform_incomplete = Repair_notice.objects.filter(repairer_user=User_login).exclude(repair_status='ปิดใบแจ้งซ่อม')
-    # repair_inspect_model = Repair_notice.objects.filter(inspect_user=User_login)
-    # repair_inspect_incomplete = Repair_notice.objects.filter(inspect_user=User_login, repair_status='รอการตรวจสอบ')
-    # repair_approve_model = Repair_notice.objects.filter(approve_user=User_login)
-    # repair_approve_incomplete = Repair_notice.objects.filter(approve_user=User_login, repair_status='รอการอนุมัติ')
-    # repair_receive_incomplete = Repair_notice.objects.filter(repair_status='รอการรับใบแจ้ง', department_receive=UserLoginDepartment)
-    # mtn_inspect_incomplete = Repair_notice.objects.filter(repair_status='รอการตรวจสอบอะไหล่', department_receive=UserLoginDepartment)
-    # mtn_receive_model = Maintenance_job.objects.filter(job_gen_user=User_login)
-    # mtn_receive_incomplete = Maintenance_job.objects.filter(job_gen_user=User_login).exclude(job_status='งานเสร็จสิ้น')
-    # mtn_assign_model = Maintenance_job.objects.filter(job_assign_user=User_login)
-    # mtn_assign_incomplete = Maintenance_job.objects.filter(job_assign_user=User_login).exclude(job_status='งานเสร็จสิ้น')
-    # mtn_report_model = Maintenance_job.objects.filter(job_response_user=User_login)
     mtn_report_incomplete = Maintenance_job.objects.filter(Q(job_response_user=User_login), Q(job_status='รอการดำเนินงาน') | Q(job_status='รอการอนุมัติงาน'))
 
-    context = {'User_login': User_login, 'UserRole': UserRole, 'dict_menu_level': dict_menu_level.items(),
-               'User_org_machine_line': User_org_machine_line, 'line_of_user': user_org,
+    context = {'User_login': User_login, 'dict_menu_level': dict_menu_level.items(),
+               'line_of_user': user_org, 'user_dep': user_dep,
                'repair_receive': list_repair_notice, 'maintenance_job_gen': maintenance_job_gen,
                'today_request_tasks': today_request_tasks, 'today_maintenance_tasks': today_maintenance_tasks,
                'repair_inform_incomplete': repair_inform_incomplete, 'mtn_report_incomplete': mtn_report_incomplete,
-               'engineers': engineers}
+               'engineers': engineers, 'spare_part_group_all': spare_part_group_all}
 
     return render(request, 'home/home.html', context)
 
@@ -2080,7 +2202,7 @@ def maintenance_report(request):
                 p = document.add_paragraph(f'\tสถานะใบแจ้งซ่อมเครื่องจักร : ')
                 p.add_run(job_export.job_status).bold = True
                 if job_export.job_approve_date:
-                    p.add_run(f'\tวันที่อนุมัติงานซ่อมบำรุง : {job_export.job_approve_date}')
+                    p.add_run(f'\tวันที่อนุมัติงาน : {job_export.job_approve_date}')
 
                 document.add_paragraph('ข้อมูลเครื่องจักรและอะไหล่ที่ซ่อมบำรุง', style='List Bullet')
                 document.add_paragraph(f'\tสายการผลิตที่ : {job_export.job_mch_sp.machine.line}')
@@ -2447,6 +2569,7 @@ def repair_notice(request):
                 text1 = document.add_paragraph('')
                 text1.add_run('บันทึกผู้แจ้งซ่อมเครื่องจักร').bold = True
                 text1.alignment = 1
+                text1.underline = True
                 document.add_paragraph(f'วันที่แจ้งซ่อมเครื่องจักร : {repair.notification_date}')
                 document.add_paragraph(f'หน่วยงานที่แจ้งซ่อมเครื่องจักร : {repair.department_notifying.department_code} | {repair.department_notifying.department_name}')
                 p = document.add_paragraph(f'สถานะใบแจ้งซ่อมเครื่องจักร : ')
@@ -2455,9 +2578,10 @@ def repair_notice(request):
                 document.add_paragraph(f'ผู้ตรวจสอบใบแจ้งซ่อมเครื่องจักร : {repair.inspect_user.firstname} {repair.inspect_user.lastname}')
                 document.add_paragraph(f'ผู้อนุมัติใบแจ้งซ่อมเครื่องจักร : {repair.approve_user.firstname} {repair.approve_user.lastname}')
 
-                # text2 = document.add_paragraph('')
-                # text2.add_run('ข้อมูลเครื่องจักรที่แจ้งซ่อม').bold = True
-                # text2.alignment = 1
+                text2 = document.add_paragraph('')
+                text2.add_run('ข้อมูลเครื่องจักรที่แจ้งซ่อม').bold = True
+                text2.alignment = 1
+                text2.underline = True
                 document.add_paragraph(f'วันที่ต้องการใช้งาน : {repair.use_date}')
                 document.add_paragraph(f'สายการผลิตที่ : {repair.machine.line}')
                 document.add_paragraph(f'ชื่อเครื่องจักร : {repair.machine.machine_name} \t รหัสเครื่องจักร : {repair.machine.machine_production_line_code}')
@@ -2467,6 +2591,7 @@ def repair_notice(request):
                     text3 = document.add_paragraph()
                     text3.add_run('ข้อมูลงานการซ่อมบำรุงเครื่องจักร').bold = True
                     text3.alignment = 1
+
                     for number, job in enumerate(repair.maintenance_jobs.all()):
                         # document.add_heading(f'{index+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}', level=2)
                         document.add_paragraph(f'{number+1}. หมายเลขงานซ่อมบำรุง : {job.job_no}')
@@ -2724,7 +2849,6 @@ def maintenance_inspect(request):
     spare_part_group_all = Spare_part_group.objects.all()
 
     if request.method == "POST":
-
         if "mtn_submit" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['mtn_submit'])
             repair_notice_model.repair_status = 'อยู่ในระหว่างการทำงาน'

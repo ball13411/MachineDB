@@ -359,7 +359,7 @@
                     <li>
                         <form method="POST" action="{% url 'signin' %}">
                             {% csrf_token %}
-                            <h4><b>{{User_login.username}} ({{UserRole}})</b></h4>
+                            <h4><b>{{User_login.username}} ({{User_login.role}})</b></h4>
                         </form>
                     </li>
                     {% for root , list_child in dict_menu_level %}
