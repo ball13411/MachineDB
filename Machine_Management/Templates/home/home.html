@@ -16,16 +16,19 @@
 {% endblock %}
 
 {% block content %}
-<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-  </ol>
-</div>
-<!-- Style -->
-<link rel="stylesheet" type="text/css" href="{% static 'style/home.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'style/calendar.css' %}">
+<!--<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">-->
+<!--  <ol class="carousel-indicators">-->
+<!--    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>-->
+<!--    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>-->
+<!--    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>-->
+<!--  </ol>-->
+<!--</div>-->
+{% for message in messages %}
+    <div class="alert {{ message.tags }} ">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+        {{ message }}
+    </div>
+{% endfor %}
 <!-- Content -->
 <div class="home-greeting">
     <div class="page-header row no-gutters py-4">
@@ -180,12 +183,13 @@
 
                         <!-- For loop maintenance requests -->
                         {% for repair in repair_receive %}
+                            {% if repair.department_receive == user_dep.department %}
                             <div class="card">
                                 <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-2"><b>{{repair.repair_no}}</b></h6>
                                         </div>
-                                        <div class="text-right">
+                                        <div class="text-right" {% if not user_dep.is_assign %}hidden{% endif %}>
                                             <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#request-setting{{forloop.counter}}"></i>
                                         </div>
                                 </div>
@@ -302,12 +306,13 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary" name="mtn_submit" value="{{repair.pk}}">Submit</button>
+                                                <button type="submit" class="btn btn-primary" name="assign_repair_job" value="{{repair.pk}}">Submit</button>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                         {% endfor %}
 
                         <!-- For loop jobs -->
@@ -318,7 +323,7 @@
                                         <div>
                                             <h6 class="mb-2"><b>{{mtn_job.job_no}}</b></h6>
                                         </div>
-                                        <div class="text-right">
+                                        <div class="text-right" {% if not user_dep.is_assign %}hidden{% endif %}>
                                             <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#round-setting{{forloop.counter}}"></i>
                                         </div>
                                 </div>
@@ -363,15 +368,15 @@
                                                 <div class="row">
                                                     <div class="form-group col-4">
                                                         <label>Last Maintenance</label>
-                                                        <input type="number" class="form-control" id="last_mtn_change{{forloop.counter}}" name="last_mtn_change" value="{{mtn_job.job_mch_sp.last_mtnchng_hour}}">
+                                                        <input type="number" class="form-control" id="last_mtn_change{{forloop.counter}}" name="last_mtn_change" value="{{mtn_job.job_mch_sp.last_mtnchng_hour}}" readonly>
                                                     </div>
                                                     <div class="form-group col-4">
                                                         <label>Life Maintenance</label>
-                                                        <input type="number" class="form-control" id="life_mtn_hour{{forloop.counter}}" name="life_mtn_hour" value="{{mtn_job.job_mch_sp.mtnchng_life_hour}}">
+                                                        <input type="number" class="form-control" id="life_mtn_hour{{forloop.counter}}" name="life_mtn_hour" value="{{mtn_job.job_mch_sp.mtnchng_life_hour}}" readonly>
                                                     </div>
                                                     <div class="form-group col-4">
                                                         <label>Next Maintenance</label>
-                                                        <input type="number" class="form-control" id="next_mtn_change{{forloop.counter}}" name="next_mtn_change" value="{{mtn_job.job_mch_sp.next_mtnchng_hour}}">
+                                                        <input type="number" class="form-control" id="next_mtn_change{{forloop.counter}}" name="next_mtn_change" value="{{mtn_job.job_mch_sp.next_mtnchng_hour}}" readonly>
                                                     </div>
                                                 </div>
 
@@ -379,15 +384,15 @@
                                                 <div class="row">
                                                     <div class="form-group col-4">
                                                         <label>Last Checking</label>
-                                                        <input type="number" class="form-control" id="last_mtn_check{{forloop.counter}}" name="last_mtn_check" value="{{mtn_job.job_mch_sp.last_mtnchk_hour}}">
+                                                        <input type="number" class="form-control" id="last_mtn_check{{forloop.counter}}" name="last_mtn_check" value="{{mtn_job.job_mch_sp.last_mtnchk_hour}}" readonly>
                                                     </div>
                                                     <div class="form-group col-4">
                                                         <label>Life Checking</label>
-                                                        <input type="number" class="form-control" id="life_check_hour{{forloop.counter}}" name="life_check_hour" value="{{mtn_job.job_mch_sp.mtnchk_life_hour}}">
+                                                        <input type="number" class="form-control" id="life_check_hour{{forloop.counter}}" name="life_check_hour" value="{{mtn_job.job_mch_sp.mtnchk_life_hour}}" readonly>
                                                     </div>
                                                     <div class="form-group col-4">
                                                         <label>Next Checking</label>
-                                                        <input type="number" class="form-control" id="next_mtn_check{{forloop.counter}}" name="next_mtn_check" value="{{mtn_job.job_mch_sp.next_mtnchk_hour}}">
+                                                        <input type="number" class="form-control" id="next_mtn_check{{forloop.counter}}" name="next_mtn_check" value="{{mtn_job.job_mch_sp.next_mtnchk_hour}}" readonly>
                                                     </div>
                                                 </div>
                                                 <hr>
@@ -417,7 +422,7 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary" name="set_maintenance_data" value="{{mtn_job.job_mch_sp.pk}}">Submit</button>
+                                                <button type="submit" class="btn btn-primary" name="assign_mtn_job" value="{{mtn_job.pk}}">Submit</button>
                                             </div>
                                         </form>
                                     </div>
@@ -432,43 +437,40 @@
                     <div class="scroll-area" data-spy="scroll" data-offset="0">
                         <!-- For loop maintenance requests -->
                         {% for mtn_job in maintenance_job_gen %}
-                        {% if mtn_job.job_no|first in 'RP' and mtn_job.job_status == 'รอการดำเนินงาน' %}
+                        {% if mtn_job.job_no|first in 'RP' and mtn_job.job_status == 'รอการดำเนินงาน' and mtn_job.job_response_user == User_login %}
                         <div class="card">
                             <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-2"><b>{{mtn_job.job_no}}</b></h6>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right" {% if not user_dep.is_report %}hidden{% endif %}>
                                         <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#job{{forloop.counter}}"></i>
                                     </div>
                             </div>
                             <div class="card-body request">
-                                {% if mtn_job.repair_notice_set %}
-                                {% for repair in mtn_job.repair_notice_set.all %}
-                                <span class="badge request-badge">{{repair.repair_no}}</span>
-                                {% endfor %}
-                                {% endif %}
-                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part.spare_part_name}}</p>
+                                <span class="badge request-badge">งานซ่อมบำรุงจากใบแจ้งซ่อม</span>
                                 <p class="text-sm text-muted">{{mtn_job.job_mch_sp.machine.machine_name}} {{mtn_job.job_mch_sp.machine.line}}</p>
+                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part.spare_part_name}}</p>
                                 <span class="card-details">
                                     <i class="fas fa-wrench"></i>&nbsp;ENGINEER : {{mtn_job.job_response_user_id}}
                                 </span>
                             </div>
                         </div>
                         <!-- For loop jobs -->
-                        {% elif mtn_job.job_status == 'รอการดำเนินงาน' %}
+                        {% elif mtn_job.job_status == 'รอการดำเนินงาน' and mtn_job.job_response_user == User_login %}
                         <div class="card">
                             <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                     <div>
-                                        <h6 class="mb-2"><b>{{mtn_job.job_no}}</b></h6>
+                                        <h6 class="mb-2"><b>{{mtn_job.job_no}} </b></h6>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right" {% if not user_dep.is_report %}hidden{% endif %}>
                                         <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#job{{forloop.counter}}"></i>
                                     </div>
                             </div>
-                            <div class="card-body">
-                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part.spare_part_name}}</p>
+                            <div class="card-body request">
+                                <span class="badge request-badge">งานซ่อมบำรุงเชิงรักษา</span>
                                 <p class="text-sm text-muted">{{mtn_job.job_mch_sp.machine.machine_name}} {{mtn_job.job_mch_sp.machine.line}}</p>
+                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part.spare_part_name}}</p>
                                 <span class="card-details">
                                     <i class="fas fa-wrench"></i>&nbsp;ENGINEER : {{mtn_job.job_response_user_id}}
                                 </span>
@@ -727,43 +729,40 @@
                     <div class="scroll-area" data-spy="scroll" data-offset="0">
                         <!-- For loop maintenance requests -->
                         {% for mtn_job in maintenance_job_gen %}
-                        {% if mtn_job.job_no|first in 'RP' and mtn_job.job_status == 'รอการอนุมัติงาน' %}
+                        {% if mtn_job.job_no|first in 'RP' and mtn_job.job_status == 'รอการอนุมัติงาน' and mtn_job.job_assign_user == User_login %}
                         <div class="card">
                             <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-2"><b>{{mtn_job.job_no}}</b></h6>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right" {% if not user_dep.is_verify %}hidden{% endif %}>
                                         <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#complete{{forloop.counter}}"></i>
                                     </div>
                             </div>
                             <div class="card-body request">
-                                {% if mtn_job.repair_notice_set %}
-                                {% for repair in mtn_job.repair_notice_set.all %}
-                                <span class="badge request-badge">{{repair.repair_no}}</span>
-                                {% endfor %}
-                                {% endif %}
-                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
+                                <span class="badge request-badge">งานซ่อมบำรุงจากใบแจ้งซ่อม</span>
                                 <p class="text-sm text-muted">{{mtn_job.job_mch_sp.machine.machine_name}} {{mtn_job.job_mch_sp.machine.line}}</p>
+                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
                                 <span class="card-details">
                                     <i class="fas fa-wrench"></i>&nbsp;ENGINEER : {{mtn_job.job_response_user_id}}<br>
                                     <i class="far fa-clock"></i> FINISHED : {{mtn_job.job_report_date}}
                                 </span>
                             </div>
                         </div>
-                        {% elif mtn_job.job_status == 'รอการอนุมัติงาน' %}
+                        {% elif mtn_job.job_status == 'รอการอนุมัติงาน' and mtn_job.job_assign_user == User_login %}
                         <div class="card">
                             <div class="card-hearder request-header d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-2"><b>{{mtn_job.job_no}}</b></h6>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right" {% if not user_dep.is_verify %}hidden{% endif %}>
                                         <i class="fas fa-ellipsis-h" data-toggle="modal" data-target="#complete{{forloop.counter}}"></i>
                                     </div>
                             </div>
-                            <div class="card-body">
-                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
+                            <div class="card-body request">
+                                <span class="badge request-badge">งานซ่อมบำรุงเชิงรักษา</span>
                                 <p class="text-sm text-muted">{{mtn_job.job_mch_sp.machine.machine_name}} {{mtn_job.job_mch_sp.machine.line}}</p>
+                                <p class="text-sm text-muted">{{mtn_job.job_mch_sp.spare_part}}</p>
                                 <span class="card-details">
                                     <i class="fas fa-wrench"></i>&nbsp;ENGINEER : {{mtn_job.job_response_user_id}}<br>
                                     <i class="far fa-clock"></i> FINISHED : {{mtn_job.job_report_date}}
