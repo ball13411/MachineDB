@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
 
     # General Path
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
 
     # Sign In
     path('', views.signin, name='signin'),
@@ -113,12 +113,6 @@ urlpatterns = [
     path('ajax/load_userInOrg', views_ajax.load_userInOrg, name='load_userInOrg'),
     path('ajax/load_department_name', views_ajax.load_department_name, name='load_department_name'),
     path('ajax/load_round_username', views_ajax.load_round_username, name='load_round_username'),
-
-    # Test File
-    path('download', views.document_create1, name='download_docx'),
-    path('download1', views.document2_excel, name='download_sp'),
-    path('test1/', views.test1, name='maintenance_plan_grid'),
-    path('test2/', views.test2, name='maintenance_plan_list'),
 
 
 ]
