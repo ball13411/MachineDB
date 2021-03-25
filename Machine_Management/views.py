@@ -690,16 +690,11 @@ def production_line(request):
 
         elif 'Edit_prod_line' in request.POST:
             if not Production_line.objects.filter(production_line=request.POST['set_production_line'],
-                                                  location_site=Site.objects.get(id=request.POST['select_site']),
-                                                  location_building=Building.objects.get(
-                                                      id=request.POST['select_building']),
-                                                  location_floor=Floor.objects.get(id=request.POST['select_floor'])
-                                                  ).exists():
+                                                  location_site__site=request.POST['select_site'],
+                                                  location_building__building=request.POST['select_building'],
+                                                  location_floor__floor=request.POST['select_floor']).exists():
                 pline = Production_line.objects.get(pid=request.POST['set_prodline_id'])
                 pline.production_line = request.POST['set_production_line']
-                pline.location_site = Site.objects.get(id=request.POST['select_site'])
-                pline.location_building = Building.objects.get(id=request.POST['select_building'])
-                pline.location_floor = Floor.objects.get(id=request.POST['select_floor'])
                 pline.save()
             else:
                 messages.error(request, "มี Production Line นี้แล้วอยู่ในระบบ")
@@ -742,32 +737,45 @@ def location(request):
                 floor = Floor.objects.create(floor=request.POST['add_floor'], site=site, building=building)
                 floor.save()
                 messages.success(request, "สร้างรายการสำเร็จ")
+
         elif 'Editlocation' in request.POST:
             floor = Floor.objects.get(id=request.POST['set_location_id'])
             if floor.site.site != request.POST['set_site']:
                 if Site.objects.filter(site=request.POST['set_site']).exists():
-                    site = Site.objects.get(site=request.POST['set_site'])
+                    set_site = Site.objects.get(site=request.POST['set_site'])
                 else:
-                    site = Site.objects.create(site=request.POST['set_site'])
-                    site.save()
-                floor.site = site
+                    if Floor.objects.filter(site_id=floor.site_id).count() == 1:
+                        set_site = Site.objects.get(pk=floor.site_id)
+                        set_site.site = request.POST['set_site']
+                        set_site.save()
+                    else:
+                        set_site = Site.objects.create(site=request.POST['set_site'])
+                        set_site.save()
+                floor.site = set_site
             else:
-                site = floor.site
+                set_site = floor.site
             if floor.building.building != request.POST['set_building']:
-                if Building.objects.filter(building=request.POST['set_building'], site=site).exists():
-                    building = Building.objects.get(building=request.POST['set_building'])
+                if Building.objects.filter(building=request.POST['set_building'], site=set_site).exists():
+                    set_building = Building.objects.get(building=request.POST['set_building'])
                 else:
-                    building = Building.objects.create(building=request.POST['set_building'], site=site)
-                    building.save()
-                floor.building = building
+                    if Floor.objects.filter(building_id=floor.building_id).count() == 1:
+                        set_building = Building.objects.get(pk=floor.building_id)
+                        set_building.building = request.POST['set_building']
+                        set_building.save()
+                    else:
+                        set_building = Building.objects.create(building=request.POST['set_building'], site=set_site)
+                        set_building.save()
+                floor.building = set_building
             else:
-                building = floor.building
+                set_building = floor.building
             if floor.floor != request.POST['set_floor']:
-                if Floor.objects.filter(floor=request.POST['set_floor'], site=site, building=building).exists():
+                if Floor.objects.filter(floor=request.POST['set_floor'], site=set_site, building=set_building).exists():
                     messages.error(request, "มี Location นี้แล้ว")
                 else:
                     floor.floor = request.POST['set_floor']
                     floor.save()
+            else:
+                floor.save()
             messages.success(request, "แก้ไขและบันทึกรายการสำเร็จ")
         elif 'delete_location' in request.POST:
             locations = Floor.objects.get(pk=request.POST['delete_location'])
@@ -1492,7 +1500,7 @@ def spare_part_type(request):
             spare_type.delete()
             messages.success(request, "ลบรายการสำเร็จ")
 
-        return redirect('spare_part_subtype')
+        return redirect('spare_part_type')
 
     context = {'User_login': User_login, 'sp_type_all': sp_type_all, 'spare_part_group_all': spare_part_group_all,
                'role_and_screen': role_and_screen, 'sp_menu': sp_menu, 'sp_main_menu': sp_main_menu}

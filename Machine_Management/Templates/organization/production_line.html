@@ -119,29 +119,29 @@
                                     <input type="text" id="set_production_line{{forloop.counter}}" class="form-control" value="{{line.production_line}}" name="set_production_line">
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Location Site</label>
-                                    <input type="text" id="select_site{{forloop.counter}}" class="form-control" value="สถานที่โรงงาน : {{line.location_site}}" name="select_site" readonly>
+                                    <label class="control-label">Location Site (สถานที่โรงงาน)</label>
+                                    <input type="text" id="select_site{{forloop.counter}}" class="form-control" value="{{line.location_site}}" name="select_site" readonly>
 <!--                                    <select class="form-control" id="select_site{{forloop.counter}}" name="select_site" >-->
 <!--                                        <option value="{{line.location_site_id}}">สถานที่โรงงาน : {{line.location_site}}</option>-->
 <!--                                    </select>-->
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Location Building</label>
-                                    <input type="text" id="select_building{{forloop.counter}}" class="form-control" value="อาคารที่ : {{line.location_building}}" name="select_building" readonly>
+                                    <label class="control-label">Location Building (อาคารที่)</label>
+                                    <input type="text" id="select_building{{forloop.counter}}" class="form-control" value="{{line.location_building}}" name="select_building" readonly>
 <!--                                    <select class="form-control" id="select_building{{forloop.counter}}" name="select_building" >-->
 <!--                                        <option value="{{line.location_building_id}}" selected>อาคารที่ : {{line.location_building}}</option>-->
 <!--                                    </select>-->
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label">Location Floor</label>
-                                    <input type="text" id="select_floor{{forloop.counter}}" class="form-control" value="สถานที่โรงงาน : {{line.location_site}}" name="select_floor" readonly>
+                                    <label class="control-label">Location Floor (สถานที่โรงงาน)</label>
+                                    <input type="text" id="select_floor{{forloop.counter}}" class="form-control" value="{{line.location_floor}}" name="select_floor" readonly>
 <!--                                    <select class="form-control" id="select_floor{{forloop.counter}}" name="select_floor" >-->
 <!--                                        <option value="{{line.location_floor_id}}" selected>ชั้น : {{line.location_floor}}</option>-->
 <!--                                    </select>-->
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" name="Edit_prod_line">Submit</button>
+                                    <button type="submit" class="btn btn-primary" name="Edit_prod_line" value="{{line.pk}}">Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -179,7 +179,7 @@
                         <form method="POST" id="add_prodline_script" data-building-url="{% url 'ajax_load_building' %}" data-floor-url="{% url 'ajax_load_floor' %}">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title">Add new organization</h5>
+                                <h5 class="modal-title">Add New Production Line</h5>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
