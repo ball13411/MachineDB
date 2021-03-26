@@ -25,7 +25,7 @@
 <!--</div>-->
 {% for message in messages %}
     <div class="alert {{ message.tags }} ">
-        <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px;">&times;</span>
+        <span class="closebtn" onclick="this.parentElement.style.display='none';" style="color: #454545; font-size: 36px; float: right; line-height: 20px;">&times;</span>
         {{ message }}
     </div>
 {% endfor %}

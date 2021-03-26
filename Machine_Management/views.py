@@ -442,6 +442,7 @@ def home(request):
             job.job_assign_date = datetime.date.today()
             job.job_status = "รอการดำเนินงาน"
             job.save()
+            messages.success(request, 'การมอบหมายงานสำเร็จ')
             return redirect('home')
         elif 'report_submit' in request.POST:
             mtn_report = Maintenance_job.objects.get(pk=request.POST['report_submit'])
@@ -476,6 +477,7 @@ def home(request):
             try:
                 mtn_report.save()
                 mch_sp.save()
+                messages.success(request, 'รายงานผลการซ่อมบำรุงสำเร็จ')
             except ValueError:
                 messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
             return redirect('home')
@@ -509,12 +511,13 @@ def home(request):
                 machine_model.save()
                 mch_sp.save()
                 mtn_report.save()
-
+                messages.success(request, 'อนุมัติงานการซ่อมบำรุงสำเร็จ')
             else:
                 mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
                 mtn_report.is_report = False
                 mtn_report.save()
+                messages.success(request, 'อนุมัติงานการซ่อมบำรุงสำเร็จ')
             return redirect('home')
 
     user_org = User_login.org.org_line.all()
@@ -696,6 +699,7 @@ def production_line(request):
                 pline = Production_line.objects.get(pid=request.POST['set_prodline_id'])
                 pline.production_line = request.POST['set_production_line']
                 pline.save()
+                messages.success(request, "อัพเดทข้อมูลสำเร็จ")
             else:
                 messages.error(request, "มี Production Line นี้แล้วอยู่ในระบบ")
         elif 'delete_line' in request.POST:
@@ -1338,7 +1342,7 @@ def machine_subtype(request):
             del_subtype = request.POST['DeleteSubtype']
             subtypeid = Machine_subtype.objects.get(subtype_id=del_subtype)
             subtypeid.delete()
-
+            messages.success(request, 'ลบรายการสำเร็จ')
         return redirect('machine_subtype')
 
     context = {'subtypes': mch_subtype, 'mch_type_all': mch_type_all, 'User_login': User_login,
@@ -1570,6 +1574,7 @@ def machine_and_spare_part(request):
                 mch_and_sp = Machine_sparepart.objects.create(machine_id=request.POST["add_mch_and_sp"],
                                                               spare_part_id=request.POST["select_sp_name"])
                 mch_and_sp.save()
+                messages.success(request, "ทำรายการสำเร็จ")
             else:
                 messages.error(request, "การทำรายการผิดพลาด เครื่องจักรนี้ มีอะไหล่นี้แล้ว")
             return redirect('machine_and_spare_part')
@@ -1578,6 +1583,7 @@ def machine_and_spare_part(request):
             mch_and_sp = Machine_sparepart.objects.filter(machine_id=request.POST['delete_spare_part'],
                                                           spare_part_id=request.POST['select_delete_spare_part'])
             mch_and_sp.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
             return redirect('machine_and_spare_part')
 
         elif "setting" in request.POST:
@@ -1591,6 +1597,7 @@ def machine_and_spare_part(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
             return redirect('machine_and_spare_part')
 
         elif 'prd_mch' in request.POST:
@@ -1638,6 +1645,7 @@ def maintenance_assign(request):
                         job.job_assign_date = datetime.date.today()
                         job.job_status = "รอการดำเนินงาน" if request.POST['user_response'] != "" else "รอการมอบหมาย"
                         job.save()
+                        messages.success(request, "การมอบหมายงานสำเร็จ")
                     except ObjectDoesNotExist:
                         messages.error(request, "ไม่มีผู้ใช้งานดังกล่าว กรุณากรอกข้อมูลให้ถูกต้อง")
                         return redirect('maintenance_assign')
@@ -1652,6 +1660,7 @@ def maintenance_assign(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
+            messages.success(request, "ตั้งค่าข้อมูลการซ่อมบำรุงสำเร็จ")
             return redirect('maintenance_assign')
 
         elif "filter" in request.POST:
@@ -1692,6 +1701,7 @@ def machine_capacity(request):
                     fg_capacity=request.POST['add_fg_capacity']
                 )
                 create_mch_capacity.save()
+                messages.success(request, "เพิ่มรายการสำเร็จ")
             else:
                 messages.info(request, 'รายการเครื่องจักรและผลิตภัณฑ์นี้มีข้อมูลแล้ว ไม่สามารถทำการเพิ่มรายการได้')
         elif 'Edit_mch_capacity' in request.POST:
@@ -1703,9 +1713,11 @@ def machine_capacity(request):
             edit_mch_cap.fg_batch_time = request.POST['set_fg_batch_time']
             edit_mch_cap.fg_capacity = request.POST['set_fg_capacity']
             edit_mch_cap.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
         elif 'delete_machine_capacity' in request.POST:
             delete_machine_capacity = Machine_capacity.objects.get(pk=request.POST['delete_machine_capacity'])
             delete_machine_capacity.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
 
         return redirect('machine_capacity')
 
@@ -1804,6 +1816,7 @@ def maintenance_data(request):
             mch_and_sp.mtnchk_life_hour = request.POST['life_check_hour'] if request.POST['life_check_hour'] != "" else None
             mch_and_sp.next_mtnchk_hour = request.POST['next_mtn_check'] if request.POST['next_mtn_check'] != "" else None
             mch_and_sp.save()
+            messages.success(request, "ตั้งค่าข้อมูลการซ่อมบำรุงสำเร็จ")
             return redirect('maintenance_data')
 
     context = {'User_login': User_login, 'line_of_user': line_of_user, 'mch_sp_all': mch_sp_all,
@@ -1855,6 +1868,7 @@ def maintenance_report(request):
             try:
                 mtn_report.save()
                 mch_sp.save()
+                messages.success(request, "รายงานการซ่อมบำรุงสำเร็จ")
             except ValueError:
                 messages.error(request, 'กรุณากรอกชั่วโมงการเปลี่ยนและชั่วโมงการตรวจสอบของอะไหล่')
             return redirect('maintenance_report')
@@ -1889,12 +1903,13 @@ def maintenance_report(request):
                 machine_model.save()
                 mch_sp.save()
                 mtn_report.save()
-
+                messages.success(request, "อนุมัติงานการซ่อมบำรุงสำเร็จ")
             else:
                 mtn_report = Maintenance_job.objects.get(pk=request.POST['approve_job'])
                 mtn_report.job_status = "ไม่ผ่านการอนุมัติ"
                 mtn_report.is_report = False
                 mtn_report.save()
+                messages.success(request, "อนุมัติงานการซ่อมบำรุงสำเร็จ")
             return redirect('maintenance_report')
 
         elif "filter" in request.POST:
@@ -2151,6 +2166,7 @@ def machine_hour_update(request):
                     mch.machine_hour_last_update = mch.machine_hour
                     mch.machine_hour += int(hour_update)
                 mch.save()
+            messages.success(request, "อัพเดทชั่วโมงเครื่องจักรสำเร็จ")
             return redirect('machine_hour_update')
         else:
             return redirect('machine_hour_update')
@@ -2247,11 +2263,13 @@ def repair_notice(request):
                 repair_notice_model.receive_remark = None
 
             repair_notice_model.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
             return redirect('repair_notice')
 
         elif "delete_repair_notice" in request.POST:
             repair_notice_model = Repair_notice.objects.get(pk=request.POST['delete_repair_notice'])
             repair_notice_model.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
             return redirect('repair_notice')
 
         elif "repair_close" in request.POST:
@@ -2498,14 +2516,17 @@ def department_manage(request):
                                                    department_name=request.POST['add_dep_name'],
                                                    create_by=User_login.username)
             create_dep.save()
+            messages.success(request, "สร้างรายการสำเร็จ")
         elif "edit_dep" in request.POST:
             update_dep = Department.objects.get(department_code=request.POST['set_dep_code'])
             update_dep.department_name = request.POST['set_dep_name']
             update_dep.update_by = str(User_login.username)
             update_dep.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
         elif "delete_dep" in request.POST:
             delete_dep = Department.objects.get(pk=request.POST['delete_dep'])
             delete_dep.delete()
+            messages.success(request, "ลบรายการสำเร็จ")
 
         return redirect('department_manage')
 
@@ -2541,6 +2562,7 @@ def user_department(request):
                     user_model.save()
                 except ObjectDoesNotExist:
                     messages.error(request, 'กรอกข้อมูลไม่ถูกต้อง กรุณาลองใหม่')
+            messages.success(request, "เพิ่มสมาชิกสำเร็จ")
 
         elif 'update_user_dep' in request.POST:
             update_dep_code = request.POST['update_user_dep']
@@ -2559,6 +2581,7 @@ def user_department(request):
                     department_model = Department.objects.get(department_code=update_dep_code)
                     user_model.departments.remove(department_model)
                     user_model.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
 
         elif 'dep_permission' in request.POST:
             list_inform = request.POST.getlist('is_inform')
@@ -2581,6 +2604,7 @@ def user_department(request):
                 user_dep.is_verify = True if str(user_dep.department.pk) in list_verify else False
                 user_dep.is_close = True if str(user_dep.department.pk) in list_close else False
                 user_dep.save()
+            messages.success(request, "อัพเดทรายการสำเร็จ")
 
         return redirect('user_department')
 
@@ -2613,7 +2637,7 @@ def repair_inspect(request):
                 repair_inspect_model.is_cancel = True
             repair_inspect_model.inspect_remark = request.POST['inspect_remark'] if request.POST['inspect_remark'] != "" else None
             repair_inspect_model.save()
-
+            messages.success(request, "ตรวจสอบรายการสำเร็จ")
         return redirect('repair_inspect')
 
     context = {'User_login': User_login, 'repair_inspect_all': repair_inspect_all, 'repair_menu': repair_menu, 'repair_main_menu': repair_main_menu}
@@ -2644,6 +2668,7 @@ def repair_approve(request):
                 repair_approve_model.is_cancel = True
             repair_approve_model.approve_remark = request.POST['approve_remark'] if request.POST['approve_remark'] != "" else None
             repair_approve_model.save()
+            messages.success(request, "อนุมัติรายการสำเร็จ")
 
         return redirect('repair_approve')
 
@@ -2690,6 +2715,7 @@ def maintenance_receive(request):
                 repair_receive_model.is_cancel = True
             repair_receive_model.receive_remark = request.POST['receive_remark'] if request.POST['receive_remark'] != "" else None
             repair_receive_model.save()
+            messages.success(request, "รับใบแจ้งซ่อมสำเร็จ")
 
         return redirect('maintenance_receive')
 

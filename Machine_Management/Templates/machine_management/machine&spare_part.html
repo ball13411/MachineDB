@@ -197,7 +197,7 @@
                             <div class="row">
                                 <div class="form-group col-6">
                                     <label>Machine Code | Machine Name</label>
-                                    <select class="form-control" id="select_machine" name="select_machine" onchange="machine_sparepart(this)">
+                                    <select class="form-control" id="select_machine" name="select_machine" onchange="machine_sparepart(this)" required>
                                         <option value="">-------กรุณาเลือกเครื่องจักร-------</option>
                                         {% for mch in machine_all %}
                                         <option value="{{mch.pk}}">{{mch.machine_production_line_code}} | {{mch.machine_name}}</option>
@@ -206,7 +206,7 @@
                                 </div>
                                 <div class="form-group col-6">
                                     <label>Spare Group | Spare Name</label>
-                                    <select class="form-control" id="select_spare_part" name="select_spare_part">
+                                    <select class="form-control" id="select_spare_part" name="select_spare_part" required>
                                         <option value="">-------กรุณาเลือกอะไหล่-------</option>
                                     </select>
                                 </div>
