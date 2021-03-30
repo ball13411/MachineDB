@@ -2784,3 +2784,6 @@ def maintenance_inspect(request):
                'mtn_menu': mtn_menu, 'mtn_main_menu': mtn_main_menu}
     return render(request, 'maintenance/maintenance_inspect.html', context)
 
+
+def error404(request, exception):
+    return render(request, 'error/pages_not_found.html')
